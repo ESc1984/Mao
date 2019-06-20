@@ -10,16 +10,6 @@ function getDeck(){
         })
     })
     return deck;
-
-
-    var deck = new Array();
-    for (let i = 0; i < suits.length; i++){
-        for(let j = 0; j < values.length; j++){
-            var card = [{value: values[j], suit: suits[i]}];
-            deck.push(card);
-        }
-    }
-    return deck;
 }
 
 var deck = getDeck();
