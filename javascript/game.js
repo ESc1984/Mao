@@ -22,8 +22,6 @@ function makeCards(){
 
 
 
-
-
 //Deck
 
 //hold cards, order cards, give and take cards
@@ -61,11 +59,9 @@ function shuffle(deck) {
 }
 
 //removes card from top of the deck
-function dealCard(deck){
+function draw(deck){
     return (deck.splice(0,1));
 }
-
-
 
 
 
@@ -83,11 +79,9 @@ function dealCard(deck){
 // }
 
 // displays the last card played
-// function topDiscard(pile){
+// function topCard(pile){
 //     return pile[pile.length];
 // }
-
-
 
 
 
@@ -97,21 +91,15 @@ function dealCard(deck){
 
 //exist, have hand, play card, draw card
 
-//the array of cards held by an individual player
-let hand = [];
-
-//adds a card to a hand
-function drawCard(hand, card){
-    //hand.push(card);
+function Player(hand){
+    this.hand = hand;
+    this.receiveCard = function(card) {
+        hand.push(card);
+    }
+    this.playCard = function(index) {
+        return hand.splice(index, 1);
+    }
 }
-
-//removes a card from a hand
-function playCard(hand, i){
-    return (hand.splice(i, 1));
-}
-
-
-
 
 
 
@@ -120,25 +108,17 @@ function playCard(hand, i){
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
-   var numPlayers;
-// var currentPlayer
-// (get deck?)
-//
-// deals cards to all players, etc.
-// function startGame(){
-//     for (let i = 0; i < players.length; i++){
-//         hand
-//     }
-// }
-
 // creates an array of seven cards to give to a player
 function dealHand(deck, player){
     let hand = [];
     for (let i = 0; i < 7; i++){
-        /*deck.*/dealCard(deck);
+        /*deck.*/draw(deck);
     }
     return hand;
 }
 
-// function nextTurn() - continue in the order of play
-// deal card, discard
+//cardToPlay - takes card played by player, moves it to discard
+//cardToHold - takes card from deck, gives it to player
+//whoseTurn - points to active player in order
+
+//creating certain number of players
