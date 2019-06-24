@@ -91,19 +91,15 @@ function draw(deck){
 
 //exist, have hand, play card, draw card
 
-//the array of cards held by an individual player
-let hand = [];
-
-//adds a card to a hand
-function receiveCard(hand, card){
-    //hand.push(card);
+function Player(hand){
+    this.hand = hand;
+    this.receiveCard = function(card) {
+        hand.push(card);
+    }
+    this.playCard = function(index) {
+        return hand.splice(index, 1);
+    }
 }
-
-//removes a card from a hand
-function playCard(hand, i){
-    return (hand.splice(i, 1));
-}
-
 
 
 
