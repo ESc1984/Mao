@@ -8,6 +8,21 @@ var suits = ['H', 'S', 'D', 'C'];
 var values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', "K"];
 
 //creates array of card objects with values
+function Card(suit, value){
+    this.suit = suit;
+    this.value = value;
+    //this.display = function() {return(value + ' of ' + suit)}
+}
+
+//function makeCards(){
+//     let cards = [];
+//     suits.forEach((suit, index) => {
+//         values.forEach( value => {
+//             cards.push(new Card(suit, value));
+//         })
+//     })
+//     return cards;
+// }
 function makeCards(){
     let cards = [];
     suits.forEach((suit, index) => {
@@ -20,23 +35,11 @@ function makeCards(){
 
 
 
-
-
 //Deck
 
 //hold cards, order cards, give and take cards
 
-//takes in array of card objects, shuffles them
-// function getDeck(){
-// //     let newDeck = card.cards;
-// //     shuffle(newDeck);
-// //     return newDeck;
-// // }
-
-//the deck used in the round
-let deck;
-
-//randomizes the order of the cards
+//randomizes the order of the cards passed in to create deck
 function shuffle(deck) {
     var currentIndex = deck.length;
     var temporaryValue;
@@ -65,25 +68,17 @@ function draw(deck){
 
 
 
-
-
 //Discard
-
 //know it's contents, order of cards
 
-// array of card objects previously used by players
-// let pile = [];
-//
-// function holdCard(pile){
-//     pile.push(bleh);
-// }
+function takeDiscard(pile, card){
+    pile.push(card);
+}
 
 // displays the last card played
-// function topCard(pile){
-//     return pile[pile.length];
-// }
-
-
+function topCard(pile){
+    return pile[0];
+}
 
 
 
@@ -91,15 +86,33 @@ function draw(deck){
 
 //exist, have hand, play card, draw card
 
-function Player(hand){
-    this.hand = hand;
-    this.receiveCard = function(card) {
+class Player {
+    constructor (hand) {
+        this.hand = hand;
+    }
+
+    get displayHand() {
+        return this.hand;
+    }
+
+    receiveCard(card) {
         hand.push(card);
     }
-    this.playCard = function(index) {
-        return hand.splice(index, 1);
+
+    playCard(i) {
+        return hand.splice(i,1);
     }
 }
+
+// function Player(hand){
+//     this.hand = hand;
+//     this.receiveCard = function(card) {
+//         return hand.push(card);
+//     }
+//     this.playCard = function(index) {
+//         return hand.splice(index, 1);
+//     }
+// }
 
 
 
@@ -108,18 +121,23 @@ function Player(hand){
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
-// deals cards to all players, etc.
-// function startGame(){
-//     for (let i = 0; i < players.length; i++){
-//         hand
-//     }
-// }
+let playerList = [];
+const deck = () => shuffle(makeCards());
+
+let playDeck = deck();
+
+// deals cards to all players
+function startGame(numPlayers, deck){
+    for (let i = 0; i < numPlayers; i++){
+        playerList.unshift(new Player(dealHand(deck)));
+    }
+}
 
 // creates an array of seven cards to give to a player
-function dealHand(deck, player){
+function dealHand(deck){
     let hand = [];
     for (let i = 0; i < 7; i++){
-        /*deck.*/draw(deck);
+        hand.unshift(draw(deck));
     }
     return hand;
 }
