@@ -8,21 +8,6 @@ var suits = ['H', 'S', 'D', 'C'];
 var values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', "K"];
 
 //creates array of card objects with values
-function Card(suit, value){
-    this.suit = suit;
-    this.value = value;
-    //this.display = function() {return(value + ' of ' + suit)}
-}
-
-//function makeCards(){
-//     let cards = [];
-//     suits.forEach((suit, index) => {
-//         values.forEach( value => {
-//             cards.push(new Card(suit, value));
-//         })
-//     })
-//     return cards;
-// }
 function makeCards(){
     let cards = [];
     suits.forEach((suit, index) => {
@@ -104,16 +89,6 @@ class Player {
     }
 }
 
-// function Player(hand){
-//     this.hand = hand;
-//     this.receiveCard = function(card) {
-//         return hand.push(card);
-//     }
-//     this.playCard = function(index) {
-//         return hand.splice(index, 1);
-//     }
-// }
-
 
 
 
@@ -141,3 +116,9 @@ function dealHand(deck){
     }
     return hand;
 }
+
+//cardToPlay - takes card played by player, moves it to discard
+//cardToHold - takes card from deck, gives it to player
+//whoseTurn - points to active player in order
+
+//creating certain number of players
