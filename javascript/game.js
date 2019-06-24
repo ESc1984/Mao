@@ -22,6 +22,8 @@ function makeCards(){
 
 
 
+
+
 //Deck
 
 //hold cards, order cards, give and take cards
@@ -59,9 +61,11 @@ function shuffle(deck) {
 }
 
 //removes card from top of the deck
-function draw(deck){
+function dealCard(deck){
     return (deck.splice(0,1));
 }
+
+
 
 
 
@@ -79,9 +83,11 @@ function draw(deck){
 // }
 
 // displays the last card played
-// function topCard(pile){
+// function topDiscard(pile){
 //     return pile[pile.length];
 // }
+
+
 
 
 
@@ -95,7 +101,7 @@ function draw(deck){
 let hand = [];
 
 //adds a card to a hand
-function receiveCard(hand, card){
+function drawCard(hand, card){
     //hand.push(card);
 }
 
@@ -108,10 +114,16 @@ function playCard(hand, i){
 
 
 
+
+
 //Game
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
+   var numPlayers;
+// var currentPlayer
+// (get deck?)
+//
 // deals cards to all players, etc.
 // function startGame(){
 //     for (let i = 0; i < players.length; i++){
@@ -123,7 +135,10 @@ function playCard(hand, i){
 function dealHand(deck, player){
     let hand = [];
     for (let i = 0; i < 7; i++){
-        /*deck.*/draw(deck);
+        /*deck.*/dealCard(deck);
     }
     return hand;
 }
+
+// function nextTurn() - continue in the order of play
+// deal card, discard
