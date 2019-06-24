@@ -3,10 +3,11 @@
 
 //hold a value
 
-
+//values held by cards
 var suits = ['H', 'S', 'D', 'C'];
 var values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', "K"];
 
+//creates array of card objects with values
 function makeCards(){
     let cards = [];
     suits.forEach((suit, index) => {
@@ -25,23 +26,17 @@ function makeCards(){
 
 //hold cards, order cards, give and take cards
 
+//takes in array of card objects, shuffles them
 // function getDeck(){
-// //     let newDeck = import{cards} from 'card';
+// //     let newDeck = card.cards;
 // //     shuffle(newDeck);
 // //     return newDeck;
 // // }
 
-let deck = allCards;
+//the deck used in the round
+let deck;
 
-function dealHand(deck){
-    let hand = [];
-    shuffle(deck);
-    for (let i = 0; i < 7; i++){
-        draw(deck, hand);
-    }
-    return hand;
-}
-
+//randomizes the order of the cards
 function shuffle(deck) {
     var currentIndex = deck.length;
     var temporaryValue;
@@ -63,6 +58,7 @@ function shuffle(deck) {
     return deck;
 }
 
+//removes card from top of the deck
 function draw(deck){
     return (deck.splice(0,1));
 }
@@ -75,6 +71,18 @@ function draw(deck){
 
 //know it's contents, order of cards
 
+// array of card objects previously used by players
+// let pile = [];
+//
+// function holdCard(pile){
+//     pile.push(bleh);
+// }
+
+// displays the last card played
+// function topCard(pile){
+//     return pile[pile.length];
+// }
+
 
 
 
@@ -83,14 +91,17 @@ function draw(deck){
 
 //exist, have hand, play card, draw card
 
+//the array of cards held by an individual player
 let hand = [];
 
-function drawCard(hand, card){
-
+//adds a card to a hand
+function receiveCard(hand, card){
+    //hand.push(card);
 }
 
+//removes a card from a hand
 function playCard(hand, i){
-    discard.push(hand.splice(i, 1));
+    return (hand.splice(i, 1));
 }
 
 
@@ -101,8 +112,18 @@ function playCard(hand, i){
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
+// deals cards to all players, etc.
 // function startGame(){
 //     for (let i = 0; i < players.length; i++){
 //         hand
 //     }
 // }
+
+// creates an array of seven cards to give to a player
+function dealHand(deck, player){
+    let hand = [];
+    for (let i = 0; i < 7; i++){
+        /*deck.*/draw(deck);
+    }
+    return hand;
+}
