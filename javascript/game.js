@@ -1,6 +1,5 @@
 
 //Card
-
 //hold a value
 
 //values held by cards
@@ -18,10 +17,7 @@ function makeCards(){
     return cards;
 }
 
-
-
 //Deck
-
 //hold cards, order cards, give and take cards
 
 //randomizes the order of the cards passed in to create deck
@@ -42,7 +38,6 @@ function shuffle(deck) {
         deck[currentIndex] = deck[randomIndex];
         deck[randomIndex] = temporaryValue;
     }
-
     return deck;
 }
 
@@ -50,7 +45,6 @@ function shuffle(deck) {
 function draw(deck){
     return (deck.splice(0,1));
 }
-
 
 
 //Discard
@@ -63,14 +57,11 @@ function takeDiscard(pile, card){
 }
 
 // displays the last card played
-function topCard(pile){
+function currentTopCard(pile){
     return pile[0];
 }
 
-
-
 //Player
-
 //exist, have hand, play card, draw card
 
 class Player {
@@ -89,14 +80,11 @@ class Player {
 
     playCard(i) {
         discardCard(hand.splice(i,1));
+        //later add send rules
     }
 }
 
-
-
-
 //Game
-
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
 let playerList = [];
@@ -127,11 +115,14 @@ function drawCard(deck, i) {
 function discardCard(card){
    takeDiscard(discardPile, card);
    //checkRules();
-    //continuePlay();
+    // continuePlay();
 }
+
+//function checkRules(card, play)
+
+//function continuePlay()
 
 //cardToPlay - takes card played by player, moves it to discard
 //cardToHold - takes card from deck, gives it to player
 //whoseTurn - points to active player in order
-
 //creating certain number of players
