@@ -56,12 +56,14 @@ function draw(deck){
 //Discard
 //know it's contents, order of cards
 
+let discardPile = [];
+
 function takeDiscard(pile, card){
     pile.push(card);
 }
 
 // displays the last card played
-function topCard(pile){
+function currentTopCard(pile){
     return pile[0];
 }
 
@@ -74,6 +76,7 @@ function topCard(pile){
 class Player {
     constructor (hand) {
         this.hand = hand;
+        this.turn = false;
     }
 
     get displayHand() {
@@ -85,7 +88,8 @@ class Player {
     }
 
     playCard(i) {
-        return hand.splice(i,1);
+        discardCard(hand.splice(i,1));
+        //later add send rules
     }
 }
 
@@ -116,6 +120,20 @@ function dealHand(deck){
     }
     return hand;
 }
+
+function drawCard(deck, i) {
+    playerList[i].receiveCard(draw(deck));
+}
+
+function discardCard(card){
+   takeDiscard(discardPile, card);
+   //checkRules();
+    // continuePlay();
+}
+
+//function checkRules(card, play)
+
+//function continuePlay()
 
 //cardToPlay - takes card played by player, moves it to discard
 //cardToHold - takes card from deck, gives it to player
