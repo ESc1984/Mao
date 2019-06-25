@@ -122,3 +122,13 @@ function dealHand(deck){
 //whoseTurn - points to active player in order
 
 //creating certain number of players
+
+//function whosPlaying(playerlist){
+// for (looping through each player continuously)
+// set person's isturn to true
+//they take their turn
+//set to false when done
+//include conditions for 8s, aces, etc.
+//win conditions
+//out of turn actions
+//}
