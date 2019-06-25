@@ -130,7 +130,13 @@ function dealHand(deck){
     return hand;
 }
 
-function drawCard(deck, i) {
+function drawCard(deck) {
+    let i;
+    playerList.forEach((player) => {
+        if(player.turn){
+            i = player.playerIndex;
+        }
+    })
     playerList[i].receiveCard(draw(deck));
 }
 
@@ -168,11 +174,11 @@ function discardCard(card){
 // loop up
 
 startGame(3, playDeck);
-console.log(playerList[0].playerIndex);
 console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
 playerList[0].passTurn();
 console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
 console.log(playerList[1].hand);
+drawCard(playDeck);
 playerList[1].playCard(2);
 console.log(playerList[1].hand);
 console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
