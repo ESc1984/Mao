@@ -67,8 +67,8 @@ function currentTopCard(pile){
 class Player {
     constructor (hand, index) {
         this._hand = hand;
-        this._turn = false;
         this._playerIndex = index;
+        this._turn = false;
     }
 
     get hand() {
@@ -88,14 +88,20 @@ class Player {
     }
 
     playCard(i) {
+        //later send to check for penalty
         discardCard(this._hand.splice(i,1));
         updateTurn(this._playerIndex);
         updateTurn(this._playerIndex + 1);
-        //later add send rules
     }
 
     set turn(turn) {
         this._turn = turn;
+    }
+
+    passTurn() {
+        //later send to check for penalty
+        updateTurn(this._playerIndex);
+        updateTurn(this._playerIndex + 1);
     }
 }
 
@@ -110,8 +116,9 @@ let playDeck = deck();
 // deals cards to all players
 function startGame(numPlayers, deck){
     for (let i = 0; i < numPlayers; i++){
-        playerList.unshift(new Player(dealHand(deck), i));
+        playerList.push(new Player(dealHand(deck), i));
     }
+    playerList[0].turn = true;
 }
 
 // creates an array of seven cards to give to a player
@@ -161,7 +168,13 @@ function discardCard(card){
 // loop up
 
 startGame(3, playDeck);
+console.log(playerList[0].playerIndex);
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+playerList[0].passTurn();
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
 console.log(playerList[1].hand);
 playerList[1].playCard(2);
 console.log(playerList[1].hand);
-console.log(playerList[2].turn);
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+playerList[2].passTurn();
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
