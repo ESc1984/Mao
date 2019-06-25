@@ -71,7 +71,7 @@ class Player {
         this._playerIndex = index;
     }
 
-    get displayHand() {
+    get hand() {
         return this._hand;
     }
 
@@ -133,10 +133,10 @@ function updateTurn(playerIndex) {
         i = 0;
     }
     if(playerList[i].turn) {
-        playerList[i].turn(false);
+        playerList[i].turn = false;
     }
     else {
-        playerList[i].turn(true);
+        playerList[i].turn = true;
     }
 }
 
@@ -159,3 +159,9 @@ function discardCard(card){
 // they act
 // update again
 // loop up
+
+startGame(3, playDeck);
+console.log(playerList[1].hand);
+playerList[1].playCard(2);
+console.log(playerList[1].hand);
+console.log(playerList[2].turn);
