@@ -20,6 +20,10 @@ function makeCards(){
 
 
 
+
+
+
+
 //Deck
 
 //hold cards, order cards, give and take cards
@@ -53,7 +57,12 @@ function draw(deck){
 
 
 
+
+
+
+
 //Discard
+
 //know it's contents, order of cards
 
 let discardPile = [];
@@ -66,6 +75,10 @@ function takeDiscard(pile, card){
 function currentTopCard(pile){
     return pile[0];
 }
+
+
+
+
 
 
 
@@ -91,7 +104,7 @@ class Player {
     get playerIndex() {
         return this._playerIndex;
     }
-
+//                                                     <---who decides?
     receiveCard(card) {
         this._hand.push(card);
     }
@@ -107,6 +120,12 @@ class Player {
         this._turn = turn;
     }
 }
+
+
+
+
+
+
 
 //Game
 
@@ -133,6 +152,7 @@ function dealHand(deck){
     return hand;
 }
 
+//                                                       <---lookie here!!!
 function drawCard(deck, i) {
     playerList[i].receiveCard(draw(deck));
 }
@@ -180,3 +200,8 @@ function discardCard(card){
 //win conditions
 //out of turn actions
 //}
+
+startGame(1, deck());
+console.log(playerList[0]._hand);
+playerList[0].receiveCard(drawCard(deck));
+console.log(playerList[0]._hand);
