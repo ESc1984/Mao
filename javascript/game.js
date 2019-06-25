@@ -1,22 +1,9 @@
 
 //Card
 
-//hold a value
-
 //values held by cards
-var suits = ['H', 'S', 'D', 'C'];
-var values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', "K"];
-
-//creates array of card objects with values
-function makeCards(){
-    let cards = [];
-    suits.forEach((suit, index) => {
-        values.forEach( value => {
-            cards.push({suit, value})
-        })
-    })
-    return cards;
-}
+let suits = ['H', 'S', 'D', 'C'];
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', "K"];
 
 
 
@@ -28,11 +15,28 @@ function makeCards(){
 
 //hold cards, order cards, give and take cards
 
+let Deck = {};
+Deck.cards = [];
+
+//creates array of card objects with values                 //ADD ???
+Deck.makeCards = function() {
+    suits.forEach((suit, index) => {
+        values.forEach( value => {
+            Deck.cards.push({suit, value})
+        })
+    });
+};
+
+
 //randomizes the order of the cards passed in to create deck
-function shuffle(deck) {
-    var currentIndex = deck.length;
-    var temporaryValue;
-    var randomIndex;
+Deck.shuffle = function() {
+    if (!Deck.isDeck(Deck.cards)) {
+        console.log(Deck.isDeck);
+        return;
+    }
+    let currentIndex = Deck.cards.length;
+    let temporaryValue;
+    let randomIndex;
 
     // While there remain elements to shuffle...
     while (0 !== currentIndex) {
@@ -42,18 +46,28 @@ function shuffle(deck) {
         currentIndex -= 1;
 
         // And swap it with the current element.
-        temporaryValue = deck[currentIndex];
-        deck[currentIndex] = deck[randomIndex];
-        deck[randomIndex] = temporaryValue;
+        temporaryValue = Deck.cards[currentIndex];
+        Deck.cards[currentIndex] = Deck.cards[randomIndex];
+        Deck.cards[randomIndex] = temporaryValue;
     }
-    return deck;
-}
+    return Deck.cards;
+};
 
 //removes card from top of the deck
-function draw(deck){
-    return (deck.splice(0,1));
-}
+Deck.draw = function() {
+    if( Deck.isDeck() ) {
+        return (Deck.cards.splice(0, 1));
+    }
+};
 
+Deck.isDeck = function() {
+    let validDeck = true;
+    if(!Array.isArray(Deck.cards)) {
+        console.error("Received something that wasn't a deck", Deck.cards);
+        validDeck = false;
+    }
+    return validDeck;
+};
 
 
 
@@ -64,15 +78,17 @@ function draw(deck){
 
 //know it's contents, order of cards
 
-let discardPile = [];
+let discardPile = {};
 
-function takeDiscard(pile, card){
-    pile.push(card);
+discardPile.cards = [];
+
+discardPile.addCard = function(card){
+    discardPile.cards.unshift(card);
 }
 
 // displays the last card played
-function currentTopCard(pile){
-    return pile[0];
+discardPile.topCard = function(){
+    return [0];
 }
 
 
@@ -110,9 +126,9 @@ class Player {
 
     playCard(i) {
         //later send to check for penalty
-        discardCard(this._hand.splice(i,1));
-        updateTurn(this._playerIndex);
-        updateTurn(this._playerIndex + 1);
+        game.discardCard(this._hand.splice(i,1));
+        game.updateTurn(this._playerIndex);
+        game.updateTurn(this._playerIndex + 1);
         //later add send rules
     }
 
@@ -122,8 +138,8 @@ class Player {
 
     passTurn() {
         //later send to check for penalty
-        updateTurn(this._playerIndex);
-        updateTurn(this._playerIndex + 1);
+        game.updateTurn(this._playerIndex);
+        game.updateTurn(this._playerIndex + 1);
     }
 }
 
@@ -137,53 +153,47 @@ class Player {
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
-let playerList = [];
-const deck = () => shuffle(makeCards());
-
-let playDeck = deck();
+let game = {};
+let carddeck = Deck.makeCards();
+game.playDeck = Deck.shuffle(carddeck);
+game.playerList = [];
 
 // deals cards to all players
-function startGame(numPlayers, deck){
+game.startGame = function(numPlayers){
     for (let i = 0; i < numPlayers; i++){
-        playerList.push(new Player(dealHand(deck), i));
+        game.playerList.push(new Player(game.dealHand(), i));
     }
-    playerList[0].turn = true;
-}
+    game.playerList[0].turn = true;
+};
 
 // creates an array of seven cards to give to a player
-function dealHand(deck){
+game.dealHand = function(){
     let hand = [];
     for (let i = 0; i < 7; i++){
-        hand.unshift(draw(deck));
+        hand.unshift(Deck.draw(game.playDeck));
     }
     return hand;
+};
+
+game.drawCard = function(player) {
+    player.receiveCard(Deck.draw(game.playDeck));
 }
 
-function drawCard(deck) {
-    let i;
-    playerList.forEach((player) => {
-        if(player.turn){
-            i = player.playerIndex;
-        }
-    })
-    playerList[i].receiveCard(draw(deck));
-}
-
-function updateTurn(playerIndex) {
+game.updateTurn = function(playerIndex) {
     let i = playerIndex;
-    if(i >= playerList.length){
+    if(i >= game.playerList.length){
         i = 0;
     }
-    if(playerList[i].turn) {
-        playerList[i].turn = false;
+    if(game.playerList[i].turn) {
+        game.playerList[i].turn = false;
     }
     else {
-        playerList[i].turn = true;
+        game.playerList[i].turn = true;
     }
 }
 
-function discardCard(card){
-   takeDiscard(discardPile, card);
+game.discardCard = function(card){
+   discardPile.addCard(card);
    //checkRules();
 }
 
@@ -202,14 +212,16 @@ function discardCard(card){
 // update again
 // loop up
 
-startGame(3, playDeck);
-console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
-playerList[0].passTurn();
-console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
-console.log(playerList[1].hand);
-drawCard(playDeck);
-playerList[1].playCard(2);
-console.log(playerList[1].hand);
-console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
-playerList[2].passTurn();
-console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+
+
+game.startGame(3);
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+game.playerList[0].passTurn();
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(game.playerList[1].hand);
+game.drawCard(game.playerList[1]);
+game.playerList[1].playCard(2);
+console.log(game.playerList[1].hand);
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+game.playerList[2].passTurn();
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
