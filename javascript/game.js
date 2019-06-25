@@ -65,22 +65,37 @@ function currentTopCard(pile){
 //exist, have hand, play card, draw card
 
 class Player {
-    constructor (hand) {
-        this.hand = hand;
-        this.turn = false;
+    constructor (hand, index) {
+        this._hand = hand;
+        this._turn = false;
+        this._playerIndex = index;
     }
 
     get displayHand() {
-        return this.hand;
+        return this._hand;
+    }
+
+    get turn() {
+        return this._turn;
+    }
+
+    get playerIndex() {
+        return this._playerIndex;
     }
 
     receiveCard(card) {
-        hand.push(card);
+        this._hand.push(card);
     }
 
     playCard(i) {
-        discardCard(hand.splice(i,1));
+        discardCard(this._hand.splice(i,1));
+        updateTurn(this._playerIndex);
+        updateTurn(this._playerIndex + 1);
         //later add send rules
+    }
+
+    set turn(turn) {
+        this._turn = turn;
     }
 }
 
@@ -95,7 +110,7 @@ let playDeck = deck();
 // deals cards to all players
 function startGame(numPlayers, deck){
     for (let i = 0; i < numPlayers; i++){
-        playerList.unshift(new Player(dealHand(deck)));
+        playerList.unshift(new Player(dealHand(deck), i));
     }
 }
 
@@ -112,10 +127,22 @@ function drawCard(deck, i) {
     playerList[i].receiveCard(draw(deck));
 }
 
+function updateTurn(playerIndex) {
+    let i = playerIndex;
+    if(i >= playerList.length){
+        i = 0;
+    }
+    if(playerList[i].turn) {
+        playerList[i].turn(false);
+    }
+    else {
+        playerList[i].turn(true);
+    }
+}
+
 function discardCard(card){
    takeDiscard(discardPile, card);
    //checkRules();
-    // continuePlay();
 }
 
 //function checkRules(card, play)
@@ -126,3 +153,9 @@ function discardCard(card){
 //cardToHold - takes card from deck, gives it to player
 //whoseTurn - points to active player in order
 //creating certain number of players
+
+// for loop of the players
+// update turn for whoever is selected
+// they act
+// update again
+// loop up
