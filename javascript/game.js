@@ -46,7 +46,6 @@ function shuffle(deck) {
         deck[currentIndex] = deck[randomIndex];
         deck[randomIndex] = temporaryValue;
     }
-
     return deck;
 }
 
@@ -89,11 +88,11 @@ function currentTopCard(pile){
 class Player {
     constructor (hand, index) {
         this._hand = hand;
-        this._turn = false;
         this._playerIndex = index;
+        this._turn = false;
     }
 
-    get displayHand() {
+    get hand() {
         return this._hand;
     }
 
@@ -104,12 +103,13 @@ class Player {
     get playerIndex() {
         return this._playerIndex;
     }
-//                                                     <---who decides?
+
     receiveCard(card) {
         this._hand.push(card);
     }
 
     playCard(i) {
+        //later send to check for penalty
         discardCard(this._hand.splice(i,1));
         updateTurn(this._playerIndex);
         updateTurn(this._playerIndex + 1);
@@ -118,6 +118,12 @@ class Player {
 
     set turn(turn) {
         this._turn = turn;
+    }
+
+    passTurn() {
+        //later send to check for penalty
+        updateTurn(this._playerIndex);
+        updateTurn(this._playerIndex + 1);
     }
 }
 
@@ -139,8 +145,9 @@ let playDeck = deck();
 // deals cards to all players
 function startGame(numPlayers, deck){
     for (let i = 0; i < numPlayers; i++){
-        playerList.unshift(new Player(dealHand(deck), i));
+        playerList.push(new Player(dealHand(deck), i));
     }
+    playerList[0].turn = true;
 }
 
 // creates an array of seven cards to give to a player
@@ -152,8 +159,13 @@ function dealHand(deck){
     return hand;
 }
 
-//                                                       <---lookie here!!!
-function drawCard(deck, i) {
+function drawCard(deck) {
+    let i;
+    playerList.forEach((player) => {
+        if(player.turn){
+            i = player.playerIndex;
+        }
+    })
     playerList[i].receiveCard(draw(deck));
 }
 
@@ -163,10 +175,10 @@ function updateTurn(playerIndex) {
         i = 0;
     }
     if(playerList[i].turn) {
-        playerList[i].turn(false);
+        playerList[i].turn = false;
     }
     else {
-        playerList[i].turn(true);
+        playerList[i].turn = true;
     }
 }
 
@@ -182,7 +194,6 @@ function discardCard(card){
 //cardToPlay - takes card played by player, moves it to discard
 //cardToHold - takes card from deck, gives it to player
 //whoseTurn - points to active player in order
-
 //creating certain number of players
 
 // for loop of the players
@@ -191,17 +202,14 @@ function discardCard(card){
 // update again
 // loop up
 
-//function whosPlaying(playerlist){
-// for (looping through each player continuously)
-// set person's isturn to true
-//they take their turn
-//set to false when done
-//include conditions for 8s, aces, etc.
-//win conditions
-//out of turn actions
-//}
-
-startGame(1, deck());
-console.log(playerList[0]._hand);
-playerList[0].receiveCard(drawCard(deck));
-console.log(playerList[0]._hand);
+startGame(3, playDeck);
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+playerList[0].passTurn();
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+console.log(playerList[1].hand);
+drawCard(playDeck);
+playerList[1].playCard(2);
+console.log(playerList[1].hand);
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
+playerList[2].passTurn();
+console.log(`${playerList[0].turn} + ${playerList[1].turn} + ${playerList[2].turn}`);
