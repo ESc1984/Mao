@@ -154,8 +154,7 @@ class Player {
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
 let game = {};
-let carddeck = Deck.makeCards();
-game.playDeck = Deck.shuffle(carddeck);
+game.playDeck = Deck.shuffle(Deck.makeCards());
 game.playerList = [];
 
 // deals cards to all players
@@ -225,3 +224,5 @@ console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+
+
