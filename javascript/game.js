@@ -27,8 +27,8 @@ Deck.makeCards = function() {
     });
 };
 
-// Deck.getSuit = function(card){
-//     return card.suit;
+//  Deck.getSuit = function(card){
+//      return card.suit;
 // };
 //
 // Deck.getValue = function(card){
@@ -134,9 +134,11 @@ class Player {
 
     playCard(i) {
         let card = this._hand[i];
-        game.penaltyCheck(this._playerIndex, card);
-        if(game.isTurn(this._playerIndex) && game.cardMatch(card)) {
-            game.discardCard(this._hand.splice(i,1));
+        game.penaltyPlayedCard(this._playerIndex, card);
+        if(game.isTurn(this._playerIndex)) {
+            if(game.cardMatch(card)) {
+                game.discardCard(this._hand.splice(i,1));
+            }
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
         }
@@ -147,7 +149,7 @@ class Player {
     }
 
     passTurn() {
-        game.penaltyCheck(this._playerIndex);
+        game.penaltyNoPlay(this._playerIndex);
         if(game.isTurn(this._playerIndex) ){
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
@@ -205,29 +207,40 @@ game.updateTurn = function(playerIndex) {
 };
 
 game.discardCard = function(card){
-   discardPile.addCard(card);
+    discardPile.addCard(card);
    //checkRules();
 };
 
 game.cardMatch = function(card){
-    return (((card.suit) === (discardPile.topCard().suit)) || ((card.value) === (discardPile.topCard().value)));
+    return ( (card[0].suit === discardPile.topCard()[0].suit) || (card[0].value === discardPile.topCard()[0].value))
 };
 
 game.isTurn = function(i){
   return game.playerList[i].turn;
 };
 
-game.penaltyCheck = function(playerIndex, card){
-    let player = game.playerList[playerIndex];
-    if(game.isTurn(player)) {
-        return false;
-    } else if (game.cardMatch(card) === false){
-        return false;
-    } else {
+game.penaltyNoPlay = function(i){
+    let player = game.playerList[i];
+    if(!game.isTurn(i)) {
         game.drawCard(player);
-        return true;
+        return;
+    } else {
+        return;
     }
 };
+
+game.penaltyPlayedCard = function(i, card){
+    let player = game.playerList[i];
+    if(!game.isTurn(i)) {
+        game.drawCard(player);
+        return;
+    } else if (!game.cardMatch(card)){
+        game.drawCard(player);
+        return;
+    } else {
+        return;
+    }
+}
 
 
 //function checkRules(card, play)
@@ -254,13 +267,11 @@ console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[0].passTurn();
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(discardPile.cards);
 console.log(game.cardMatch(game.playerList[1].hand[2]));
 game.playerList[1].playCard(2);
 console.log(discardPile.cards);
 console.log(discardPile.topCard());
-console.log(discardPile.cards[0]);
-console.log(discardPile.cards[1]);
+ console.log(discardPile.cards[1]);
 console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
