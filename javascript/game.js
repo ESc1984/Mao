@@ -154,8 +154,7 @@ class Player {
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
 let game = {};
-let carddeck = Deck.makeCards();
-game.playDeck = Deck.shuffle(carddeck);
+game.playDeck = Deck.shuffle(Deck.makeCards());
 game.playerList = [];
 
 // deals cards to all players
