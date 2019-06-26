@@ -3,7 +3,7 @@
 
 //values held by cards
 let suits = ['H', 'S', 'D', 'C'];
-let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', "K"];
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 
 
@@ -210,17 +210,22 @@ game.discardCard = function(card){
 };
 
 game.cardMatch = function(card){
-    return (((card.suit) === (discardPile.cards[0].suit)) || ((card.value) === (discardPile.cards[0].value)));
+    return (((card.suit) === (discardPile.topCard().suit)) || ((card.value) === (discardPile.topCard().value)));
 };
 
 game.isTurn = function(i){
   return game.playerList[i].turn;
 };
 
-game.penaltyCheck = function(i, card){
-    let player = game.playerList[i];
-    if(! game.isTurn(i) ) {
+game.penaltyCheck = function(playerIndex, card){
+    let player = game.playerList[playerIndex];
+    if(game.isTurn(player)) {
+        return false;
+    } else if (game.cardMatch(card) === false){
+        return false;
+    } else {
         game.drawCard(player);
+        return true;
     }
 };
 
@@ -234,14 +239,10 @@ game.penaltyCheck = function(i, card){
 //whoseTurn - points to active player in order
 //creating certain number of players
 
-// for loop of the players
-// update turn for whoever is selected
-// they act
-// update again
-// loop up
-
 
 //if game.playdeck.length <= 0, add new deck
+
+//if cardMatch doesn't pass, don't allow card to be discarded, give penalty
 
 
 
@@ -253,10 +254,24 @@ console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[0].passTurn();
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(discardPile.cards);
+console.log(game.cardMatch(game.playerList[1].hand[2]));
 game.playerList[1].playCard(2);
+console.log(discardPile.cards);
+console.log(discardPile.topCard());
+console.log(discardPile.cards[0]);
+console.log(discardPile.cards[1]);
 console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+
+
+//eights - use function to reverse the order of playerList, find current player, move along
+//kings, queens, sevens - use button press before sending in, treat message as a second parameter
+    //nice days - start counter with first seven played, next person must press button once more than the last
+    //OR have a separate button for verys
+//ace - turn skipping already exists, right?
+//jacks - pass in new suit as a second parameter (like the above), add invisible card to discard, value 'none' suit (new suit)
 
 
