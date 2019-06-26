@@ -133,7 +133,8 @@ class Player {
     }
 
     playCard(i) {
-        if( !game.penaltyCheck(this._playerIndex, this.hand[i]) ) {
+        game.penaltyCheck(this._playerIndex, this.hand[i]);
+        if(game.isTurn(this._playerIndex)) {
             game.discardCard(this._hand.splice(i,1));
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
@@ -145,7 +146,8 @@ class Player {
     }
 
     passTurn() {
-        if(! game.penaltyCheck(this._playerIndex) ){
+        game.penaltyCheck(this._playerIndex);
+        if(game.isTurn(this._playerIndex) ){
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
         }
@@ -210,17 +212,14 @@ game.cardMatch = function(){
     return (((discardPile.cards[1].suit) === (discardPile.cards[0].suit)) || ((discardPile.cards[1].value) === (discardPile.cards[0].value)));
 };
 
-game.isTurn = function(player){
-  return player.turn;
+game.isTurn = function(i){
+  return game.playerList[i].turn;
 };
 
-game.penaltyCheck = function(playerIndex, card){
-    let player = game.playerList[playerIndex];
-    if(game.isTurn(player)) {
-        return false;
-    } else {
-        game.drawCard(player)
-        return true;
+game.penaltyCheck = function(i, card){
+    let player = game.playerList[i];
+    if(! game.isTurn(i) ) {
+        game.drawCard(player);
     }
 };
 
@@ -254,7 +253,7 @@ console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.pl
 game.playerList[0].passTurn();
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[1].playCard(2);
-console.log(game.cardMatch());
+//console.log(game.cardMatch());
 console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
