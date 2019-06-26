@@ -207,6 +207,11 @@ game.updateTurn = function(playerIndex) {
 };
 
 game.discardCard = function(card){
+    let value = card[0].value;
+    switch(value) {
+        case '8':
+            break;
+    }
     discardPile.addCard(card);
    //checkRules();
 };
