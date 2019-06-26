@@ -27,8 +27,8 @@ Deck.makeCards = function() {
     });
 };
 
-// Deck.getSuit = function(card){
-//     return card.suit;
+//  Deck.getSuit = function(card){
+//      return card.suit;
 // };
 //
 // Deck.getValue = function(card){
@@ -134,9 +134,11 @@ class Player {
 
     playCard(i) {
         let card = this._hand[i];
-        game.penaltyCheck(this._playerIndex, card)
-        if( game.isTurn(this._playerIndex) && game.cardMatch(card)) {
-            game.discardCard(this._hand.splice(i,1));
+        game.penaltyPlayedCard(this._playerIndex, card);
+        if(game.isTurn(this._playerIndex)) {
+            if(game.cardMatch(card)) {
+                game.discardCard(this._hand.splice(i,1));
+            }
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
         }
@@ -147,11 +149,10 @@ class Player {
     }
 
     passTurn() {
-        game.penaltyCheck(this._playerIndex);
+        game.penaltyNoPlay(this._playerIndex);
         if(game.isTurn(this._playerIndex) ){
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
-        //game.penaltyCheck(this._playerIndex);
         }
     }
 }
@@ -206,31 +207,29 @@ game.updateTurn = function(playerIndex) {
 };
 
 game.discardCard = function(card){
-   discardPile.addCard(card);
+    discardPile.addCard(card);
    //checkRules();
 };
 
 game.cardMatch = function(card){
-    console.log(card);
-    console.log(card[0].suit);
-    console.log(card[0].value);
-    console.log(discardPile.topCard()[0].suit);
-    console.log(discardPile.topCard()[0].value);
-    return (((card[0].suit) === (discardPile.topCard()[0].suit)) || ((card[0].value) === (discardPile.topCard()[0].value)));
-    // if (card.suit === discardPile.topCard().suit){
-    //     return true;
-    // } else if (card.value === discardPile.topCard().value) {
-    //     return true;
-    // } else {
-    //     return false;
-    // }
+    return ( (card[0].suit === discardPile.topCard()[0].suit) || (card[0].value === discardPile.topCard()[0].value))
 };
 
 game.isTurn = function(i){
   return game.playerList[i].turn;
 };
 
-game.penaltyCheck = function(i, card){
+game.penaltyNoPlay = function(i){
+    let player = game.playerList[i];
+    if(!game.isTurn(i)) {
+        game.drawCard(player);
+        return;
+    } else {
+        return;
+    }
+};
+
+game.penaltyPlayedCard = function(i, card){
     let player = game.playerList[i];
     if(!game.isTurn(i)) {
         game.drawCard(player);
@@ -242,6 +241,10 @@ game.penaltyCheck = function(i, card){
         return;
     }
 };
+
+game.jackPlayed = function(){
+    discardPile.cards.push(//)
+}
 
 
 //function checkRules(card, play)
@@ -266,18 +269,17 @@ console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.pl
 game.playerList[1].playCard(0);
 console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-//game.playerList[0].passTurn();
-//console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(discardPile.cards);
+game.playerList[0].passTurn();
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 console.log(game.cardMatch(game.playerList[1].hand[2]));
 game.playerList[1].playCard(2);
 console.log(discardPile.cards);
 console.log(discardPile.topCard());
-console.log(discardPile.cards[1]);
-//console.log(game.playerList[1].hand);
-//console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+ console.log(discardPile.cards[1]);
+console.log(game.playerList[1].hand);
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
-//console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 
 
 //eights - use function to reverse the order of playerList, find current player, move along
