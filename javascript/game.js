@@ -209,7 +209,6 @@ game.discardCard = function(card){
 game.cardMatch = function(){
     return (((discardPile.cards[1].suit) === (discardPile.cards[0].suit)) || ((discardPile.cards[1].value) === (discardPile.cards[0].value)));
 };
-};
 
 game.isTurn = function(player){
   return player.turn;
