@@ -27,6 +27,14 @@ Deck.makeCards = function() {
     });
 };
 
+// Deck.getSuit = function(card){
+//     return card.suit;
+// };
+//
+// Deck.getValue = function(card){
+//     return card.value;
+// };
+
 
 //randomizes the order of the cards passed in to create deck
 Deck.shuffle = function() {
@@ -163,6 +171,7 @@ game.startGame = function(numPlayers){
         game.playerList.push(new Player(game.dealHand(), i));
     }
     game.playerList[0].turn = true;
+    game.discardCard(Deck.draw());
 };
 
 // creates an array of seven cards to give to a player
@@ -176,7 +185,7 @@ game.dealHand = function(){
 
 game.drawCard = function(player) {
     player.receiveCard(Deck.draw(game.playDeck));
-}
+};
 
 game.updateTurn = function(playerIndex) {
     let i = playerIndex;
@@ -189,12 +198,16 @@ game.updateTurn = function(playerIndex) {
     else {
         game.playerList[i].turn = true;
     }
-}
+};
 
 game.discardCard = function(card){
    discardPile.addCard(card);
    //checkRules();
-}
+};
+
+game.cardMatch = function(){
+    return (((discardPile.cards[1].suit) === (discardPile.cards[0].suit)) || ((discardPile.cards[1].value) === (discardPile.cards[0].value)));
+};
 
 //function checkRules(card, play)
 
@@ -223,6 +236,7 @@ console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.pl
 console.log(game.playerList[1].hand);
 game.drawCard(game.playerList[1]);
 game.playerList[1].playCard(2);
+console.log(game.cardMatch());
 console.log(game.playerList[1].hand);
 console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 game.playerList[2].passTurn();
