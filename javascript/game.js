@@ -3,8 +3,8 @@
 
 //values held by cards
 let suits = ['H', 'S', 'D', 'C'];
-//let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
-let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+//let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
 
 
 
@@ -64,7 +64,7 @@ Deck.shuffle = function() {
 //removes card from top of the deck
 Deck.draw = function() {
     if( Deck.isDeck() ) {
-        return (Deck.cards.splice(0, 1));
+        return (Deck.cards.shift());
     }
 };
 
@@ -110,10 +110,9 @@ discardPile.topCard = function(){
 //exist, have hand, play card, draw card
 
 class Player {
-    constructor (hand, index, name) {
+    constructor (hand, name) {
         this._hand = hand;
-        this._playerIndex = index;
-        this._playerName = name;
+        this._name = name;
         this._turn = false;
     }
 
@@ -122,35 +121,26 @@ class Player {
     }
 
     get name() {
-        return this._playerName;
+        return this._name;
     }
 
     get turn() {
         return this._turn;
     }
 
-    get playerIndex() {
-        return this._playerIndex;
-    }
-
-    set playerIndex(i) {
-        this._playerIndex = i;
-    }
-
     receiveCard(card) {
         this._hand.push(card);
     }
 
-    playCard(i) {
-        let card = this._hand[i];
-        game.penaltyPlayedCard(this._playerIndex, card);
+    playCard(cardIndex) {
+        let card = this._hand[cardIndex];
+        game.playedCardCheckRules(this, card);
         if(this._turn) {
             if(game.cardMatch(card)) {
-                game.discardCard(this._hand.splice(i,1));
+                game.discardCard(this._hand.splice(cardIndex,1));
             }
             game.findWin(this);
-            game.updateTurn(this._playerIndex);
-            game.updateTurn(this._playerIndex + 1);
+            game.updateTurn();
         }
     }
 
@@ -159,10 +149,9 @@ class Player {
     }
 
     passTurn() {
-        game.penaltyNoPlay(this._playerIndex);
+        game.passTurnCheckRules(this);
         if(this._turn){
-            game.updateTurn(this._playerIndex);
-            game.updateTurn(this._playerIndex + 1);
+            game.updateTurn();
         }
     }
 }
@@ -184,7 +173,7 @@ game.playerList = [];
 // deals cards to all players
 game.startGame = function(numPlayers){
     for (let i = 0; i < numPlayers; i++){
-        game.playerList.push(new Player(game.dealHand(), i, ('player' + i)));
+        game.playerList.push(new Player(game.dealHand(), ('player' + i)));
     }
     game.playerList[0].turn = true;
     discardPile.cards.push(Deck.draw());
@@ -203,17 +192,19 @@ game.drawCard = function(player) {
     player.receiveCard(Deck.draw(game.playDeck));
 };
 
-game.updateTurn = function(playerIndex) {
-    let i = playerIndex;
-    if(i >= game.playerList.length){
-        i = 0;
-    }
-    if(game.playerList[i].turn) {
-        game.playerList[i].turn = false;
-    }
-    else {
-        game.playerList[i].turn = true;
-    }
+game.updateTurn = function() {
+    let currentPlayerIndex = game.findWhoseTurn();
+    let nextPlayerIndex = currentPlayerIndex + 1 >= game.playerList.length ? 0 : currentPlayerIndex + 1;
+    game.disableTurn(currentPlayerIndex);
+    game.enableTurn(nextPlayerIndex);
+};
+
+game.disableTurn = function(playerIndex) {
+    game.playerList[playerIndex].turn = false;
+};
+
+game.enableTurn = function(playerIndex) {
+    game.playerList[playerIndex].turn = true;
 };
 
 game.findWhoseTurn = function(){
@@ -227,24 +218,24 @@ game.findWhoseTurn = function(){
 };
 
 game.eightPlayed = function(){
-    let runLength = game.playerList.length / 2;
-    for(let i = 0; i < runLength; i++){
-        let temp = game.playerList[i];
-        game.playerList[i] = game.playerList[game.playerList.length - i - 1];
-        game.playerList[game.playerList.length - i - 1] = temp;
-    }
-    for(let i = 0; i < game.playerList.length; i++){
-        game.playerList[i].playerIndex = i;
-    }
+    game.playerList.reverse();
+};
+
+game.acePlayed = function(){
+    game.updateTurn();
+
 };
 
 game.discardCard = function(card){
     let value = card[0].value;
-    switch(value) { //currently undefined -- why?
+    switch(value) {
         case 'A':
+            game.acePlayed();
             break;
         case '8':
             game.eightPlayed();
+            break;
+        default:
             break;
         case 'J':
             game.jackPlayed(card);  //suit determination TBA
@@ -258,8 +249,7 @@ game.cardMatch = function(card){
     return ( (card[0].suit === discardPile.topCard()[0].suit) || (card[0].value === discardPile.topCard()[0].value))
 };
 
-game.penaltyNoPlay = function(i){
-    let player = game.playerList[i];
+game.passTurnCheckRules = function(player){
     if(!player.turn) {
         game.drawCard(player);
         return;
@@ -268,8 +258,7 @@ game.penaltyNoPlay = function(i){
     }
 };
 
-game.penaltyPlayedCard = function(i, card){
-    let player = game.playerList[i];
+game.playedCardCheckRules = function(player, card){
     if(!player.turn) {
         game.drawCard(player);
         return;
@@ -382,9 +371,9 @@ console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playe
 // game.startGame(3);
 // console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 // console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-// console.log(game.playerList[0].hand[0]);
-// game.discardCard(game.playerList[0].hand[0]);
+// let cardToDiscard = game.playerList[0].hand.splice(0,1);
+// console.log(cardToDiscard);
+// game.playerList[0].playCard();
 // console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 // console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
 // console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
@@ -412,22 +401,22 @@ console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playe
 
 
 //playing a card (either will work or will receive a penalty)
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log("Top Card in Discard:");
-// console.log("Card Selected for Play:");
-// console.log(game.playerList[0].hand[0]);
-// console.log(discardPile.topCard());
-// console.log("Player's Hand Before Turn:");
-// console.log(game.playerList[0].hand);
-// game.playerList[0].playCard(0);
-// console.log("Player's Hand After Turn:");
-// console.log(game.playerList[0].hand);
-// console.log("Top Card in Discard:");
-// console.log(discardPile.topCard());
-// console.log("Second Card in Discard:");
-// console.log(discardPile.cards[1]);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+game.startGame(3);
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log("Top Card in Discard:");
+console.log("Card Selected for Play:");
+console.log(game.playerList[0].hand[0]);
+console.log(discardPile.topCard());
+console.log("Player's Hand Before Turn:");
+console.log(game.playerList[0].hand);
+game.playerList[0].playCard(0);
+console.log("Player's Hand After Turn:");
+console.log(game.playerList[0].hand);
+console.log("Top Card in Discard:");
+console.log(discardPile.topCard());
+console.log("Second Card in Discard:");
+console.log(discardPile.cards[1]);
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 
 
 //card match test code
