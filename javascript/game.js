@@ -3,8 +3,8 @@
 
 //values held by cards
 let suits = ['H', 'S', 'D', 'C'];
-//let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
-let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+//let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
 
 
 
@@ -15,104 +15,97 @@ let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; 
 
 //hold cards, order cards, give and take cards
 
-let Deck = {};
-Deck.cards = [];
-
-//creates array of card objects with values
-Deck.makeCards = function() {
-    suits.forEach((suit, index) => {
-        values.forEach( value => {
-            Deck.cards.push({suit, value})
-        })
-    });
-};
-
-//  Deck.getSuit = function(card){
-//      return card.suit;
-// };
-//
-// Deck.getValue = function(card){
-//     return card.value;
-// };
-
-
-//randomizes the order of the cards passed in to create deck
-Deck.shuffle = function() {
-    if (!Deck.isDeck(Deck.cards)) {
-        console.log(Deck.isDeck);
-        return;
+class Deck{
+    constructor(){
+        this._cards = [];
+        suits.forEach((suit, index) => {
+            values.forEach( value => {
+                this._cards.push({suit, value})
+            })
+        });
     }
-    let currentIndex = Deck.cards.length;
-    let temporaryValue;
-    let randomIndex;
 
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
+    shuffle(){
+        if (!this.isDeckValid()) {
+            console.log(this.isDeckValid());
+            return;
+        }
+        let currentIndex = this._cards.length;
+        let temporaryValue;
+        let randomIndex;
 
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
 
-        // And swap it with the current element.
-        temporaryValue = Deck.cards[currentIndex];
-        Deck.cards[currentIndex] = Deck.cards[randomIndex];
-        Deck.cards[randomIndex] = temporaryValue;
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = this._cards[currentIndex];
+            this._cards[currentIndex] = this._cards[randomIndex];
+            this._cards[randomIndex] = temporaryValue;
+        }
+        return this._cards;
     }
-    return Deck.cards;
-};
 
-//removes card from top of the deck
-Deck.draw = function() {
-    if( Deck.isDeck() ) {
-        return (Deck.cards.shift());
+    isDeckValid(){
+        let validDeck = true;
+        if(!Array.isArray(this._cards)) {
+            console.error("Received something that wasn't a deck", this._cards);
+            validDeck = false;
+        }
+        return validDeck;
     }
-};
 
-Deck.isDeck = function() {
-    let validDeck = true;
-    if(!Array.isArray(Deck.cards)) {
-        console.error("Received something that wasn't a deck", Deck.cards);
-        validDeck = false;
+    draw() {
+        if( this.isDeckValid() ) {
+            return (this._cards.shift());
+        }
     }
-    return validDeck;
-};
-
-
-
+}
 
 
 
 //Discard
 
-//know it's contents, order of cards
+class DiscardPile {
+    constructor (card){
+        this._cards = [card];
+        this._expectedSuit = card.suit;
+        this._expectedValue = card.value;
+    }
 
-let discardPile = {};
+    get cards() {
+        return this._cards;
+    }
 
-discardPile.expected = {
-    suit: '',
-    value: ''
-};
+    get expectedSuit() {
+        return this._expectedSuit;
+    }
 
-discardPile.setExpected = function(card){
-    discardPile.expected.suit = card.suit;
-    discardPile.expected.value = card.value;
+    set expectedSuit(newSuit){
+        this._expectedSuit = newSuit;
+    }
+
+    get expectedValue() {
+        return this._expectedValue;
+    }
+
+    set expectedValue(newVal) {
+        this._expectedValue = newVal;
+    }
+
+    topDiscard(){
+        return this._cards[0];
+    }
+
+    addToDiscard(card){
+        this._cards.unshift(card);
+        this._expectedSuit = card.suit;
+        this._expectedValue = card.value;
+    }
 }
-
-discardPile.cards = [];
-
-discardPile.addCard = function(card){
-    discardPile.cards.unshift(card);
-    discardPile.expected.suit = card.suit;
-    discardPile.expected.value = card.value;
-};
-
-// displays the last card played
-discardPile.topCard = function(){
-    return discardPile.cards[0];
-};
-
-
-
 
 
 
@@ -144,28 +137,30 @@ class Player {
         this._hand.push(card);
     }
 
-    playCard(cardIndex) {
-        let card = this._hand[cardIndex];
-        game.playedCardCheckRules(this, card);
-        if(this._turn) {
-            if(game.cardMatch(card)) {
-                game.discardCard(this._hand.splice(cardIndex,1));
-            }
-            game.findWin(this);
-            game.updateTurn();
-        }
-    }
+    //how do you reference game in player? Do you?
+
+    // playCard(cardIndex) {
+    //     let card = this._hand[cardIndex];
+    //     //playedCardCheckRules(this, card);
+    //     if(this._turn) {
+    //         if(/*cardMatch(card)*/) {
+    //             game.discardCard(this._hand.splice(cardIndex,1));
+    //         }
+    //         game.findWin(this);
+    //         game.updateTurn();
+    //     }
+    // }
 
     set turn(turn) {
         this._turn = turn;
     }
 
-    passTurn() {
-        game.passTurnCheckRules(this);
-        if(this._turn){
-            game.updateTurn();
-        }
-    }
+    // passTurn() {
+    //     game.passTurnCheckRules(this);
+    //     if(this._turn){
+    //         game.updateTurn();
+    //     }
+    // }
 }
 
 
@@ -178,58 +173,77 @@ class Player {
 
 //have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
-let game = {};
-game.playDeck = Deck.shuffle(Deck.makeCards());
-game.playerList = [];
-
-// deals cards to all players
-game.startGame = function(numPlayers){
-    for (let i = 0; i < numPlayers; i++){
-        game.playerList.push(new Player(game.dealHand(), ('player' + i)));
-    }
-    game.playerList[0].turn = true;
-    var firstCard = Deck.draw();
-    discardPile.setExpected(firstCard);
-    discardPile.cards.push(firstCard);
-};
-
-// creates an array of seven cards to give to a player
-game.dealHand = function(){
-    let hand = [];
-    for (let i = 0; i < 7; i++){
-        hand.unshift(Deck.draw(game.playDeck));
-    }
-    return hand;
-};
-
-game.drawCard = function(player) {
-    player.receiveCard(Deck.draw(game.playDeck));
-};
-
-game.updateTurn = function() {
-    let currentPlayerIndex = game.findWhoseTurn();
-    let nextPlayerIndex = currentPlayerIndex + 1 >= game.playerList.length ? 0 : currentPlayerIndex + 1;
-    game.disableTurn(currentPlayerIndex);
-    game.enableTurn(nextPlayerIndex);
-};
-
-game.disableTurn = function(playerIndex) {
-    game.playerList[playerIndex].turn = false;
-};
-
-game.enableTurn = function(playerIndex) {
-    game.playerList[playerIndex].turn = true;
-};
-
-game.findWhoseTurn = function(){
-    let playerIndex;
-    for(let i = 0; i < game.playerList.length; i++) {
-        if(game.playerList[i].turn){
-            playerIndex = i;
+class Game {
+    constructor(numPlayers){
+        this._playDeck = new Deck().shuffle();
+        this._playerList = [];
+        let card = this._playDeck.draw();
+        this._discardPile = new DiscardPile(card);
+        for (let i = 0; i < numPlayers; i++){
+            this._playerList.push(new Player(this.dealHand(), ('player' + i)));
         }
+        this._playerList[0].turn = true;
     }
-    return playerIndex;
-};
+
+    dealHand(){
+        let hand = [];
+        for (let i = 0; i < 7; i++){
+            hand.unshift(this._playDeck.draw());
+        }
+        return hand;
+    }
+
+    drawCard(player){
+        player.receiveCard(this._playDeck.draw());
+    }
+
+    updateTurn(){
+        let currentPlayerIndex = this.findWhoseTurn();
+        let nextPlayerIndex = currentPlayerIndex + 1 >= this._playerList.length ? 0 : currentPlayerIndex + 1;
+        this.disableTurn(currentPlayerIndex);
+        this.enableTurn(nextPlayerIndex);
+    }
+
+    disableTurn(playerIndex){
+        this._playerList[playerIndex].turn = false;
+    }
+
+    enableTurn(playerIndex){
+        this._playerList[playerIndex].turn = true;
+    }
+
+    findWhoseTurn(){
+        let playerIndex;
+        for(let i = 0; i < this._playerList.length; i++) {
+            if(this._playerList[i].turn){
+                playerIndex = i;
+            }
+        }
+        return playerIndex;
+    }
+
+    discardCard(card){
+        let value = card.value;
+        this._discardPile.addToDiscard(card);
+        //  switch(value) {
+        //      case 'A':
+        //          game.acePlayed();
+        //          break;
+        //      case '8':
+        //          game.eightPlayed();
+        //          break;
+        //      default:
+        //          break;
+        //      case 'J':
+        //          game.jackPlayed('test');  //suit determination TBA
+        //          break;
+        //  }                       this is probably all going in Rules
+        // //checkRules();
+    }
+}
+
+
+let game = {};
 
 game.eightPlayed = function(){
     game.playerList.reverse();
@@ -238,25 +252,6 @@ game.eightPlayed = function(){
 game.acePlayed = function(){
     game.updateTurn();
 
-};
-
-game.discardCard = function(card){
-    let value = card.value;
-    discardPile.addCard(card);
-    switch(value) {
-        case 'A':
-            game.acePlayed();
-            break;
-        case '8':
-            game.eightPlayed();
-            break;
-        default:
-            break;
-        case 'J':
-            game.jackPlayed('test');  //suit determination TBA
-            break;
-    }
-   //checkRules();
 };
 
 game.cardMatch = function(card){
@@ -331,32 +326,38 @@ game.findWin = function(player){
 // game.playerList[2].passTurn();
 // console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 
+let ourDeck = new Deck;
+let playCard = ourDeck.draw();
+let ourDiscard = new DiscardPile(playCard);
+let ourGame = new Game(3);
+console.log(playCard);
+console.log(ourDiscard);
 
 //jacks test code
-console.log('');
-game.startGame(2);
-console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
-console.log('');
-console.log('card :' + JSON.stringify(game.playerList[0].hand[0]));
-console.log('');
-console.log('discard before play: ' + JSON.stringify(discardPile.cards));
-game.playerList[0].playCard(0);
-console.log('');
-console.log('discard after play: ' + JSON.stringify(discardPile.cards));
-console.log('');
-console.log(discardPile.expected.suit)
-console.log('');
-console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
-
-//8 is played testing code
-game.startGame(3);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-game.discardCard(game.playerList[0].hand[0]);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// console.log('');
+// game.startGame(2);
+// console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
+// console.log('');
+// console.log('card :' + JSON.stringify(game.playerList[0].hand[0]));
+// console.log('');
+// console.log('discard before play: ' + JSON.stringify(discardPile.cards));
+// game.playerList[0].playCard(0);
+// console.log('');
+// console.log('discard after play: ' + JSON.stringify(discardPile.cards));
+// console.log('');
+// console.log(discardPile.expected.suit)
+// console.log('');
+// console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
+//
+// //8 is played testing code
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// game.discardCard(game.playerList[0].hand[0]);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
 
 
 
