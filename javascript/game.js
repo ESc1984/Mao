@@ -4,7 +4,7 @@
 //values held by cards
 let suits = ['H', 'S', 'D', 'C'];
 //let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
-let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
+let values = ['J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J']; // just for jack testing
 
 
 
@@ -64,7 +64,7 @@ Deck.shuffle = function() {
 //removes card from top of the deck
 Deck.draw = function() {
     if( Deck.isDeck() ) {
-        return (Deck.cards.splice(0, 1));
+        return (Deck.cards.shift());
     }
 };
 
@@ -239,7 +239,7 @@ game.eightPlayed = function(){
 };
 
 game.discardCard = function(card){
-    let value = card[0].value;
+    let value = card.value;
     switch(value) { //currently undefined -- why?
         case 'A':
             break;
@@ -255,7 +255,7 @@ game.discardCard = function(card){
 };
 
 game.cardMatch = function(card){
-    return ( (card[0].suit === discardPile.topCard()[0].suit) || (card[0].value === discardPile.topCard()[0].value))
+    return ( (card.suit === discardPile.topCard().suit) || (card.value === discardPile.topCard().value))
 };
 
 game.penaltyNoPlay = function(i){
@@ -286,16 +286,16 @@ game.jackPlayed = function(card, /*suit*/){  //suit declaration TBA
     let newSuit = (Math.floor(Math.random * 4));
     switch (newSuit){
         case 0:
-            card[0].suit = 'Heart';
+            card.suit = 'Heart';
             break;
         case 1:
-            card[0].suit = 'Club';
+            card.suit = 'Club';
             break;
         case 2:
-            card[0].suit = 'Diamond';
+            card.suit = 'Diamond';
             break;
         default:
-            card[0].suit = 'Spade';
+            card.suit = 'Spade';
             break
     }
     console.log(card);
@@ -348,30 +348,27 @@ game.findWin = function(player){
 
 //jacks test code
 console.log('');
-console.log(discardPile.cards);
-console.log('');
 game.startGame(2);
-console.log(game.playerList[0].hand);
+console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
 console.log('');
-console.log(game.playerList[0].hand[0]);
+console.log('card :' + JSON.stringify(game.playerList[0].hand[0]));
 console.log('');
-console.log(JSON.stringify(discardPile.cards));
+console.log('discard before play: ' + JSON.stringify(discardPile.cards));
 game.playerList[0].playCard(0);
 console.log('');
-console.log(JSON.stringify(discardPile.cards));
+console.log('discard after play: ' + JSON.stringify(discardPile.cards));
 console.log('');
-console.log(game.playerList[0].hand);
-//console.log(discardPile.cards);
+console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
 
 //8 is played testing code
-game.startGame(3);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-game.discardCard(game.playerList[0].hand[0]);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// game.discardCard(game.playerList[0].hand[0]);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
 
 
 
