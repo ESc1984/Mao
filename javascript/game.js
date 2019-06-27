@@ -4,7 +4,7 @@
 //values held by cards
 let suits = ['H', 'S', 'D', 'C'];
 //let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
-let values = ['J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J', 'O', 'J']; // just for jack testing
+let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
 
 
 
@@ -88,15 +88,29 @@ Deck.isDeck = function() {
 
 let discardPile = {};
 
+discardPile.expected = {
+    suit: '',
+    value: ''
+};
+
+discardPile.setExpected = function(card){
+    discardPile.expected.suit = card.suit;
+    discardPile.expected.value = card.value;
+}
+
 discardPile.cards = [];
 
 discardPile.addCard = function(card){
     discardPile.cards.unshift(card);
+    discardPile.expected.suit = card.suit;
+    discardPile.expected.value = card.value;
 };
 
 // displays the last card played
 discardPile.topCard = function(){
     return discardPile.cards[0];
+
+
 };
 
 
@@ -146,9 +160,8 @@ class Player {
         game.penaltyPlayedCard(this._playerIndex, card);
         if(this._turn) {
             if(game.cardMatch(card)) {
-                game.discardCard(this._hand.splice(i,1));
+                game.discardCard(this._hand.splice(i, 1)[0]);
             }
-            game.findWin(this);
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
         }
@@ -187,7 +200,9 @@ game.startGame = function(numPlayers){
         game.playerList.push(new Player(game.dealHand(), i, ('player' + i)));
     }
     game.playerList[0].turn = true;
-    discardPile.cards.push(Deck.draw());
+    var firstCard = Deck.draw();
+    discardPile.setExpected(firstCard);
+    discardPile.cards.push(firstCard);
 };
 
 // creates an array of seven cards to give to a player
@@ -240,6 +255,7 @@ game.eightPlayed = function(){
 
 game.discardCard = function(card){
     let value = card.value;
+    discardPile.addCard(card);
     switch(value) { //currently undefined -- why?
         case 'A':
             break;
@@ -247,15 +263,14 @@ game.discardCard = function(card){
             game.eightPlayed();
             break;
         case 'J':
-            game.jackPlayed(card);  //suit determination TBA
+            game.jackPlayed('test');  //suit determination TBA
             break;
     }
-    discardPile.addCard(card);
    //checkRules();
 };
 
 game.cardMatch = function(card){
-    return ( (card.suit === discardPile.topCard().suit) || (card.value === discardPile.topCard().value))
+    return ( (card.suit === discardPile.expected.suit) || (card.value === discardPile.expected.value))
 };
 
 game.penaltyNoPlay = function(i){
@@ -281,30 +296,13 @@ game.penaltyPlayedCard = function(i, card){
     }
 };
 
-game.jackPlayed = function(card, /*suit*/){  //suit declaration TBA
-    console.log(card);
-    let newSuit = (Math.floor(Math.random * 4));
-    switch (newSuit){
-        case 0:
-            card.suit = 'Heart';
-            break;
-        case 1:
-            card.suit = 'Club';
-            break;
-        case 2:
-            card.suit = 'Diamond';
-            break;
-        default:
-            card.suit = 'Spade';
-            break
-    }
-    console.log(card);
-    return card
+game.jackPlayed = function(suit){
+    discardPile.expected.suit = suit;
 };
 
 game.findWin = function(player){
     if (player.hand.length === 0){
-        console.log('Congratulations, Player ' + (player.playerIndex + 1) + ' - you have won this round of Mao');
+        console.log('Congratulations, ' + (player._playerName) + ' - you have won this round of Mao');
         //end game
     }
 };
@@ -357,6 +355,8 @@ console.log('discard before play: ' + JSON.stringify(discardPile.cards));
 game.playerList[0].playCard(0);
 console.log('');
 console.log('discard after play: ' + JSON.stringify(discardPile.cards));
+console.log('');
+console.log(discardPile.expected.suit)
 console.log('');
 console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
 
