@@ -1,61 +1,24 @@
 /*To-Do List
-* extract deck building from deck constructor
-* truly randomize deckmaking
-* --get rid of shuffle
-*check game getCurrentPlayer - should it return the player or the index?
-*
-*
-*
+* check game getCurrentPlayer - should it return the player or the index?
 */
-
-
-
-
-
 
 
 
 let suits = ['H', 'S', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
-
-
-
-
-
-
 class Deck{
     constructor(){
-        this._cards = [];
-        suits.forEach((suit, index) => {
-            values.forEach( value => {
-                this._cards.push({suit, value})
-            })
-        });
+        this._cards = this.makeCards();
     }
 
-    shuffle(){
-        if (!this.isDeckValid()) {
-            console.log(this.isDeckValid());
-            return;
+    makeCards(){
+        let cards = []
+        for (let i = 0; i < 100; i++){
+            let su = Math.floor(Math.random()*4);
+            let val = Math.floor(Math.random()*13);
+            cards.push({suit: suits[su], value: values[val]})
         }
-        let currentIndex = this._cards.length;
-        let temporaryValue;
-        let randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = this._cards[currentIndex];
-            this._cards[currentIndex] = this._cards[randomIndex];
-            this._cards[randomIndex] = temporaryValue;
-        }
-        return this._cards;
     }
 
     isDeckValid(){
@@ -188,7 +151,6 @@ class Player {
 class Game {
     constructor(numPlayers){
         this._playDeck = new Deck();
-        this._playDeck.shuffle();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card);
 
