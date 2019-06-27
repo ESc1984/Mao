@@ -237,13 +237,22 @@ game.eightPlayed = function(){
     }
 };
 
+game.acePlayed = function(){
+    let playerIndex = game.findWhoseTurn();
+    game.updateTurn(this.playerIndex);
+
+}
+
 game.discardCard = function(card){
     let value = card[0].value;
     switch(value) {
         case 'A':
+            //game.acePlayed();
             break;
         case '8':
             game.eightPlayed();
+            break;
+        default:
             break;
     }
     discardPile.addCard(card);
@@ -283,15 +292,15 @@ game.penaltyPlayedCard = function(i, card){
 //Testing Code
 
 //8 is played testing code (keep running until it plays an 8)
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-// console.log(game.playerList[0].hand[0]);
-// game.discardCard(game.playerList[0].hand[0]);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+game.startGame(3);
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+console.log(game.playerList[0].hand.splice(0,1));
+game.discardCard(game.playerList[0].hand.splice(0,1));
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
 
 //turn order testing code
 // game.startGame(3);
