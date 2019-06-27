@@ -278,21 +278,9 @@ game.penaltyPlayedCard = function(i, card){
 }
 
 
-//function checkRules(card, play)
-
-//function continuePlay()
-
-//cardToPlay - takes card played by player, moves it to discard
-//cardToHold - takes card from deck, gives it to player
-//whoseTurn - points to active player in order
-//creating certain number of players
 
 
-//if game.playdeck.length <= 0, add new deck
-
-//if cardMatch doesn't pass, don't allow card to be discarded, give penalty
-
-
+//Testing Code
 
 //8 is played testing code (keep running until it plays an 8)
 // game.startGame(3);
@@ -331,6 +319,8 @@ game.penaltyPlayedCard = function(i, card){
 // game.startGame(3);
 // console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 // console.log("Top Card in Discard:");
+// console.log("Card Selected for Play:");
+// console.log(game.playerList[0].hand[0]);
 // console.log(discardPile.topCard());
 // console.log("Player's Hand Before Turn:");
 // console.log(game.playerList[0].hand);
@@ -362,11 +352,30 @@ game.penaltyPlayedCard = function(i, card){
 // console.log(discardPile.cards[1]);
 
 
-//eights - use function to reverse the order of playerList, find current player, move along
-//kings, queens, sevens - use button press before sending in, treat message as a second parameter
-    //nice days - start counter with first seven played, next person must press button once more than the last
-    //OR have a separate button for verys
-//ace - turn skipping already exists, right?
-//jacks - pass in new suit as a second parameter (like the above), add invisible card to discard, value 'none' suit (new suit)
+
+//Notes
+    //function checkRules(card, play)
+
+    //function continuePlay()
+
+    //cardToPlay - takes card played by player, moves it to discard
+
+    //cardToHold - takes card from deck, gives it to player
+
+    //whoseTurn - points to active player in order
+
+    //creating certain number of players
+
+    //if game.playdeck.length <= 0, add new deck
+
+
+
+//Rule List
+    //eights - use function to reverse the order of playerList, find current player, move along
+    //kings, queens, sevens - use button press before sending in, treat message as a second parameter
+        //nice days - start counter with first seven played, next person must press button once more than the last
+        //OR have a separate button for verys
+    //ace - turn skipping already exists, right?
+    //jacks - pass in new suit as a second parameter (like the above), add invisible card to discard, value 'none' suit (new suit)
 
 
