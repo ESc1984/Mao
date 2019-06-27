@@ -27,6 +27,15 @@ Deck.makeCards = function() {
     });
 };
 
+//  Deck.getSuit = function(card){
+//      return card.suit;
+// };
+//
+// Deck.getValue = function(card){
+//     return card.value;
+// };
+
+
 //randomizes the order of the cards passed in to create deck
 Deck.shuffle = function() {
     if (!Deck.isDeck(Deck.cards)) {
@@ -101,14 +110,19 @@ discardPile.topCard = function(){
 //exist, have hand, play card, draw card
 
 class Player {
-    constructor (hand, index) {
+    constructor (hand, index, name) {
         this._hand = hand;
         this._playerIndex = index;
+        this._playerName = name;
         this._turn = false;
     }
 
     get hand() {
         return this._hand;
+    }
+
+    get name() {
+        return this._playerName;
     }
 
     get turn() {
@@ -119,6 +133,10 @@ class Player {
         return this._playerIndex;
     }
 
+    set playerIndex(i) {
+        this._playerIndex = i;
+    }
+
     receiveCard(card) {
         this._hand.push(card);
     }
@@ -126,7 +144,7 @@ class Player {
     playCard(i) {
         let card = this._hand[i];
         game.penaltyPlayedCard(this._playerIndex, card);
-        if(game.isTurn(this._playerIndex)) {
+        if(this._turn) {
             if(game.cardMatch(card)) {
                 game.discardCard(this._hand.splice(i,1));
             }
@@ -142,7 +160,7 @@ class Player {
 
     passTurn() {
         game.penaltyNoPlay(this._playerIndex);
-        if(game.isTurn(this._playerIndex) ){
+        if(this._turn){
             game.updateTurn(this._playerIndex);
             game.updateTurn(this._playerIndex + 1);
         }
@@ -166,7 +184,7 @@ game.playerList = [];
 // deals cards to all players
 game.startGame = function(numPlayers){
     for (let i = 0; i < numPlayers; i++){
-        game.playerList.push(new Player(game.dealHand(), i));
+        game.playerList.push(new Player(game.dealHand(), i, ('player' + i)));
     }
     game.playerList[0].turn = true;
     discardPile.cards.push(Deck.draw());
@@ -198,10 +216,35 @@ game.updateTurn = function(playerIndex) {
     }
 };
 
+game.findWhoseTurn = function(){
+    let playerIndex;
+    for(let i = 0; i < game.playerList.length; i++) {
+        if(game.playerList[i].turn){
+            playerIndex = i;
+        }
+    }
+    return playerIndex;
+};
+
+game.eightPlayed = function(){
+    let runLength = game.playerList.length / 2;
+    for(let i = 0; i < runLength; i++){
+        let temp = game.playerList[i];
+        game.playerList[i] = game.playerList[game.playerList.length - i - 1];
+        game.playerList[game.playerList.length - i - 1] = temp;
+    }
+    for(let i = 0; i < game.playerList.length; i++){
+        game.playerList[i].playerIndex = i;
+    }
+};
+
 game.discardCard = function(card){
     let value = card[0].value;
-    switch(value) {  //currently undefined -- why?
+    switch(value) { //currently undefined -- why?
+        case 'A':
+            break;
         case '8':
+            game.eightPlayed();
             break;
         case 'J':
             game.jackPlayed(card);  //suit determination TBA
@@ -221,7 +264,7 @@ game.isTurn = function(i){
 
 game.penaltyNoPlay = function(i){
     let player = game.playerList[i];
-    if(!game.isTurn(i)) {
+    if(!player.turn) {
         game.drawCard(player);
         return;
     } else {
@@ -231,7 +274,7 @@ game.penaltyNoPlay = function(i){
 
 game.penaltyPlayedCard = function(i, card){
     let player = game.playerList[i];
-    if(!game.isTurn(i)) {
+    if(!player.turn) {
         game.drawCard(player);
         return;
     } else if (!game.cardMatch(card)){
@@ -324,7 +367,41 @@ console.log('');
 console.log(game.playerList[0].hand);
 //console.log(discardPile.cards);
 
+//8 is played testing code
+game.startGame(3);
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+game.discardCard(game.playerList[0].hand[0]);
+console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
 
+
+
+
+
+
+
+//game.startGame(3);
+//console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+//console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// console.log(game.playerList[1].hand);
+// game.playerList[1].playCard(0);
+// console.log(game.playerList[1].hand);
+// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// game.playerList[0].passTurn();
+// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(game.cardMatch(game.playerList[1].hand[2]));
+// game.playerList[1].playCard(2);
+// console.log(discardPile.cards);
+// console.log(discardPile.topCard());
+//  console.log(discardPile.cards[1]);
+// console.log(game.playerList[1].hand);
+// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// game.playerList[2].passTurn();
+// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+//
 
 // for (let i = 0; i < game.playerList[0].hand.length; i++){
 //     let suit = game.playerList[0].hand[i][0].suit;
