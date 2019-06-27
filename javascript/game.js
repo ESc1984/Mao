@@ -294,41 +294,58 @@ game.penaltyPlayedCard = function(i, card){
 
 
 
-//8 is played testing code
-game.startGame(3);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-game.discardCard(game.playerList[0].hand[0]);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+//8 is played testing code (keep running until it plays an 8)
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
+// console.log(game.playerList[0].hand[0]);
+// game.discardCard(game.playerList[0].hand[0]);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
+// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
 
-
-
-
-
-
-
-//game.startGame(3);
-//console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-//console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-// console.log(game.playerList[1].hand);
-// game.playerList[1].playCard(0);
-// console.log(game.playerList[1].hand);
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[0].passTurn();
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(game.cardMatch(game.playerList[1].hand[2]));
-// game.playerList[1].playCard(2);
-// console.log(discardPile.cards);
-// console.log(discardPile.topCard());
-//  console.log(discardPile.cards[1]);
-// console.log(game.playerList[1].hand);
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+//turn order testing code
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// game.playerList[0].passTurn;
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// game.playerList[1].passTurn();
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
 // game.playerList[2].passTurn();
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-//
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+
+
+//receiving a penalty for playing out of turn test
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Player One's Hand: ${game.playerList[1].hand}`);
+// game.playerList[1].playCard(0);
+// console.log(`Player One's Hand: ${game.playerList[1].hand}`);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+
+
+//playing a card (either will work or will receive a penalty)
+// game.startGame(3);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+// console.log(`Top Card in Discard: ${discardPile.topCard()}`);
+// console.log(`Player's Hand: ${game.playerList[0].hand}`);
+// game.playerList[0].playCard[0];
+// console.log(`Player's Hand: ${game.playerList[0].hand}`);
+// console.log(`Top Card in Discard: ${discardPile.topCard()}`);
+// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
+
+
+//card match test code
+// game.startGame(3);
+// console.log(`Top Card in Discard: ${discardPile.topCard()}`);
+// console.log(`Card Chosen to Play: ${game.playerList[0].playCard[0]}`);
+// console.log(`Card Match: ${game.cardMatch(game.playerList[0].hand[0])}`);
+// game.playerList[0].playCard[0];
+// console.log(`Player's Hand: ${game.playerList[0].hand}`);
+// console.log(`Top Card in Discard: ${discardPile.topCard()}`);
+// console.log(`Second Card in Discard -if there- : ${discardPile.cards[1]}`);
+
 
 //eights - use function to reverse the order of playerList, find current player, move along
 //kings, queens, sevens - use button press before sending in, treat message as a second parameter
