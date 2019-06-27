@@ -1,19 +1,28 @@
+/*To-Do List
+* extract deck building from deck constructor
+* truly randomize deckmaking
+* --get rid of shuffle
+*check game getCurrentPlayer - should it return the player or the index?
+*
+*
+*
+*/
 
-//Card
 
-//values held by cards
+
+
+
+
+
+
 let suits = ['H', 'S', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
-//let values = ['J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J', 'J']; // just for jack testing
 
 
 
 
 
 
-//Deck
-
-//hold cards, order cards, give and take cards
 
 class Deck{
     constructor(){
@@ -58,7 +67,7 @@ class Deck{
         return validDeck;
     }
 
-    draw() {
+    deal() {
         if( this.isDeckValid() ) {
             return (this._cards.shift());
         }
@@ -67,7 +76,9 @@ class Deck{
 
 
 
-//Discard
+
+
+
 
 class DiscardPile {
     constructor (card){
@@ -115,9 +126,10 @@ class DiscardPile {
 //exist, have hand, play card, draw card
 
 class Player {
-    constructor (hand, name) {
+    constructor (hand, name, game) {
         this._hand = hand;
         this._name = name;
+        this._game = game;
         this._turn = false;
     }
 
@@ -139,28 +151,28 @@ class Player {
 
     //how do you reference game in player? Do you?
 
-    // playCard(cardIndex) {
-    //     let card = this._hand[cardIndex];
-    //     //playedCardCheckRules(this, card);
-    //     if(this._turn) {
-    //         if(/*cardMatch(card)*/) {
-    //             game.discardCard(this._hand.splice(cardIndex,1));
-    //         }
-    //         game.findWin(this);
-    //         game.updateTurn();
-    //     }
-    // }
+    playCard(cardIndex) {
+        let card = this._hand[cardIndex];
+        rules.playedCardCheckRules(this, card);
+        if(this._turn) {
+            if(true /*cardMatch(card)*/) {
+                game.discardCard(this._hand.splice(cardIndex,1));
+            }
+            rules.findWin(this);
+            this._game.updateTurn();
+        }
+    }
 
     set turn(turn) {
         this._turn = turn;
     }
 
-    // passTurn() {
-    //     game.passTurnCheckRules(this);
-    //     if(this._turn){
-    //         game.updateTurn();
-    //     }
-    // }
+    passTurn() {
+        //game.passTurnCheckRules(this);
+        if(this._turn){
+            this._game.updateTurn();
+        }
+    }
 }
 
 
@@ -175,26 +187,32 @@ class Player {
 
 class Game {
     constructor(numPlayers){
-        this._playDeck = new Deck().shuffle();
-        this._playerList = [];
-        let card = this._playDeck.draw();
+        this._playDeck = new Deck();
+        this._playDeck.shuffle();
+        let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card);
+
+        this._playerList = [];
         for (let i = 0; i < numPlayers; i++){
-            this._playerList.push(new Player(this.dealHand(), ('player' + i)));
+            this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+    }
+
+    getPlayer(index){
+        return this._playerList[index];
     }
 
     dealHand(){
         let hand = [];
         for (let i = 0; i < 7; i++){
-            hand.unshift(this._playDeck.draw());
+            hand.unshift(this._playDeck.deal());
         }
         return hand;
     }
 
     drawCard(player){
-        player.receiveCard(this._playDeck.draw());
+        player.receiveCard(this._playDeck.deal());
     }
 
     updateTurn(){
@@ -212,7 +230,7 @@ class Game {
         this._playerList[playerIndex].turn = true;
     }
 
-    findWhoseTurn(){
+    getCurrentPlayer(){
         let playerIndex;
         for(let i = 0; i < this._playerList.length; i++) {
             if(this._playerList[i].turn){
@@ -242,23 +260,22 @@ class Game {
     }
 }
 
+let rules = {}
 
-let game = {};
-
-game.eightPlayed = function(){
+rules.eightPlayed = function(){
     game.playerList.reverse();
 };
 
-game.acePlayed = function(){
+rules.acePlayed = function(){
     game.updateTurn();
 
 };
 
-game.cardMatch = function(card){
+rules.cardMatch = function(card){
     return ( (card.suit === discardPile.expected.suit) || (card.value === discardPile.expected.value))
 };
 
-game.passTurnCheckRules = function(player){
+rules.passTurnCheckRules = function(player){
     if(!player.turn) {
         game.drawCard(player);
         return;
@@ -267,7 +284,7 @@ game.passTurnCheckRules = function(player){
     }
 };
 
-game.playedCardCheckRules = function(player, card){
+rules.playedCardCheckRules = function(player, card){
     if(!player.turn) {
         game.drawCard(player);
         return;
@@ -279,11 +296,11 @@ game.playedCardCheckRules = function(player, card){
     }
 };
 
-game.jackPlayed = function(suit){
+rules.jackPlayed = function(suit){
     discardPile.expected.suit = suit;
 };
 
-game.findWin = function(player){
+rules.findWin = function(player){
     if (player.hand.length === 0){
         console.log('Congratulations, ' + (player._playerName) + ' - you have won this round of Mao');
         //end game
@@ -291,188 +308,6 @@ game.findWin = function(player){
 };
 
 
-//function checkRules(card, play)
-
-//function continuePlay()
-
-//cardToPlay - takes card played by player, moves it to discard
-//cardToHold - takes card from deck, gives it to player
-//whoseTurn - points to active player in order
-//creating certain number of players
-
-
-//if game.playdeck.length <= 0, add new deck
-//if everyone passes, place a new card from the deck
-
-//if cardMatch doesn't pass, don't allow card to be discarded, give penalty
-
-
-
-// game.startGame(3);
-// console.log(game.playerList[1].hand);
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[1].playCard(0);
-// console.log(game.playerList[1].hand);
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[0].passTurn();
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(game.cardMatch(game.playerList[1].hand[2]));
-// game.playerList[1].playCard(2);
-// console.log(discardPile.cards);
-// console.log(discardPile.topCard());
-//  console.log(discardPile.cards[1]);
-// console.log(game.playerList[1].hand);
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[2].passTurn();
-// console.log(`${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-
-let ourDeck = new Deck;
-let playCard = ourDeck.draw();
-let ourDiscard = new DiscardPile(playCard);
 let ourGame = new Game(3);
-console.log(playCard);
-console.log(ourDiscard);
-
-//jacks test code
-// console.log('');
-// game.startGame(2);
-// console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
-// console.log('');
-// console.log('card :' + JSON.stringify(game.playerList[0].hand[0]));
-// console.log('');
-// console.log('discard before play: ' + JSON.stringify(discardPile.cards));
-// game.playerList[0].playCard(0);
-// console.log('');
-// console.log('discard after play: ' + JSON.stringify(discardPile.cards));
-// console.log('');
-// console.log(discardPile.expected.suit)
-// console.log('');
-// console.log('hand: ' + JSON.stringify(game.playerList[0].hand));
-//
-// //8 is played testing code
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-// game.discardCard(game.playerList[0].hand[0]);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-
-
-
-
-//Testing Code
-
-//8 is played testing code (keep running until it plays an 8)
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// let cardToDiscard = game.playerList[0].hand.splice(0,1);
-// console.log(cardToDiscard);
-// game.playerList[0].playCard();
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log(`Player Name List: ${game.playerList[0].name} + ${game.playerList[1].name} + ${game.playerList[2].name}`);
-// console.log(`Player Index List: ${game.playerList[0].playerIndex} + ${game.playerList[1].playerIndex} + ${game.playerList[2].playerIndex}`);
-
-//turn order testing code
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[0].passTurn();
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[1].passTurn();
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// game.playerList[2].passTurn();
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-
-
-//receiving a penalty for playing out of turn test
-// game.startGame(3);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-// console.log("Player's Original Hand:");
-// console.log(game.playerList[1].hand);
-// game.playerList[1].playCard(0);
-// console.log("Player's New Hand:");
-// console.log(game.playerList[1].hand);
-// console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-
-
-//playing a card (either will work or will receive a penalty)
-game.startGame(3);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-console.log("Top Card in Discard:");
-console.log("Card Selected for Play:");
-console.log(game.playerList[0].hand[0]);
-console.log(discardPile.topCard());
-console.log("Player's Hand Before Turn:");
-console.log(game.playerList[0].hand);
-game.playerList[0].playCard(0);
-console.log("Player's Hand After Turn:");
-console.log(game.playerList[0].hand);
-console.log("Top Card in Discard:");
-console.log(discardPile.topCard());
-console.log("Second Card in Discard:");
-console.log(discardPile.cards[1]);
-console.log(`Player Turn List: ${game.playerList[0].turn} + ${game.playerList[1].turn} + ${game.playerList[2].turn}`);
-
-
-//card match test code
-// game.startGame(3);
-// console.log("Top Card in Discard:");
-// console.log(discardPile.topCard());
-// console.log('Card Chosen to Play:');
-// console.log(game.playerList[0].hand[0]);
-// console.log("Player's Hand Before Turn:");
-// console.log(game.playerList[0].hand);
-// console.log(`Card Match: ${game.cardMatch(game.playerList[0].hand[0])}`);
-// game.playerList[0].playCard(0);
-// console.log("Player's Hand After Turn:");
-// console.log(game.playerList[0].hand);
-// console.log("Top Card in Discard:");
-// console.log(discardPile.topCard());
-// console.log("Second Card in Discard:");
-// console.log(discardPile.cards[1]);
-
-
-// for (let i = 0; i < game.playerList[0].hand.length; i++){
-//     let suit = game.playerList[0].hand[i][0].suit;
-//     if (suit === 'J'){
-//         game.playerList[0].playCard(i);
-//         console.log(discardPile.topCard());
-//         break;
-//     }
-// }
-
-//eights - use function to reverse the order of playerList, find current player, move along
-//kings, queens, sevens - use button press before sending in, treat message as a second parameter
-    //nice days - start counter with first seven played, next person must press button once more than the last
-    //OR have a separate button for verys
-//ace - turn skipping already exists, right?
-//jacks - pass in new suit as a second parameter (like the above), add invisible card to discard, value 'none' suit (new suit)
-
-//Notes
-    //function checkRules(card, play)
-
-    //function continuePlay()
-
-    //cardToPlay - takes card played by player, moves it to discard
-
-    //cardToHold - takes card from deck, gives it to player
-
-    //whoseTurn - points to active player in order
-
-    //creating certain number of players
-
-    //if game.playdeck.length <= 0, add new deck
-
-
-
-//Rule List
-    //eights - use function to reverse the order of playerList, find current player, move along
-    //kings, queens, sevens - use button press before sending in, treat message as a second parameter
-        //nice days - start counter with first seven played, next person must press button once more than the last
-        //OR have a separate button for verys
-    //ace - turn skipping already exists, right?
-    //jacks - pass in new suit as a second parameter (like the above), add invisible card to discard, value 'none' suit (new suit)
-
-
+let card = ourGame.drawCard(ourGame.getPlayer(0));
+let test = 'test';
