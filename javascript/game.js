@@ -1,6 +1,13 @@
 /*To-Do List
 * check game getCurrentPlayer - should it return the player or the index?
+* should makeCards be static?
+* create statement function(s) for speaking parts? (part of interface)
+* penalizing failure to declare a suit with jack
 */
+
+
+
+
 
 
 
@@ -13,7 +20,7 @@ class Deck{
     }
 
     makeCards(){
-        let cards = []
+        let cards = [];
         for (let i = 0; i < 100; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
@@ -85,9 +92,8 @@ class DiscardPile {
 
 
 
-//Player
 
-//exist, have hand, play card, draw card
+
 
 class Player {
     constructor (hand, name, game) {
@@ -148,10 +154,6 @@ class Player {
 
 
 
-
-//Game
-
-//have players, have deck, give cards to players, take cards from players, establish turn order and active players, track rules
 
 class Game {
     constructor(numPlayers){
@@ -218,33 +220,24 @@ class Game {
     discardCard(card){
         let value = card.value;
         this._discardPile.addToDiscard(card);
-        //  switch(value) {
-        //      case 'A':
-        //          game.acePlayed();
-        //          break;
-        //      case '8':
-        //          game.eightPlayed();
-        //          break;
-        //      default:
-        //          break;
-        //      case 'J':
-        //          game.jackPlayed('test');  //suit determination TBA
-        //          break;
-        //  }                       this is probably all going in Rules
-        // //checkRules();
     }
 }
 
+
+
+
+
+
+
+/*
+class Rules{
+constructor(game){
+this._game = game;
+}
+}
+ */
+
 let rules = {};
-
-rules.eightPlayed = function(player){
-    player.game.playerList.reverse();
-};
-
-rules.acePlayed = function(player){
-    player.game.updateTurn();
-
-};
 
 rules.cardMatch = function(player, card){
     return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
@@ -254,7 +247,6 @@ rules.passTurnCheckRules = function(player){
     if(!player.turn) {
         player.game.drawCard(player);
     }
-    return;
 };
 
 rules.playedCardCheckRules = function(player, card){
@@ -263,12 +255,44 @@ rules.playedCardCheckRules = function(player, card){
      } else if (!rules.cardMatch(player, card)) {
          player.game.drawCard(player);
     }
-    return;
+};
+
+rules.acePlayed = function(player){
+    player.game.updateTurn();
+};
+
+rules.sevenPlayed = function(player, greet){
+    if (greet !== 'HAND'){
+        player.game.drawCard(player);
+    }
+};
+
+rules.eightPlayed = function(player){
+    player.game.playerList.reverse();
 };
 
 
 rules.jackPlayed = function(player, suit){
     player.game.discardPile.expectedSuit(suit);
+};
+
+rules.kingPlayed = function(player, hail){ //requires card?
+    if (hail !== 'AHCM'){
+        player.game.drawCard(player);
+    }
+};
+
+rules.queenPlayed = function(player, hail){
+    if (hail !== 'AHCW'){
+        player.game.drawCard(player);
+    }
+};
+
+rules.mao = function(player, state){
+    let cardsLeft = player.hand.length;
+    if ((cardsLeft === 1)&&(state !== 'mao')){
+        player.game.drawCard(player);
+    }
 };
 
 rules.findWin = function(player){
@@ -277,6 +301,26 @@ rules.findWin = function(player){
         //end game
     }
 };
+
+//  switch(value) {
+//      case 'A':
+//          game.acePlayed();
+//          break;
+//      case '8':
+//          game.eightPlayed();
+//          break;
+//      default:
+//          break;
+//      case 'J':
+//          game.jackPlayed('test');  //suit determination TBA
+//          break;
+//  }                       this is probably all going in Rules
+// //checkRules();
+
+
+
+
+
 
 
 let ourGame = new Game(3);
