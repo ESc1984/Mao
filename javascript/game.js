@@ -2,6 +2,8 @@
 * check game getCurrentPlayer - should it return the player or the index?
 * should makeCards be static?
 * create statement function(s) for speaking parts? (part of interface)
+* interface - determine declarations
+* Spades rule
 */
 
 
@@ -83,8 +85,8 @@ class DiscardPile {
 
     addToDiscard(card){
         this._cards.unshift(card);
-        this._expectedSuit = card.suit;
-        this._expectedValue = card.value;
+        this._expectedSuit = card[0].suit;
+        this._expectedValue = card[0].value;
     }
 }
 
@@ -95,11 +97,16 @@ class DiscardPile {
 
 
 class Player {
-    constructor (hand, name, game) {
+    constructor (hand, name, game, rules) {
         this._hand = hand;
         this._name = name;
         this._game = game;
+        this._rules = rules;
         this._turn = false;
+    }
+
+    get game() {
+        return this._game;
     }
 
     get hand() {
@@ -124,8 +131,8 @@ class Player {
         let card = this._hand[cardIndex];
         rules.playedCardCheckRules(this, card);
         if(this._turn) {
-            if(true /*cardMatch(card)*/) {
-                game.discardCard(this._hand.splice(cardIndex,1));
+            if(rules.cardMatch(this, card)) {
+                this._game.discardCard(this._hand.splice(cardIndex,1));
             }
             rules.findWin(this);
             this._game.updateTurn();
@@ -137,7 +144,7 @@ class Player {
     }
 
     passTurn() {
-        //game.passTurnCheckRules(this);
+        rules.passTurnCheckRules(this);
         if(this._turn){
             this._game.updateTurn();
         }
@@ -161,10 +168,19 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+        console.log('This game of Mao is officially in session.')
     }
 
     getPlayer(index){
         return this._playerList[index];
+    }
+
+    get playerList(){
+        return this._playerList;
+    }
+
+    get discardPile(){
+        return this._discardPile;
     }
 
     dealHand(){
@@ -180,18 +196,18 @@ class Game {
     }
 
     updateTurn(){
-        let currentPlayerIndex = this.findWhoseTurn();
-        let nextPlayerIndex = currentPlayerIndex + 1 >= this._playerList.length ? 0 : currentPlayerIndex + 1;
-        this.disableTurn(currentPlayerIndex);
-        this.enableTurn(nextPlayerIndex);
+        let currentPlayer = this.getCurrentPlayer();
+        let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
+        this.disableTurn(currentPlayer);
+        this.enableTurn(nextPlayer);
     }
 
     disableTurn(playerIndex){
-        this._playerList[playerIndex].turn = false;
+        this.getPlayer(playerIndex).turn = false;
     }
 
     enableTurn(playerIndex){
-        this._playerList[playerIndex].turn = true;
+        this.getPlayer(playerIndex).turn = true;
     }
 
     getCurrentPlayer(){
@@ -205,7 +221,6 @@ class Game {
     }
 
     discardCard(card){
-        let value = card.value;
         this._discardPile.addToDiscard(card);
     }
 }
@@ -216,82 +231,109 @@ class Game {
 
 
 
-/*
 class Rules{
-constructor(game){
-this._game = game;
-}
-}
- */
-
-let rules = {};
-
-rules.cardMatch = function(card){
-    return ( (card.suit === discardPile.expected.suit) || (card.value === discardPile.expected.value))
-};
-
-rules.passTurnCheckRules = function(player){
-    if(!player.turn) {
-        game.drawCard(player);
+    constructor(player){
+        this._player = player;
+        this._gameRules = {
+            "A": this.acePlayed(player),
+            "7": this.sevenPlayed(player, 'HAND'), //declarations TBA
+            "8": this.eightPlayed(player),
+            "J": this.jackPlayed(player, 'D'),
+            "Q": this.queenPlayed(player, "AHCW"),
+            "K": this.kingPlayed(player, "AHCM"),
+            "S": this.spadePlayed(player, "spades")
+        };
     }
-};
 
-rules.playedCardCheckRules = function(player, card){
-    if(!player.turn) {
-        game.drawCard(player);
-    } else if (!game.cardMatch(card)){
-        game.drawCard(player);
+    cardMatch(player, card){
+        return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
     }
-};
 
-rules.acePlayed = function(){
-    game.updateTurn();
-
-};
-
-rules.sevenPlayed = function(player, greet){
-    if (greet !== 'HAND'){
-        game.drawCard(player);
+    passTurnCheckRules(player){
+        if(!player.turn) {
+            player.game.drawCard(player);
+        }
     }
-};
 
-rules.eightPlayed = function(){
-    game.playerList.reverse();
-};
-
-rules.jackPlayed = function(player, suit){
-    if ((suit ==='H')||(suit === 'S')||(suit === 'D')||(suit === 'C')){
-        discardPile.expected.suit = suit;
-    } else {
-        player.game.drawCard();
+    playedCardCheckRules(player, card){
+        if(!player.turn) {
+            player.game.drawCard(player);
+        } else if (!rules.cardMatch(player, card)) {
+            player.game.drawCard(player);
+        }
     }
-};
 
-rules.kingPlayed = function(player, hail){ //requires card?
-    if (hail !== 'AHCM'){
-        game.drawCard(player);
+    spadePlayed(player, state){
+        if(state !== 'spades'){
+            player.game.drawCard();
+            console.log('Failure to declare spades.')
+        } else {
+            console.log(state);
+        }
     }
-};
 
-rules.queenPlayed = function(player, hail){
-    if (hail !== 'AHCW'){
-        game.drawCard(player);
+    acePlayed(player){
+        player.game.updateTurn();
     }
-};
 
-rules.mao = function(player, state){
-    let cardsleft = player.hand.length;
-    if ((cardsleft === 1)&&(state !== 'mao')){
-        game.drawCard(player);
+    sevenPlayed(player, state){
+        if (state !== 'HAND') {
+            player.game.drawCard(player);
+            console.log('Failure to say Have a Nice Day');
+        } else {
+            console.log(state);
+        }
     }
-};
 
-rules.findWin = function(player){
-    if (player.hand.length === 0){
-        console.log('Congratulations, ' + (player._playerName) + ' - you have won this round of Mao');
-        //end game
+    eightPlayed(player){
+        player.game.playerList.reverse();
     }
-};
+
+
+    jackPlayed(player, suit){
+        if ((suit === 'H')||(suit === 'S')||(suit ==='D')||(suit === 'C')){
+            player.game.discardPile.expectedSuit(suit);
+            console.log('New suit: ' + suit)
+        } else {
+            player.game.drawCard();
+            console.log('Failure to declare a suit');
+        }
+    }
+
+    kingPlayed(player, state){ //requires card?
+        if (state !== 'AHCM'){
+            player.game.drawCard(player);
+            console.log('Failure to declare All Hail the Chairman');
+        } else {
+            console.log(state);
+        }
+    }
+
+    queenPlayed(player, state){
+        if (state !== 'AHCW'){
+            player.game.drawCard(player);
+            console.log('Failure to declare All Hail the Chairwoman');
+        } else {
+            console.log(state);
+        }
+    }
+
+    mao(player, state){
+        let cardsLeft = player.hand.length;
+        if ((cardsLeft === 1)&&(state.toLowerCase() !== 'mao')){
+            player.game.drawCard(player);
+            console.log('Failure to declare Mao');
+        } else {
+            console.log(state);
+        }
+    }
+
+    findWin(player){
+        if (player.hand.length === 0){
+            console.log('Congratulations, ' + (player.name) + ' - you have won this round of Mao');
+            //end game
+        }
+    }
 
 //  switch(value) {
 //      case 'A':
@@ -307,6 +349,10 @@ rules.findWin = function(player){
 //          break;
 //  }                       this is probably all going in Rules
 // //checkRules();
+}
+
+
+
 
 
 
@@ -315,5 +361,13 @@ rules.findWin = function(player){
 
 
 let ourGame = new Game(3);
-let card = ourGame.drawCard(ourGame.getPlayer(0));
-let test = 'test';
+let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(0);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.passTurn();
+player = ourGame.getPlayer(0);
+player.playCard(0);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(2);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(2);
