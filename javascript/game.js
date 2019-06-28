@@ -84,8 +84,8 @@ class DiscardPile {
 
     addToDiscard(card){
         this._cards.unshift(card);
-        this._expectedSuit = card.suit;
-        this._expectedValue = card.value;
+        this._expectedSuit = card[0].suit;
+        this._expectedValue = card[0].value;
     }
 }
 
@@ -101,6 +101,10 @@ class Player {
         this._name = name;
         this._game = game;
         this._turn = false;
+    }
+
+    get game() {
+        return this._game;
     }
 
     get hand() {
@@ -125,8 +129,8 @@ class Player {
         let card = this._hand[cardIndex];
         rules.playedCardCheckRules(this, card);
         if(this._turn) {
-            if(true /*cardMatch(card)*/) {
-                game.discardCard(this._hand.splice(cardIndex,1));
+            if(rules.cardMatch(this, card)) {
+                this._game.discardCard(this._hand.splice(cardIndex,1));
             }
             rules.findWin(this);
             this._game.updateTurn();
@@ -138,7 +142,7 @@ class Player {
     }
 
     passTurn() {
-        //game.passTurnCheckRules(this);
+        rules.passTurnCheckRules(this);
         if(this._turn){
             this._game.updateTurn();
         }
@@ -168,6 +172,14 @@ class Game {
         return this._playerList[index];
     }
 
+    get playerList(){
+        return this._playerList;
+    }
+
+    get discardPile(){
+        return this._discardPile;
+    }
+
     dealHand(){
         let hand = [];
         for (let i = 0; i < 7; i++){
@@ -181,18 +193,18 @@ class Game {
     }
 
     updateTurn(){
-        let currentPlayerIndex = this.findWhoseTurn();
-        let nextPlayerIndex = currentPlayerIndex + 1 >= this._playerList.length ? 0 : currentPlayerIndex + 1;
-        this.disableTurn(currentPlayerIndex);
-        this.enableTurn(nextPlayerIndex);
+        let currentPlayer = this.getCurrentPlayer();
+        let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
+        this.disableTurn(currentPlayer);
+        this.enableTurn(nextPlayer);
     }
 
     disableTurn(playerIndex){
-        this._playerList[playerIndex].turn = false;
+        this.getPlayer(playerIndex).turn = false;
     }
 
     enableTurn(playerIndex){
-        this._playerList[playerIndex].turn = true;
+        this.getPlayer(playerIndex).turn = true;
     }
 
     getCurrentPlayer(){
@@ -206,7 +218,6 @@ class Game {
     }
 
     discardCard(card){
-        let value = card.value;
         this._discardPile.addToDiscard(card);
     }
 }
@@ -227,65 +238,69 @@ this._game = game;
 
 let rules = {};
 
-rules.cardMatch = function(card){
-    return ( (card.suit === discardPile.expected.suit) || (card.value === discardPile.expected.value))
+rules.cardMatch = function(player, card){
+    return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
 };
 
 rules.passTurnCheckRules = function(player){
     if(!player.turn) {
-        game.drawCard(player);
+        player.game.drawCard(player);
     }
 };
 
 rules.playedCardCheckRules = function(player, card){
     if(!player.turn) {
-        game.drawCard(player);
-    } else if (!game.cardMatch(card)){
-        game.drawCard(player);
+        player.game.drawCard(player);
+     } else if (!rules.cardMatch(player, card)) {
+         player.game.drawCard(player);
     }
 };
 
-rules.acePlayed = function(){
-    game.updateTurn();
-
+rules.acePlayed = function(player){
+    player.game.updateTurn();
 };
 
 rules.sevenPlayed = function(player, greet){
     if (greet !== 'HAND'){
-        game.drawCard(player);
+        player.game.drawCard(player);
     }
 };
 
-rules.eightPlayed = function(){
-    game.playerList.reverse();
+rules.eightPlayed = function(player){
+    player.game.playerList.reverse();
 };
 
-rules.jackPlayed = function(suit){
-    discardPile.expected.suit = suit;
+
+rules.jackPlayed = function(player, suit){
+    if ((suit === 'H')||(suit === 'S')||(suit ==='D')||(suit === 'C')){
+        player.game.discardPile.expectedSuit(suit);
+    } else {
+        player.game.drawCard();
+    }
 };
 
 rules.kingPlayed = function(player, hail){ //requires card?
     if (hail !== 'AHCM'){
-        game.drawCard(player);
+        player.game.drawCard(player);
     }
 };
 
 rules.queenPlayed = function(player, hail){
     if (hail !== 'AHCW'){
-        game.drawCard(player);
+        player.game.drawCard(player);
     }
 };
 
 rules.mao = function(player, state){
-    let cardsleft = player.hand.length;
-    if ((cardsleft === 1)&&(state !== 'mao')){
-        game.drawCard(player);
+    let cardsLeft = player.hand.length;
+    if ((cardsLeft === 1)&&(state !== 'mao')){
+        player.game.drawCard(player);
     }
 };
 
 rules.findWin = function(player){
     if (player.hand.length === 0){
-        console.log('Congratulations, ' + (player._playerName) + ' - you have won this round of Mao');
+        console.log('Congratulations, ' + (player.name) + ' - you have won this round of Mao');
         //end game
     }
 };
@@ -312,5 +327,13 @@ rules.findWin = function(player){
 
 
 let ourGame = new Game(3);
-let card = ourGame.drawCard(ourGame.getPlayer(0));
-let test = 'test';
+let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(0);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.passTurn();
+player = ourGame.getPlayer(0);
+player.playCard(0);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(2);
+player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+player.playCard(0);
