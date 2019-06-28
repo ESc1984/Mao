@@ -142,7 +142,7 @@ class Player {
     }
 
     passTurn() {
-        //game.passTurnCheckRules(this);
+        rules.passTurnCheckRules(this);
         if(this._turn){
             this._game.updateTurn();
         }
@@ -218,7 +218,6 @@ class Game {
     }
 
     discardCard(card){
-        let value = card.value;
         this._discardPile.addToDiscard(card);
     }
 }
@@ -273,7 +272,11 @@ rules.eightPlayed = function(player){
 
 
 rules.jackPlayed = function(player, suit){
-    player.game.discardPile.expectedSuit(suit);
+    if ((suit === 'H')||(suit === 'S')||(suit ==='D')||(suit === 'C')){
+        player.game.discardPile.expectedSuit(suit);
+    } else {
+        player.game.drawCard();
+    }
 };
 
 rules.kingPlayed = function(player, hail){ //requires card?
@@ -324,7 +327,6 @@ rules.findWin = function(player){
 
 
 let ourGame = new Game(3);
-let card = ourGame.drawCard(ourGame.getPlayer(0));
 let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
 player.playCard(0);
 player = ourGame.getPlayer(ourGame.getCurrentPlayer());
