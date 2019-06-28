@@ -2,7 +2,6 @@
 * check game getCurrentPlayer - should it return the player or the index?
 * should makeCards be static?
 * create statement function(s) for speaking parts? (part of interface)
-* penalizing failure to declare a suit with jack
 */
 
 
@@ -260,8 +259,12 @@ rules.eightPlayed = function(){
     game.playerList.reverse();
 };
 
-rules.jackPlayed = function(suit){
-    discardPile.expected.suit = suit;
+rules.jackPlayed = function(player, suit){
+    if ((suit ==='H')||(suit === 'S')||(suit === 'D')||(suit === 'C')){
+        discardPile.expected.suit = suit;
+    } else {
+        player.game.drawCard();
+    }
 };
 
 rules.kingPlayed = function(player, hail){ //requires card?
@@ -300,7 +303,7 @@ rules.findWin = function(player){
 //      default:
 //          break;
 //      case 'J':
-//          game.jackPlayed('test');  //suit determination TBA
+//          game.jackPlayed('D');  //suit determination TBA
 //          break;
 //  }                       this is probably all going in Rules
 // //checkRules();
