@@ -10,7 +10,6 @@
 
 
 
-
 let suits = ['H', 'S', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
@@ -84,8 +83,8 @@ class DiscardPile {
 
     addToDiscard(card){
         this._cards.unshift(card);
-        this._expectedSuit = card[0].suit;
-        this._expectedValue = card[0].value;
+        this._expectedSuit = card.suit;
+        this._expectedValue = card.value;
     }
 }
 
@@ -126,11 +125,12 @@ class Player {
     //how do you reference game in player? Do you?
 
     playCard(cardIndex) {
+        console.log("play card");
         let card = this._hand[cardIndex];
         rules.playedCardCheckRules(this, card);
         if(this._turn) {
             if(rules.cardMatch(this, card)) {
-                this._game.discardCard(this._hand.splice(cardIndex,1));
+                this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
             }
             rules.findWin(this);
             this._game.updateTurn();
@@ -142,6 +142,7 @@ class Player {
     }
 
     passTurn() {
+        console.log('turn passed');
         rules.passTurnCheckRules(this);
         if(this._turn){
             this._game.updateTurn();
@@ -154,9 +155,9 @@ class Player {
 
 
 
-
 class Game {
     constructor(numPlayers){
+        console.log(numPlayers);
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card);
@@ -208,6 +209,7 @@ class Game {
     }
 
     getCurrentPlayer(){
+        console.log('getCurrentPlayer');
         let playerIndex;
         for(let i = 0; i < this._playerList.length; i++) {
             if(this._playerList[i].turn){
@@ -293,7 +295,7 @@ rules.queenPlayed = function(player, hail){
 
 rules.mao = function(player, state){
     let cardsLeft = player.hand.length;
-    if ((cardsLeft === 1)&&(state !== 'mao')){
+    if ((cardsLeft === 2)&&(state !== 'mao')){
         player.game.drawCard(player);
     }
 };
@@ -321,19 +323,48 @@ rules.findWin = function(player){
 // //checkRules();
 
 
+window.addEventListener("load", function() {
+
+});
 
 
 
+let ourGame;
 
 
-let ourGame = new Game(3);
-let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(0);
-player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.passTurn();
-player = ourGame.getPlayer(0);
-player.playCard(0);
-player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(2);
-player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(0);
+document.getElementById("passTurn").addEventListener("click", passTurn);
+document.getElementById("playCard").addEventListener("click", playTurn);
+
+function displayPlayerHand(playerIndex) {
+    document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
+}
+
+function startGame(numPlayers) {
+    ourGame = new Game(numPlayers);
+}
+
+function passTurn() {
+    ourGame.getPlayer(1).passTurn();
+}
+
+function playTurn() {
+    ourGame.getPlayer(0).playCard(2);
+}
+
+function visibility(object) {
+    object.style.visibility = "hidden";
+}
+
+
+
+// let ourGame = new Game(3);
+// let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+// player.playCard(0);
+// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+// player.passTurn();
+// player = ourGame.getPlayer(0);
+// player.playCard(0);
+// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+// player.playCard(2);
+// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
+// player.playCard(6);
