@@ -97,12 +97,13 @@ class DiscardPile {
 
 
 class Player {
-    constructor (hand, name, game, rules) {
+    constructor(hand, name, game, rules) {
         this._hand = hand;
         this._name = name;
         this._game = game;
         this._rules = rules;
         this._turn = false;
+        this._passes = 0;
     }
 
     get game() {
@@ -121,31 +122,31 @@ class Player {
         return this._turn;
     }
 
-    receiveCard(card) {
-        this._hand.push(card);
-    }
-
-    //how do you reference game in player? Do you?
-
-    playCard(cardIndex) {
-        let card = this._hand[cardIndex];
-        rules.playedCardCheckRules(this, card);
-        if(this._turn) {
-            if(rules.cardMatch(this, card)) {
-                this._game.discardCard(this._hand.splice(cardIndex,1));
-            }
-            rules.findWin(this);
-            this._game.updateTurn();
-        }
-    }
-
     set turn(turn) {
         this._turn = turn;
     }
 
+    receiveCard(card) {
+        this._hand.push(card);
+    }
+
     passTurn() {
-        rules.passTurnCheckRules(this);
-        if(this._turn){
+        //rules.passTurnCheckRules(this);
+        if (this._turn) {
+            this._game._passes++;
+            this._game.updateTurn();
+        }
+    };
+
+    playCard(cardIndex) {
+        let card = this._hand[cardIndex];
+        //rules.playedCardCheckRules(this, card);
+        if (this._turn) {
+            if (true /*rules.cardMatch(this, card)*/) {
+                this._game._passes = 0;
+                this._game.discardCard(this._hand.splice(cardIndex, 1));
+            }
+            //rules.findWin(this);
             this._game.updateTurn();
         }
     }
@@ -168,6 +169,7 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+        this._passes = 0;
         console.log('This game of Mao is officially in session.')
     }
 
@@ -200,6 +202,7 @@ class Game {
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
+        this.passCount();
     }
 
     disableTurn(playerIndex){
@@ -222,6 +225,13 @@ class Game {
 
     discardCard(card){
         this._discardPile.addToDiscard(card);
+    }
+
+    passCount(){
+        if (this._passes >= this.playerList.length){
+            this._discardPile.addToDiscard(this._playDeck.deal());
+            this._passes = 0;
+        }
     }
 }
 
@@ -361,13 +371,11 @@ class Rules{
 
 
 let ourGame = new Game(3);
+console.log(ourGame.discardPile._cards);
 let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(0);
+player.passTurn();
 player = ourGame.getPlayer(ourGame.getCurrentPlayer());
 player.passTurn();
-player = ourGame.getPlayer(0);
-player.playCard(0);
 player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(2);
-player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-player.playCard(2);
+player.passTurn();
+console.log(ourGame.discardPile._cards);
