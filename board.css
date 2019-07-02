@@ -1,5 +1,21 @@
 .card{
+    margin: 2px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 120px;
     width: 100px;
-    height: 140px;
-    background-color: lightcyan;
 }
+
+.grid{
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.pass{
+    margin: 2px;
+}
+
