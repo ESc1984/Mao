@@ -131,6 +131,8 @@ class Player {
         if(this._turn) {
             if(rules.cardMatch(this, card)) {
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
+                let element = document.getElementById(`${card.suit} ${card.value}`);
+                element.parentNode.removeChild(element);
             }
             rules.findWin(this);
             this._game.updateTurn();
@@ -324,13 +326,13 @@ rules.findWin = function(player){
 
 let ourGame;
 let game;
+let selectedCard;
+let playerPlaying;
 
 window.onload = function gameLoaded() {
-     game = document.getElementById("game");
-
+    game = document.getElementById("game");
     document.getElementById("passTurn").addEventListener("click", passTurn);
     document.getElementById("playCard").addEventListener("click", playTurn);
-
 };
 
 
@@ -348,18 +350,23 @@ function startGame(numPlayers) {
         gamePlayer.dataset.name = player.name;
         gamePlayer.innerHTML = player.name;
         game.appendChild(gamePlayer);
-        addCardsToPlayer(player);
+        const grid = document.createElement('section');
+        grid.setAttribute('class', 'grid');
+        gamePlayer.appendChild(grid);
+        addCardsToPlayer(player, grid);
     });
 }
 
-function addCardsToPlayer(player){
-    const gamePlayer = document.getElementById(player.name);
+function addCardsToPlayer(player, grid){
+    const gameGrid = grid;
     player.hand.forEach(card => {
         const playCard = document.createElement('div');
         playCard.classList.add('card');
-        playCard.innerHTML = card.suit + " " + card.value;
-        gamePlayer.appendChild(playCard);
-    })
+        playCard.setAttribute("id", card.suit + " " + card.value);
+        playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
+        playCard.onclick = selectCard;
+        gameGrid.appendChild(playCard);
+    });
 }
 
 function passTurn() {
@@ -367,10 +374,28 @@ function passTurn() {
 }
 
 function playTurn() {
-    ourGame.getPlayer(0).playCard(2);
+    let playerIndex = -1;
+    for(let i = 0; i < ourGame.playerList.length; i++){
+        if(ourGame.playerList[i].name === playerPlaying){
+            playerIndex = i;
+        }
+    }
+    let player = ourGame.playerList[playerIndex];
+    let cardIndex = -1;
+    for(let i = 0; i < player.hand.length; i++){
+        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(2)){
+            cardIndex = i;
+        }
+    }
+    player.playCard(cardIndex);
 }
 
-function visibility(object) {
+function selectCard() {
+    playerPlaying = this.parentElement.parentElement.id;
+    selectedCard = this.id;
+}
+
+function removeVisibility(object) {
     object.style.visibility = "hidden";
 }
 

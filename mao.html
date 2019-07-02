@@ -10,7 +10,9 @@
 <div id="game">
     <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
     <input name="numPlayersPrompt" id="numPlayers" type="number">
-    <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);visibility(this);visibility(document.getElementById('numPlayers'));visibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
+    <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
+        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
+        removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
     <button id="passTurn">Pass Turn</button>
     <button id="playCard" onclick="playTurn()">Play Turn</button>
 </div>
