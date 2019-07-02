@@ -131,8 +131,17 @@ class Player {
         if(this._turn) {
             if(rules.cardMatch(this, card)) {
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
-                let element = document.getElementById(`${card.suit} ${card.value}`);
+
+                let player = document.querySelector(`#${this.name}`);
+                let grid = player.querySelector(".grid");
+                let identifier = "#" + card.suit + card.value;
+                let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
+
+                // let player = document.getElementById(this.name);
+                // let grid = player.children[1];
+                // let element = grid.querySelector(`#${card.suit}${card.value}`);
+                // element.parentNode.removeChild(element);
             }
             rules.findWin(this);
             this._game.updateTurn();
@@ -334,7 +343,6 @@ let playerPlaying;
 
 window.onload = function gameLoaded() {
     game = document.getElementById("game");
-    document.getElementById("passTurn").addEventListener("click", passTurn);
     document.getElementById("playCard").addEventListener("click", playTurn);
 };
 
@@ -376,7 +384,7 @@ function initializePlayerHand(player, grid){
 function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
-    playCard.setAttribute("id", card.suit + " " + card.value);
+    playCard.setAttribute("id", card.suit + card.value);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
     grid.appendChild(playCard);
@@ -392,7 +400,7 @@ function playTurn() {
     let player = findPlayerIndexFromId();
     let cardIndex = -1;
     for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(2)){
+        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
             cardIndex = i;
         }
     }
