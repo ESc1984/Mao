@@ -82,10 +82,16 @@ class DiscardPile {
     }
 
     addToDiscard(card){
+        let disc = document.getElementById("discard");
         this._cards.unshift(card);
         this._expectedSuit = card.suit;
         this._expectedValue = card.value;
-
+        disc.removeChild(disc.children[0]);
+        addCardsToPlayer(card, disc);
+        // let img = document.createElement("IMG");
+        // img.src = "images/1.gif";
+        // let oldImg = document.getElementById('oldImg');
+        // document.getElementById('imgDiv').replaceChild(img, oldImg);
     }
 }
 
@@ -355,6 +361,7 @@ function displayPlayerHand(playerIndex) {
 function startGame(numPlayers) {
     ourGame = new Game(numPlayers);
     const discard = document.createElement('section');
+    discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
     game.appendChild(discard);
     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
