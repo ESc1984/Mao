@@ -322,18 +322,17 @@ rules.findWin = function(player){
 //  }                       this is probably all going in Rules
 // //checkRules();
 
-
-window.addEventListener("load", function() {
-
-});
-
-
-
 let ourGame;
+let game;
 
+window.onload = function gameLoaded() {
+     game = document.getElementById("game");
 
-document.getElementById("passTurn").addEventListener("click", passTurn);
-document.getElementById("playCard").addEventListener("click", playTurn);
+    document.getElementById("passTurn").addEventListener("click", passTurn);
+    document.getElementById("playCard").addEventListener("click", playTurn);
+
+};
+
 
 function displayPlayerHand(playerIndex) {
     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
@@ -341,6 +340,26 @@ function displayPlayerHand(playerIndex) {
 
 function startGame(numPlayers) {
     ourGame = new Game(numPlayers);
+    ourGame.playerList.forEach(player => {
+        const gamePlayer = document.createElement('div');
+        gamePlayer.classList.add('player');
+        gamePlayer.setAttribute("class", "player");
+        gamePlayer.setAttribute("id", player.name);
+        gamePlayer.dataset.name = player.name;
+        gamePlayer.innerHTML = player.name;
+        game.appendChild(gamePlayer);
+        addCardsToPlayer(player);
+    });
+}
+
+function addCardsToPlayer(player){
+    const gamePlayer = document.getElementById(player.name);
+    player.hand.forEach(card => {
+        const playCard = document.createElement('div');
+        playCard.classList.add('card');
+        playCard.innerHTML = card.suit + " " + card.value;
+        gamePlayer.appendChild(playCard);
+    })
 }
 
 function passTurn() {
