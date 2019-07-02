@@ -192,7 +192,10 @@ class Game {
     }
 
     drawCard(player){
-        player.receiveCard(this._playDeck.deal());
+        let card = this._playDeck.deal();
+        let grid = document.getElementById(player.name).children[1];
+        addCardsToPlayer(card,grid);
+        player.receiveCard(card);
     }
 
     updateTurn(){
@@ -350,37 +353,43 @@ function startGame(numPlayers) {
         gamePlayer.dataset.name = player.name;
         gamePlayer.innerHTML = player.name;
         game.appendChild(gamePlayer);
+        const passBtn = document.createElement("button");
+        passBtn.setAttribute('class', 'pass');
+        passBtn.innerHTML = 'Pass Turn';
+        passBtn.onclick = passTurn;
+        gamePlayer.appendChild(passBtn);
         const grid = document.createElement('section');
         grid.setAttribute('class', 'grid');
         gamePlayer.appendChild(grid);
-        addCardsToPlayer(player, grid);
+        initializePlayerHand(player, grid);
     });
 }
 
-function addCardsToPlayer(player, grid){
+function initializePlayerHand(player, grid){
     const gameGrid = grid;
     player.hand.forEach(card => {
-        const playCard = document.createElement('div');
-        playCard.classList.add('card');
-        playCard.setAttribute("id", card.suit + " " + card.value);
-        playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
-        playCard.onclick = selectCard;
-        gameGrid.appendChild(playCard);
+        addCardsToPlayer(card, grid)
     });
+}
+
+
+function addCardsToPlayer(card, grid){
+    const playCard = document.createElement('div');
+    playCard.classList.add('card');
+    playCard.setAttribute("id", card.suit + " " + card.value);
+    playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
+    playCard.onclick = selectCard;
+    grid.appendChild(playCard);
 }
 
 function passTurn() {
-    ourGame.getPlayer(1).passTurn();
+    playerPlaying = this.parentElement.id;
+    let player = findPlayerIndexFromId();
+    player.passTurn();
 }
 
 function playTurn() {
-    let playerIndex = -1;
-    for(let i = 0; i < ourGame.playerList.length; i++){
-        if(ourGame.playerList[i].name === playerPlaying){
-            playerIndex = i;
-        }
-    }
-    let player = ourGame.playerList[playerIndex];
+    let player = findPlayerIndexFromId();
     let cardIndex = -1;
     for(let i = 0; i < player.hand.length; i++){
         if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(2)){
@@ -389,6 +398,18 @@ function playTurn() {
     }
     player.playCard(cardIndex);
 }
+
+function findPlayerIndexFromId(){
+    let playerIndex = -1;
+    for (let i = 0; i < ourGame.playerList.length; i++) {
+        if (ourGame.playerList[i].name === playerPlaying) {
+            playerIndex = i;
+        }
+    }
+    let player = ourGame.playerList[playerIndex];
+    return player;
+}
+
 
 function selectCard() {
     playerPlaying = this.parentElement.parentElement.id;
