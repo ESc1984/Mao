@@ -85,6 +85,7 @@ class DiscardPile {
         this._cards.unshift(card);
         this._expectedSuit = card.suit;
         this._expectedValue = card.value;
+
     }
 }
 
@@ -353,6 +354,10 @@ function displayPlayerHand(playerIndex) {
 
 function startGame(numPlayers) {
     ourGame = new Game(numPlayers);
+    const discard = document.createElement('section');
+    discard.setAttribute('class', 'grid');
+    game.appendChild(discard);
+    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
         gamePlayer.classList.add('player');
