@@ -85,8 +85,8 @@ class DiscardPile {
 
     addToDiscard(card){
         this._cards.unshift(card);
-        this._expectedSuit = card[0].suit;
-        this._expectedValue = card[0].value;
+        this._expectedSuit = card.suit;
+        this._expectedValue = card.value;
     }
 }
 
@@ -246,7 +246,7 @@ class Rules{
         this._player = player;
         this._gameRules = {
             "A": this.acePlayed(player),
-            "7": this.sevenPlayed(player, 'HAND'), //declarations TBA
+            "7": this.sevenPlayed(player, "HAND"), //declarations TBA
             "8": this.eightPlayed(player),
             "J": this.jackPlayed(player, 'D'),
             "Q": this.queenPlayed(player, "AHCW"),
