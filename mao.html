@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Mao</title>
-    <script src="javascript/game.js"></script>
+    <link rel="stylesheet" type="text/css" href="board.css"/>
+    <script type="text/javascript" src="javascript/game.js"></script>
 </head>
 <body>
-<div class="card">
-<rect width = "100" height = "140"></rect>
+<div id="game">
+    <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
+    <input name="numPlayersPrompt" id="numPlayers" type="number">
+    <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
+        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
+        removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
+    <button id="playCard">Play Turn</button>
 </div>
 </body>
 </html>
