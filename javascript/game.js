@@ -3,7 +3,6 @@
 * should makeCards be static?
 * create statement function(s) for speaking parts? (part of interface)
 * interface - determine declarations
-* Spades rule
 */
 
 
@@ -251,7 +250,7 @@ class Rules{
             "J": this.jackPlayed(player, 'D'),
             "Q": this.queenPlayed(player, "AHCW"),
             "K": this.kingPlayed(player, "AHCM"),
-            "S": this.spadePlayed(player, "spades")
+            "S": this.spadePlayed(player, "S")
         };
     }
 
@@ -274,7 +273,7 @@ class Rules{
     }
 
     spadePlayed(player, state){
-        if(state !== 'spades'){
+        if(state !== 'S'){
             player.game.drawCard();
             console.log('Failure to declare spades.')
         } else {
