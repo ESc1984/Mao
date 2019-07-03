@@ -163,7 +163,7 @@ class Player {
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
                 this._rules.mao(this, rule);
-            } else if (rule === 'Spades'){
+            } else if (rule === 'Spades' && !this._rules.sRules){
                 this._rules.gameRules[card.suit](this, rule);
             } else {
                 this._rules.gameRules[card.value](this, rule);
