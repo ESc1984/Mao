@@ -9,11 +9,13 @@
 <body>
 <div id="game">
     <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
-    <input name="numPlayersPrompt" id="numPlayers" type="number">
+    <input name="numPlayersPrompt" id="numPlayers" type="number" max="4" min="1">
     <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
         removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
         removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
     <button id="playCard">Play Turn</button>
 </div>
+<p id="played"></p>
+<p id="alert"></p>
 </body>
 </html>

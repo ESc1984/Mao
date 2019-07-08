@@ -3,6 +3,7 @@
 * should makeCards be static?
 * create statement function(s) for speaking parts? (part of interface)
 * interface - determine declarations
+* Spades rule
 */
 
 
@@ -21,7 +22,7 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 100; i++){
+        for (let i = 0; i < 150; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
             cards.push({suit: suits[su], value: values[val]})
@@ -52,10 +53,11 @@ class Deck{
 
 
 class DiscardPile {
-    constructor (card){
+    constructor (card, game){
         this._cards = [card];
         this._expectedSuit = card.suit;
         this._expectedValue = card.value;
+        this._game = game;
     }
 
     get cards() {
@@ -85,7 +87,9 @@ class DiscardPile {
     addToDiscard(card){
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
-        this._expectedSuit = card.suit;
+        if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.jRules === true)){
+            this._expectedSuit = card.suit;
+        }
         this._expectedValue = card.value;
         disc.removeChild(disc.children[0]);
         addCardsToPlayer(card, disc);
@@ -99,13 +103,12 @@ class DiscardPile {
 
 
 class Player {
-    constructor(hand, name, game, rules) {
+    constructor(hand, name, game) {
         this._hand = hand;
         this._name = name;
         this._game = game;
-        this._rules = rules;
+        this._rules = new Rules(this);
         this._turn = false;
-        this._passes = 0;
     }
 
     get game() {
@@ -129,34 +132,53 @@ class Player {
     }
 
     passTurn() {
-        rules.passTurnCheckRules(this);
+        this._rules.passTurnCheckRules();
         if (this._turn) {
-            this._game._passes++;
+            this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
         }
     };
 
-    playCard(cardIndex) {
+    playCard(cardIndex, selectedRules) {
         let card = this._hand[cardIndex];
-        rules.playedCardCheckRules(this, card);
+        this._rules.playedCardCheckRules(card);
         if(this._turn) {
-            if(rules.cardMatch(this, card)) {
-                this._game._passes = 0;
+            if(this._rules.cardMatch(card)) {
+                this._game.passes = 0;
+                this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
-
+                this._rules.resetRules();
                 let player = document.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".grid");
                 let identifier = "#" + card.suit + card.value;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
-
-                // let player = document.getElementById(this.name);
-                // let grid = player.children[1];
-                // let element = grid.querySelector(`#${card.suit}${card.value}`);
-                // element.parentNode.removeChild(element);
             }
-            rules.findWin(this);
+            this._rules.findWin();
             this._game.updateTurn();
+        }
+    }
+
+    sendRuleDeclarations(card, selectedRules){
+        selectedRules.forEach(rule => {
+            if(rule === 'Mao'){
+                this._rules.mao(this, rule);
+            } else if (rule === 'Spades'){
+                this._rules.gameRules[card.suit](this, rule);
+            } else {
+                this._rules.gameRules[card.value](this, rule);
+            }
+        });
+        if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
+            || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
+            || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
+            this._rules.gameRules[card.value](this, "");
+        }
+        if(!(card.suit === 'S' && this._rules.sRules)){
+            this._rules.gameRules[card.suit](this, "");
+        }
+        if(this.hand.length === 2 && !this._rules.maoRules){
+            this._rules.mao(this, "");
         }
     }
 
@@ -176,15 +198,14 @@ class Game {
     constructor(numPlayers){
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
-        this._discardPile = new DiscardPile(card);
+        this._discardPile = new DiscardPile(card, this);
+        this._passes = 0;
 
         this._playerList = [];
         for (let i = 0; i < numPlayers; i++){
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
-        this._passes = 0;
-        console.log('This game of Mao is officially in session.')
     }
 
     getPlayer(index){
@@ -197,6 +218,14 @@ class Game {
 
     get discardPile(){
         return this._discardPile;
+    }
+
+    get numPasses(){
+        return this._passes;
+    }
+
+    set passes(numPasses) {
+        this._passes = numPasses;
     }
 
     dealHand(){
@@ -261,42 +290,127 @@ class Game {
 class Rules{
     constructor(player){
         this._player = player;
-        this._gameRules = {
-            "A": this.acePlayed(player),
-            "7": this.sevenPlayed(player, "HAND"), //declarations TBA
-            "8": this.eightPlayed(player),
-            "J": this.jackPlayed(player, 'D'),
-            "Q": this.queenPlayed(player, "AHCW"),
-            "K": this.kingPlayed(player, "AHCM"),
-            "S": this.spadePlayed(player, "S")
+        this.gameRules = {
+            "A": this.acePlayed,
+            "2": this.noRule,
+            "3": this.noRule,
+            "4": this.noRule,
+            "5": this.noRule,
+            "6": this.noRule,
+            "7": this.sevenPlayed, //declarations TBA
+            "8": this.eightPlayed,
+            "9": this.noRule,
+            "X": this.noRule,
+            "J": this.jackPlayed,
+            "Q": this.queenPlayed,
+            "K": this.kingPlayed,
+            "S": this.spadePlayed,
+            "H": this.noRule,
+            "D": this.noRule,
+            "C": this.noRule
         };
+        this._sevRules = false;
+        this._jRules = false;
+        this._qRules = false;
+        this._kRules = false;
+        this._sRules = false;
+        this._maoRules = false;
     }
 
-    cardMatch(player, card){
-        return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
+    // get gameRules(){
+    //     return this._gameRules;
+    // }
+
+    get sevRules(){
+        return this._sevRules;
+    }
+    
+    set sevRules(val){
+        this._sevRules = val;
     }
 
-    passTurnCheckRules(player){
-        if(!player.turn) {
-            player.game.drawCard(player);
+    get jRules(){
+        return this._jRules;
+    }
+    
+    set jRules(val){
+        this._jRules = val;
+    }
+
+    get qRules(){
+        return this._qRules;
+    }
+    
+    set qRules(val){
+        this._qRules = val;
+    }
+
+    get kRules(){
+        return this._kRules;
+    }
+
+    set kRules(val){
+        this._kRules = val;
+    }
+
+    get sRules(){
+        return this._sRules;
+    }
+
+    set sRules(val){
+        this._sRules = val;
+    }
+
+    get maoRules(){
+        return this._maoRules;
+    }
+
+    set maoRules(val){
+        this._maoRules = val;
+    }
+
+    resetRules(){
+        this._sevRules = false;
+        this._jRules = false;
+        this._qRules = false;
+        this._kRules = false;
+        this._sRules = false;
+        this._maoRules = false;
+    }
+
+    cardMatch(card){
+        return ( (card.suit === this._player.game.discardPile.expectedSuit) || (card.value === this._player.game.discardPile.expectedValue))
+    }
+
+    passTurnCheckRules(){
+        if(!this._player.turn) {
+            this._player.game.drawCard(this._player);
         }
     }
 
-    playedCardCheckRules(player, card){
-        if(!player.turn) {
+    playedCardCheckRules(card){
+        if(!this._player.turn) {
+            this._player.game.drawCard(this._player);
+            document.getElementById("alert").innerHTML = '~ Failure to play in turn';
+        } else if (!this.cardMatch(card)) {
+            this._player.game.drawCard(this._player);
+            document.getElementById("alert").innerHTML = '~ Failure to play within proper values';
+        }
+    }
+
+    noRule(player, state){
+        if(state !== ""){
             player.game.drawCard(player);
-        } else if (!rules.cardMatch(player, card)) {
-            player.game.drawCard(player);
+            document.getElementById("alert").innerHTML = '~ Failure to declare in turn'
         }
     }
 
     spadePlayed(player, state){
-        if(state !== 'S'){
-            player.game.drawCard();
-            console.log('Failure to declare spades.')
-        } else {
-            console.log(state);
+        if(state !== 'Spades'){
+            player.game.drawCard(player);
+            document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
         }
+        player._rules._sRules = true;
     }
 
     acePlayed(player){
@@ -304,12 +418,11 @@ class Rules{
     }
 
     sevenPlayed(player, state){
-        if (state !== 'HAND') {
+        if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
-            console.log('Failure to say Have a Nice Day');
-        } else {
-            console.log(state);
+            document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
         }
+        player._rules._sevRules = true;
     }
 
     eightPlayed(player){
@@ -318,47 +431,46 @@ class Rules{
 
 
     jackPlayed(player, suit){
-        if ((suit === 'H')||(suit === 'S')||(suit ==='D')||(suit === 'C')){
-            player.game.discardPile.expectedSuit(suit);
-            console.log('New suit: ' + suit)
+        if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
+            player.game.discardPile.expectedSuit = suit.charAt(0);
         } else {
-            player.game.drawCard();
-            console.log('Failure to declare a suit');
+            player.game.drawCard(player);
+            document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
         }
+        player._rules._jRules = true;
     }
 
     kingPlayed(player, state){ //requires card?
-        if (state !== 'AHCM'){
+        if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            console.log('Failure to declare All Hail the Chairman');
-        } else {
-            console.log(state);
+            document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
         }
+        player._rules._kRules = true;
     }
 
     queenPlayed(player, state){
-        if (state !== 'AHCW'){
+        if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            console.log('Failure to declare All Hail the Chairwoman');
-        } else {
-            console.log(state);
+            document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
         }
+        player._rules._qRules = true;
     }
 
     mao(player, state){
         let cardsLeft = player.hand.length;
-        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')){
+        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
-            console.log('Failure to declare Mao');
-        } else {
-            console.log(state);
+            document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         }
+        player._rules._maoRules = true;
     }
 
-    findWin(player){
-        if (player.hand.length === 0){
-            console.log('Congratulations, ' + (player.name) + ' - you have won this round of Mao');
-            //end game
+    findWin(){
+        if (this._player.hand.length === 0){
+            document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";
+            // for (let i = 0; i < this._player.game.playerList.length; i++){
+            //     this._player.game.playerList[i].hand = [];
+            // }
         }
     }
 }
@@ -370,6 +482,8 @@ let ourGame;
 let game;
 let selectedCard;
 let playerPlaying;
+let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
+let selectedRules = [];
 
 window.onload = function gameLoaded() {
     game = document.getElementById("game");
@@ -383,11 +497,7 @@ function displayPlayerHand(playerIndex) {
 
 function startGame(numPlayers) {
     ourGame = new Game(numPlayers);
-    const discard = document.createElement('section');
-    discard.setAttribute('id', 'discard');
-    discard.setAttribute('class', 'grid');
-    game.appendChild(discard);
-    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
+    createDiscardFunctionality();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
         gamePlayer.classList.add('player');
@@ -403,15 +513,66 @@ function startGame(numPlayers) {
         gamePlayer.appendChild(passBtn);
         const grid = document.createElement('section');
         grid.setAttribute('class', 'grid');
+
+
+        // grid.addEventListener("click", function(event){
+        //     let clicked = event.target;
+        //     let chosen = 0;
+        //     if (clicked.nodeName === 'SECTION') {
+        //         if (chosen <1) {
+        //             chosen++;
+        //             clicked.classList.add('selected')
+        //         } else {
+        //             chosen = 0;
+        //             let cards = document.getElementsByTagName("section").children;
+        //             cards.forEach(function(card){
+        //                 card.classList.remove('selected')
+        //             })
+        //         }
+        //         return
+        //     }
+        // });
+
+
         gamePlayer.appendChild(grid);
         initializePlayerHand(player, grid);
     });
+}
+
+function createDiscardFunctionality(){
+    const discard = document.createElement('section');
+    discard.setAttribute('id', 'discard');
+    discard.setAttribute('class', 'grid');
+    game.appendChild(discard);
+    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
+    const ruleButtonGrid = document.createElement('section');
+    ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
+    ruleButtonGrid.setAttribute('class', 'grid');
+    game.appendChild(ruleButtonGrid);
+    specialRules.forEach(rule => {
+        createRuleButtons(ruleButtonGrid, rule);
+    });
+}
+
+function createRuleButtons(grid, specialRule){
+    const ruleBtn = document.createElement('button');
+    ruleBtn.setAttribute('class', 'ruleButton');
+    ruleBtn.setAttribute('id', specialRule);
+    ruleBtn.innerHTML = specialRule;
+    ruleBtn.onclick = selectedRule;
+    //ruleBtn.onclick = document.getElementById("played").innerHTML = '-"' + specialRule + '"-';
+    grid.appendChild(ruleBtn);
+}
+
+function selectedRule(){
+    selectedRules.unshift(this.innerHTML);
 }
 
 function initializePlayerHand(player, grid){
     const gameGrid = grid;
     player.hand.forEach(card => {
         addCardsToPlayer(card, grid)
+        grid.classList.add('cardhand')
     });
 }
 
@@ -426,9 +587,12 @@ function addCardsToPlayer(card, grid){
 }
 
 function passTurn() {
+    document.getElementById("alert").innerHTML = '';
+    //document.getElementById("played").innerHTML = '';
     playerPlaying = this.parentElement.id;
     let player = findPlayerIndexFromId();
     player.passTurn();
+    selectedRules = [];
 }
 
 function playTurn() {
@@ -439,7 +603,8 @@ function playTurn() {
             cardIndex = i;
         }
     }
-    player.playCard(cardIndex);
+    player.playCard(cardIndex, selectedRules);
+    selectedRules = [];
 }
 
 function findPlayerIndexFromId(){
@@ -457,6 +622,8 @@ function findPlayerIndexFromId(){
 function selectCard() {
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
+    document.getElementById("alert").innerHTML = '';
+    //document.getElementById("played").innerHTML = '';
 }
 
 function removeVisibility(object) {

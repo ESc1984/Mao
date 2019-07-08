@@ -1,10 +1,31 @@
 .card{
-    margin: 2px;
+    margin: 5px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
     height: 120px;
-    width: 100px;
+    width: 90px;
+}
+
+.card:after {
+  content: "";
+  background: papayawhip;
+  display: block;
+  position: relative;
+  padding-top: 150%;
+  padding-left: 100%;
+    border-radius: 5px;
+  /*margin-left: -20px !important;*/
+  /*margin-top: -120%;*/
+  opacity: 0;
+  transition: all 0.5s
+}
+
+.card:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
 }
 
 .grid{
@@ -15,7 +36,52 @@
     justify-content: space-evenly;
 }
 
+.cardhand{
+    justify-content: start;
+}
+
 .pass{
     margin: 2px;
 }
 
+/*.selected {*/
+/*    border: 10px yellow;*/
+/*    border-radius: 10px;*/
+/*}*/
+
+body {
+    background-color: #12300c;
+}
+
+label {
+    color: gold;
+    font-family: Copperplate;
+    font-size: 30px;
+}
+
+button {
+    color: gold;
+    background-color: firebrick;
+    font-family: Copperplate;
+    font-size: 20px;
+}
+
+.player {
+    color: gold;
+    background-color: black;
+    font-family: Copperplate;
+    font-size: 25px;
+}
+
+#alert {
+    color: whitesmoke;
+    background-color: firebrick;
+    font-family: Copperplate;
+    font-size: 30px;
+}
+
+#played {
+    color: goldenrod;
+    font-family: Copperplate;
+    font-size: 30px;
+}
