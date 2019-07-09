@@ -182,6 +182,29 @@ class Player {
         }
     }
 
+    // sendRuleDeclarations(card, selectedRules){
+    //     selectedRules.forEach(rule => {
+    //         if(rule === 'Mao'){
+    //             this._rules.mao(this, rule);
+    //         } else if (rule === 'Spades' && !this._rules.sRules){
+    //             this._rules.gameRules[card.suit](this, rule);
+    //         } else {
+    //             this._rules.gameRules[card.value](this, rule);
+    //         }
+    //     });
+    //     if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
+    //         || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
+    //         || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
+    //         this._rules.gameRules[card.value](this, "");
+    //     }
+    //     if(!(card.suit === 'S' && this._rules.sRules)){
+    //         this._rules.gameRules[card.suit](this, "");
+    //     }
+    //     if(this.hand.length === 2 && !this._rules.maoRules){
+    //         this._rules.mao(this, "");
+    //     }
+    // }
+
     set turn(turn) {
         this._turn = turn;
     }
@@ -206,6 +229,8 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+        this._passes = 0;
+        console.log('This game of Mao is officially in session.')
     }
 
     getPlayer(index){
@@ -324,7 +349,7 @@ class Rules{
     get sevRules(){
         return this._sevRules;
     }
-    
+
     set sevRules(val){
         this._sevRules = val;
     }
@@ -332,7 +357,7 @@ class Rules{
     get jRules(){
         return this._jRules;
     }
-    
+
     set jRules(val){
         this._jRules = val;
     }
@@ -340,7 +365,7 @@ class Rules{
     get qRules(){
         return this._qRules;
     }
-    
+
     set qRules(val){
         this._qRules = val;
     }
@@ -387,6 +412,20 @@ class Rules{
             this._player.game.drawCard(this._player);
         }
     }
+
+    // playedCardCheckRules(card){
+    //     if(!this._player.turn) {
+    //         this._player.game.drawCard(this._player);
+    //     } else if (!this.cardMatch(card)) {
+    //         this._player.game.drawCard(this._player);
+    //     }
+    // }
+
+    // noRule(player, state){
+    //     if(state !== ""){
+    // cardMatch(card){
+    //     return ( (card.suit === this._player.game.discardPile.expectedSuit) || (card.value === this._player.game.discardPile.expectedValue))
+    // }
 
     playedCardCheckRules(card){
         if(!this._player.turn) {
