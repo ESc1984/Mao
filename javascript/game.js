@@ -263,7 +263,7 @@ class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        let grid = document.getElementById(player.name).children[1];
+        let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
         addCardsToPlayer(card,grid);
         player.receiveCard(card);
     }
@@ -340,6 +340,7 @@ class Rules{
         this._kRules = false;
         this._sRules = false;
         this._maoRules = false;
+        this._nicecount = 0;
     }
 
     // get gameRules(){
@@ -392,6 +393,14 @@ class Rules{
 
     set maoRules(val){
         this._maoRules = val;
+    }
+
+    get niceCount(){
+        return this._nicecount;
+    }
+
+    set niceCount(val){
+        this._nicecount = val;
     }
 
     resetRules(){
@@ -466,6 +475,9 @@ class Rules{
 
     eightPlayed(player){
         player.game.playerList.reverse();
+        if (player.game.playerList.length === 2){
+            player.game.updateTurn();
+        }
     }
 
 
@@ -543,38 +555,36 @@ function startGame(numPlayers) {
         gamePlayer.setAttribute("class", "player");
         gamePlayer.setAttribute("id", player.name);
         gamePlayer.dataset.name = player.name;
-        gamePlayer.innerHTML = player.name;
+        //gamePlayer.innerHTML = player.name;
         game.appendChild(gamePlayer);
+
+        // const grid = document.createElement('section');
+        // grid.setAttribute('class', 'grid');
+        // grid.setAttribute('class', `${player.name}hand`);
+        // grid.style.display = 'none';
+        // initializePlayerHand(player, grid);
+        //
+        // gamePlayer.appendChild(grid);
+
+        const hand = document.createElement('button');
+        hand.setAttribute('class', 'hand');
+        hand.setAttribute('id', `${player.name}show`);
+        hand.innerHTML = player.name;
+        hand.onclick = openHand;
+        gamePlayer.appendChild(hand);
         const passBtn = document.createElement("button");
         passBtn.setAttribute('class', 'pass');
         passBtn.innerHTML = 'Pass Turn';
         passBtn.onclick = passTurn;
         gamePlayer.appendChild(passBtn);
-        const grid = document.createElement('section');
-        grid.setAttribute('class', 'grid');
 
 
-        // grid.addEventListener("click", function(event){
-        //     let clicked = event.target;
-        //     let chosen = 0;
-        //     if (clicked.nodeName === 'SECTION') {
-        //         if (chosen <1) {
-        //             chosen++;
-        //             clicked.classList.add('selected')
-        //         } else {
-        //             chosen = 0;
-        //             let cards = document.getElementsByTagName("section").children;
-        //             cards.forEach(function(card){
-        //                 card.classList.remove('selected')
-        //             })
-        //         }
-        //         return
-        //     }
-        // });
+        // const grid = document.createElement('section');
+        // grid.setAttribute('class', 'grid');
+        // grid.setAttribute('class', `${player.name}hand`);
+        //initializePlayerHand(player, grid);
 
-
-        gamePlayer.appendChild(grid);
-        initializePlayerHand(player, grid);
+        //gamePlayer.appendChild(grid);
     });
 }
 
@@ -599,6 +609,10 @@ function createRuleButtons(grid, specialRule){
     ruleBtn.setAttribute('id', specialRule);
     ruleBtn.innerHTML = specialRule;
     ruleBtn.onclick = selectedRule;
+    // if (specialRule === 'Have a Nice Day'){
+    //     let newCount = ourGame._rules.niceCount + 1;
+    //     ruleBtn.onclick = (ourGame._rules.niceCount(newCount));
+    // }
     //ruleBtn.onclick = document.getElementById("played").innerHTML = '-"' + specialRule + '"-';
     grid.appendChild(ruleBtn);
 }
@@ -610,11 +624,62 @@ function selectedRule(){
 function initializePlayerHand(player, grid){
     const gameGrid = grid;
     player.hand.forEach(card => {
-        addCardsToPlayer(card, grid)
+        addCardsToPlayer(card, grid);
         grid.classList.add('cardhand')
     });
 }
 
+function openHand() {
+    if(this.parentElement.getElementsByClassName('grid') === null){
+        //functional-ish
+        playerPlaying = this.parentElement.id;
+        let player = findPlayerIndexFromId();
+        const grid = document.createElement('section');
+        grid.setAttribute('class', 'grid');
+        initializePlayerHand(player, grid);
+        this.parentElement.appendChild(grid);
+    } else {
+        this.parentElement.removeChild(this.parentElement.children[this.parentElement.children.length - 1]);
+    }
+
+
+
+
+    //this.parentElement.getElementsByClassName('hand').onclick = ;
+
+    //now make it go away
+    //onclick, set to none
+    //update penalties
+
+
+
+    // for (let i = 0; i < x.length; i++) {
+    //     x[i].style.visibility = "hidden";
+    // }
+    // this.style.visibility = 'visible';
+    //document.getElementById(hand).style.visibility = "visible";
+
+
+    //playerPlaying = this.parentElement.id;
+    //let player = findPlayerIndexFromId();
+    //player.passTurn();
+    //selectedRules = [];
+}
+
+
+// playerPlaying = this.parentElement.id;
+// let player = findPlayerIndexFromId();
+// player.passTurn();
+
+
+// function unappear(){
+//     let thing = this.parentElement.getElementsByClassName('grid');
+//     if (thing.style.display === "none") {
+//         thing.style.display = "block";
+//     } else {
+//         thing.style.display = "none";
+//     }
+// }
 
 function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
@@ -665,20 +730,7 @@ function selectCard() {
     //document.getElementById("played").innerHTML = '';
 }
 
+
 function removeVisibility(object) {
     object.style.visibility = "hidden";
 }
-
-
-
-// let ourGame = new Game(3);
-// let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(0);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.passTurn();
-// player = ourGame.getPlayer(0);
-// player.playCard(0);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(2);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(6);

@@ -28,6 +28,10 @@
     transition: 0s
 }
 
+.hand {
+    font-size: 28px;
+}
+
 .grid{
     max-width: 1400px;
     margin: 0 auto;
