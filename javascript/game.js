@@ -422,6 +422,9 @@ class Rules{
 
     eightPlayed(player){
         player.game.playerList.reverse();
+        if(player.game.playerList.length === 2) {
+            player.game.updateTurn();
+        }
     }
 
 
@@ -467,130 +470,215 @@ class Rules{
 
 
 
-let ourGame;
-let game;
-let selectedCard;
-let playerPlaying;
-let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
-let selectedRules = [];
+let gameState = {};
 
-window.onload = function gameLoaded() {
-    game = document.getElementById("game");
-    document.getElementById("playCard").addEventListener("click", playTurn);
+function preload() {
+    let suit = ['C', 'D', 'H', 'S'];
+    let value = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'J', 'K', 'Q', 'X'];
+    let key, path;
+    for(let s = 0; s < suit.length; s++){
+        for(let v = 0; v < value.length; v++){
+            key = suit[s] + value[v];
+            path = 'images/' + key + '.png';
+            this.load.image(key, path);
+        }
+    }
+}
+
+function create() {
+    overlay();
+    //startGame();
+    // let myCard = this.add.image(300, 400, 'C2');
+    // myCard.resizeX = .08;
+    // myCard.resizeY = .08;
+}
+
+function update() {
+
+}
+
+let config = {
+    width: 800,
+    height: 700,
+    backgroundColor: 0xADD8E6,
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
+    parent: 'mao-game'
 };
 
+let game = new Phaser.Game(config);
 
-function displayPlayerHand(playerIndex) {
-    document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
-}
-
-function startGame(numPlayers) {
-    ourGame = new Game(numPlayers);
-    createDiscardFunctionality();
-    ourGame.playerList.forEach(player => {
-        const gamePlayer = document.createElement('div');
-        gamePlayer.classList.add('player');
-        gamePlayer.setAttribute("class", "player");
-        gamePlayer.setAttribute("id", player.name);
-        gamePlayer.dataset.name = player.name;
-        gamePlayer.innerHTML = player.name;
-        game.appendChild(gamePlayer);
-        const passBtn = document.createElement("button");
-        passBtn.setAttribute('class', 'pass');
-        passBtn.innerHTML = 'Pass Turn';
-        passBtn.onclick = passTurn;
-        gamePlayer.appendChild(passBtn);
-        const grid = document.createElement('section');
-        grid.setAttribute('class', 'grid');
-        gamePlayer.appendChild(grid);
-        initializePlayerHand(player, grid);
-    });
-}
-
-function createDiscardFunctionality(){
-    const discard = document.createElement('section');
-    discard.setAttribute('id', 'discard');
-    discard.setAttribute('class', 'grid');
-    game.appendChild(discard);
-    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
-    const ruleButtonGrid = document.createElement('section');
-    ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
-    ruleButtonGrid.setAttribute('class', 'grid');
-    game.appendChild(ruleButtonGrid);
-    specialRules.forEach(rule => {
-        createRuleButtons(ruleButtonGrid, rule);
-    });
-}
-
-function createRuleButtons(grid, specialRule){
-    const ruleBtn = document.createElement('button');
-    ruleBtn.setAttribute('class', 'ruleButton');
-    ruleBtn.setAttribute('id', specialRule);
-    ruleBtn.innerHTML = specialRule;
-    ruleBtn.onclick = selectedRule;
-    grid.appendChild(ruleBtn);
-}
-
-function selectedRule(){
-    selectedRules.unshift(this.innerHTML);
-}
-
-function initializePlayerHand(player, grid){
-    const gameGrid = grid;
-    player.hand.forEach(card => {
-        addCardsToPlayer(card, grid)
-    });
+function overlay() {
+    let el = document.getElementById("overlay");
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    window.scrollTo(0, 0);
 }
 
 
-function addCardsToPlayer(card, grid){
-    const playCard = document.createElement('div');
-    playCard.classList.add('card');
-    playCard.setAttribute("id", card.suit + card.value);
-    playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
-    playCard.onclick = selectCard;
-    grid.appendChild(playCard);
-}
+let ourGame;
+let gameBoard;
 
-function passTurn() {
-    playerPlaying = this.parentElement.id;
-    let player = findPlayerIndexFromId();
-    player.passTurn();
-    selectedRules = [];
-}
+window.onload = function gameLoaded() {
+    gameBoard = document.getElementById("gameBoard");
+    //document.getElementById("playCard").addEventListener("click", playTurn);
+};
 
-function playTurn() {
-    let player = findPlayerIndexFromId();
-    let cardIndex = -1;
-    for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
-            cardIndex = i;
-        }
+function numPlayersDecided(numPlayers) {
+    let ourGame = new Game(numPlayers);
+    let startGamePrompt = document.getElementById('startGame');
+    for(let i = 0; i < numPlayers; i++){
+        let namePrompt = document.createElement('label');
+        namePrompt.setAttribute('for', 'namePlayers');
+        namePrompt.innerHTML = "Enter Player's Name: ";
+        let nameHolder = document.createElement('input');
+        nameHolder.name = 'namePlayersPrompt';
+        nameHolder.id = 'namePlayers';
+        nameHolder.type = 'text';
+        let newLine = document.createElement('br');
+
+        startGamePrompt.appendChild(namePrompt);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(nameHolder);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(newLine);
     }
-    player.playCard(cardIndex, selectedRules);
-    selectedRules = [];
+    let startButton = document.createElement('button');
+    startButton.class ='close';
+    startButton.id = 'startButton';
+    startButton.innerHTML = 'Start Game';
+    startButton.onclick = overlay;
+    startGamePrompt.appendChild(startButton);
 }
 
-function findPlayerIndexFromId(){
-    let playerIndex = -1;
-    for (let i = 0; i < ourGame.playerList.length; i++) {
-        if (ourGame.playerList[i].name === playerPlaying) {
-            playerIndex = i;
-        }
-    }
-    let player = ourGame.playerList[playerIndex];
-    return player;
+function removeElement(element) {
+    element.parentNode.removeChild(element);
 }
 
 
-function selectCard() {
-    playerPlaying = this.parentElement.parentElement.id;
-    selectedCard = this.id;
-}
 
-function removeVisibility(object) {
-    object.style.visibility = "hidden";
-}
+
+
+// let game;
+// let selectedCard;
+// let playerPlaying;
+// let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
+// let selectedRules = [];
+//
+//
+//
+//
+// function displayPlayerHand(playerIndex) {
+//     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
+// }
+//
+// function startGame(numPlayers) {
+//     ourGame = new Game(numPlayers);
+//     createDiscardFunctionality();
+//     ourGame.playerList.forEach(player => {
+//         const gamePlayer = document.createElement('div');
+//         gamePlayer.classList.add('player');
+//         gamePlayer.setAttribute("class", "player");
+//         gamePlayer.setAttribute("id", player.name);
+//         gamePlayer.dataset.name = player.name;
+//         gamePlayer.innerHTML = player.name;
+//         game.appendChild(gamePlayer);
+//         const passBtn = document.createElement("button");
+//         passBtn.setAttribute('class', 'pass');
+//         passBtn.innerHTML = 'Pass Turn';
+//         passBtn.onclick = passTurn;
+//         gamePlayer.appendChild(passBtn);
+//         const grid = document.createElement('section');
+//         grid.setAttribute('class', 'grid');
+//         gamePlayer.appendChild(grid);
+//         initializePlayerHand(player, grid);
+//     });
+// }
+//
+// function createDiscardFunctionality(){
+//     const discard = document.createElement('section');
+//     discard.setAttribute('id', 'discard');
+//     discard.setAttribute('class', 'grid');
+//     game.appendChild(discard);
+//     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
+//     const ruleButtonGrid = document.createElement('section');
+//     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
+//     ruleButtonGrid.setAttribute('class', 'grid');
+//     game.appendChild(ruleButtonGrid);
+//     specialRules.forEach(rule => {
+//         createRuleButtons(ruleButtonGrid, rule);
+//     });
+// }
+//
+// function createRuleButtons(grid, specialRule){
+//     const ruleBtn = document.createElement('button');
+//     ruleBtn.setAttribute('class', 'ruleButton');
+//     ruleBtn.setAttribute('id', specialRule);
+//     ruleBtn.innerHTML = specialRule;
+//     ruleBtn.onclick = selectedRule;
+//     grid.appendChild(ruleBtn);
+// }
+//
+// function selectedRule(){
+//     selectedRules.unshift(this.innerHTML);
+// }
+//
+// function initializePlayerHand(player, grid){
+//     const gameGrid = grid;
+//     player.hand.forEach(card => {
+//         addCardsToPlayer(card, grid)
+//     });
+// }
+//
+// function addCardsToPlayer(card, grid){
+//     const playCard = document.createElement('div');
+//     playCard.classList.add('card');
+//     playCard.setAttribute("id", card.suit + card.value);
+//     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
+//     playCard.onclick = selectCard;
+//     grid.appendChild(playCard);
+// }
+//
+// function passTurn() {
+//     playerPlaying = this.parentElement.id;
+//     let player = findPlayerIndexFromId();
+//     player.passTurn();
+//     selectedRules = [];
+// }
+//
+// function playTurn() {
+//     let player = findPlayerIndexFromId();
+//     let cardIndex = -1;
+//     for(let i = 0; i < player.hand.length; i++){
+//         if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
+//             cardIndex = i;
+//         }
+//     }
+//     player.playCard(cardIndex, selectedRules);
+//     selectedRules = [];
+// }
+//
+// function findPlayerIndexFromId(){
+//     let playerIndex = -1;
+//     for (let i = 0; i < ourGame.playerList.length; i++) {
+//         if (ourGame.playerList[i].name === playerPlaying) {
+//             playerIndex = i;
+//         }
+//     }
+//     let player = ourGame.playerList[playerIndex];
+//     return player;
+// }
+//
+//
+// function selectCard() {
+//     playerPlaying = this.parentElement.parentElement.id;
+//     selectedCard = this.id;
+// }
+//
+
 
 
 

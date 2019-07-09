@@ -4,16 +4,23 @@
     <meta charset="UTF-8">
     <title>Mao</title>
     <link rel="stylesheet" type="text/css" href="board.css"/>
+    <script type="text/javascript" src="javascript/phaser.min.js"></script>
     <script type="text/javascript" src="javascript/game.js"></script>
 </head>
 <body>
-<div id="game">
-    <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
-    <input name="numPlayersPrompt" id="numPlayers" type="number">
-    <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
-        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
-        removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
-    <button id="playCard">Play Turn</button>
+<div id="overlay">
+    <div id="startGame">
+        <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
+        <input name="numPlayersPrompt" id="numPlayers" type="number">
+        <button id="numPlayersSubmit" class="submit" onclick="numPlayersDecided(document.getElementById('numPlayers').value);
+            removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
+            removeElement(document.getElementById('numPlayers'))">Submit</button><br>
+    </div>
 </div>
+<div id="gameBoard"></div>
+<button id="playCard">Play Turn</button>
 </body>
 </html>
+<!--onclick="startGame(document.getElementById('numPlayers').value);
+        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
+        removeVisibility(document.getElementById('numPlayersPrompt'))"-->
