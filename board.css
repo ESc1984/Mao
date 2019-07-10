@@ -1,3 +1,7 @@
+canvas{
+    width: 100%
+}
+
 .card{
     margin: 2px;
     background-size: contain;

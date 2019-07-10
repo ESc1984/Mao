@@ -195,15 +195,15 @@ class Player {
 
 
 class Game {
-    constructor(numPlayers){
+    constructor(playerNames){
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._passes = 0;
 
         this._playerList = [];
-        for (let i = 0; i < numPlayers; i++){
-            this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
+        for (let i = 0; i < playerNames.length; i++){
+            this._playerList.push(new Player(this.dealHand(), playerNames[i], this));
         }
         this._playerList[0].turn = true;
     }
@@ -239,7 +239,7 @@ class Game {
     drawCard(player){
         let card = this._playDeck.deal();
         let grid = document.getElementById(player.name).children[1];
-        addCardsToPlayer(card,grid);
+        //addCardsToPlayer(card,grid);
         player.receiveCard(card);
     }
 
@@ -472,6 +472,19 @@ class Rules{
 
 let gameState = {};
 
+let config = {
+    backgroundColor: 0xADD8E6,
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
+    parent: 'mao-game'
+};
+
+let game = new Phaser.Game(config);
+
+
 function preload() {
     let suit = ['C', 'D', 'H', 'S'];
     let value = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'J', 'K', 'Q', 'X'];
@@ -486,30 +499,43 @@ function preload() {
 }
 
 function create() {
-    overlay();
-    //startGame();
-    // let myCard = this.add.image(300, 400, 'C2');
-    // myCard.resizeX = .08;
-    // myCard.resizeY = .08;
+//         const gamePlayer = document.createElement('div');
+//         gamePlayer.classList.add('player');
+//         gamePlayer.setAttribute("class", "player");
+//         gamePlayer.setAttribute("id", player.name);
+//         gamePlayer.dataset.name = player.name;
+//         gamePlayer.innerHTML = player.name;
+//         game.appendChild(gamePlayer);
+//         const passBtn = document.createElement("button");
+//         passBtn.setAttribute('class', 'pass');
+//         passBtn.innerHTML = 'Pass Turn';
+//         passBtn.onclick = passTurn;
+//         gamePlayer.appendChild(passBtn);
+//         const grid = document.createElement('section');
+//         grid.setAttribute('class', 'grid');
+//         gamePlayer.appendChild(grid);
+//         initializePlayerHand(player, grid);
+//     });
 }
 
 function update() {
-
+    if(ourGame){
+        let playerSpacing = 200;
+        ourGame.playerList.forEach(player => {
+            gameState[player] = this.add.text(100, playerSpacing, player.name);
+            let cardSpacing = 220;
+            player.hand.forEach(card => {
+                let cardId = card.suit + card.value;
+                gameState[player].hand = this.add.sprite(cardSpacing, playerSpacing + 80, cardId);
+                cardSpacing += 100;
+            });
+            playerSpacing += 200;
+        });
+    }
 }
 
-let config = {
-    width: 800,
-    height: 700,
-    backgroundColor: 0xADD8E6,
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    },
-    parent: 'mao-game'
-};
 
-let game = new Phaser.Game(config);
+
 
 function overlay() {
     let el = document.getElementById("overlay");
@@ -519,23 +545,26 @@ function overlay() {
 
 
 let ourGame;
+let players;
 let gameBoard;
 
 window.onload = function gameLoaded() {
+    overlay();
     gameBoard = document.getElementById("gameBoard");
     //document.getElementById("playCard").addEventListener("click", playTurn);
 };
 
 function numPlayersDecided(numPlayers) {
-    let ourGame = new Game(numPlayers);
+    players = numPlayers;
     let startGamePrompt = document.getElementById('startGame');
     for(let i = 0; i < numPlayers; i++){
         let namePrompt = document.createElement('label');
-        namePrompt.setAttribute('for', 'namePlayers');
+        namePrompt.id = 'namePlayers';
+        namePrompt.setAttribute('for', 'namePlayers' + i);
         namePrompt.innerHTML = "Enter Player's Name: ";
         let nameHolder = document.createElement('input');
         nameHolder.name = 'namePlayersPrompt';
-        nameHolder.id = 'namePlayers';
+        nameHolder.id = 'namePlayers' + i;
         nameHolder.type = 'text';
         let newLine = document.createElement('br');
 
@@ -550,12 +579,22 @@ function numPlayersDecided(numPlayers) {
     startButton.class ='close';
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
-    startButton.onclick = overlay;
+    startButton.onclick = saveNames;
     startGamePrompt.appendChild(startButton);
 }
 
 function removeElement(element) {
     element.parentNode.removeChild(element);
+}
+
+function saveNames() {
+    let num = players;
+    players = [];
+    for (let i = 0; i < num; i++) {
+        players.push(document.getElementById('namePlayers' + i).value);
+    }
+    overlay();
+    ourGame = new Game(players);
 }
 
 
