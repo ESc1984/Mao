@@ -85,14 +85,14 @@ class DiscardPile {
     }
 
     addToDiscard(card){
-        let disc = document.getElementById("discard");
+        //let disc = document.getElementById("discard");
         this._cards.unshift(card);
         if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.jRules === true)){
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
-        disc.removeChild(disc.children[0]);
-        addCardsToPlayer(card, disc);
+        //disc.removeChild(disc.children[0]);
+        //addCardsToPlayer(card, disc);
     }
 }
 
@@ -148,11 +148,11 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
                 this._rules.resetRules();
-                let player = document.querySelector(`#${this.name}`);
-                let grid = player.querySelector(".grid");
-                let identifier = "#" + card.suit + card.value;
-                let element = grid.querySelector(identifier);
-                element.parentNode.removeChild(element);
+                // let player = document.querySelector(`#${this.name}`);
+                // let grid = player.querySelector(".grid");
+                // let identifier = "#" + card.suit + card.value;
+                // let element = grid.querySelector(identifier);
+                // element.parentNode.removeChild(element);
             }
             this._rules.findWin();
             this._game.updateTurn();
@@ -238,7 +238,7 @@ class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        let grid = document.getElementById(player.name).children[1];
+        //let grid = document.getElementById(player.name).children[1];
         //addCardsToPlayer(card,grid);
         player.receiveCard(card);
     }
@@ -499,36 +499,50 @@ function preload() {
 }
 
 function create() {
-//         const gamePlayer = document.createElement('div');
-//         gamePlayer.classList.add('player');
-//         gamePlayer.setAttribute("class", "player");
-//         gamePlayer.setAttribute("id", player.name);
-//         gamePlayer.dataset.name = player.name;
-//         gamePlayer.innerHTML = player.name;
-//         game.appendChild(gamePlayer);
-//         const passBtn = document.createElement("button");
-//         passBtn.setAttribute('class', 'pass');
-//         passBtn.innerHTML = 'Pass Turn';
-//         passBtn.onclick = passTurn;
-//         gamePlayer.appendChild(passBtn);
-//         const grid = document.createElement('section');
-//         grid.setAttribute('class', 'grid');
-//         gamePlayer.appendChild(grid);
-//         initializePlayerHand(player, grid);
-//     });
 }
 
 function update() {
     if(ourGame){
+        let discardCard = ourGame.discardPile.topDiscard();
+        let discardId = discardCard.suit + discardCard.value;
+        gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
+
+        gameState.playTurn = this.add.text(800, 100, 'Play Turn');
+        gameState.playTurn.setInteractive();
+        gameState.playTurn.on('pointerup', () => {
+            let cardIndex = -1;
+            for(let i = 0; i < gameState.playerPlaying.hand.length; i++){
+                if(gameState.playerPlaying.hand[i].suit === gameState.selectedCard.suit && gameState.playerPlaying.hand[i].value === gameState.selectedCard.value){
+                    cardIndex = i;
+                    break;
+                }
+            }
+            gameState.playerPlaying.playCard(cardIndex, []);
+            this.scene.restart();
+        });
+
         let playerSpacing = 200;
         ourGame.playerList.forEach(player => {
             gameState[player] = this.add.text(100, playerSpacing, player.name);
+
             let cardSpacing = 220;
+            let cardIndex = 0;
             player.hand.forEach(card => {
                 let cardId = card.suit + card.value;
-                gameState[player].hand = this.add.sprite(cardSpacing, playerSpacing + 80, cardId);
+                gameState[player][cardId] = this.add.sprite(cardSpacing, playerSpacing + 80, cardId);
+                gameState[player][cardId].setInteractive();
+                gameState[player][cardId].on('pointerup', () => {
+                    gameState.selectedCard = card;
+                    gameState.playerPlaying = player;
+                });
+
                 cardSpacing += 100;
+                cardIndex++;
             });
+
+            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
+            gameState[player].passTurn.setInteractive();
+            gameState[player].passTurn.on('pointerup', player.passTurn);
             playerSpacing += 200;
         });
     }
@@ -536,12 +550,6 @@ function update() {
 
 
 
-
-function overlay() {
-    let el = document.getElementById("overlay");
-    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-    window.scrollTo(0, 0);
-}
 
 
 let ourGame;
@@ -553,6 +561,12 @@ window.onload = function gameLoaded() {
     gameBoard = document.getElementById("gameBoard");
     //document.getElementById("playCard").addEventListener("click", playTurn);
 };
+
+function overlay() {
+    let el = document.getElementById("overlay");
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    window.scrollTo(0, 0);
+}
 
 function numPlayersDecided(numPlayers) {
     players = numPlayers;
