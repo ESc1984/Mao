@@ -149,7 +149,7 @@ class Player {
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
                 this._rules.resetRules();
                 let player = document.querySelector(`#${this.name}`);
-                let grid = player.querySelector(".grid");
+                let grid = player.querySelector(".playerhand");
                 let identifier = "#" + card.suit + card.value;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
@@ -622,7 +622,7 @@ function selectedRule(){
 }
 
 function initializePlayerHand(player, grid){
-    const gameGrid = grid;
+    //const gameGrid = grid;
     player.hand.forEach(card => {
         addCardsToPlayer(card, grid);
         grid.classList.add('cardhand')
@@ -630,17 +630,36 @@ function initializePlayerHand(player, grid){
 }
 
 function openHand() {
-    if(this.parentElement.getElementsByClassName('grid') === null){
-        //functional-ish
+    let element = this.parentElement.getElementsByClassName('playerhand');
+    if (element.length != 0 && typeof(element) != "undefined"){ //giving me warnings i'm concerned about
+    //if(typeof(element) != 'undefined'){
+        //let player = document.querySelector(`#${this.parentNode.name}`);
+        let player = this.parentNode;
+        let playerhand = player.querySelector('.playerhand');
+        //can't read queryselector of player (null) when closing
+        playerhand.parentNode.removeChild(playerhand);
+        //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
+    } else {
         playerPlaying = this.parentElement.id;
         let player = findPlayerIndexFromId();
-        const grid = document.createElement('section');
-        grid.setAttribute('class', 'grid');
-        initializePlayerHand(player, grid);
-        this.parentElement.appendChild(grid);
-    } else {
-        this.parentElement.removeChild(this.parentElement.children[this.parentElement.children.length - 1]);
+        const playerhand = document.createElement('section');
+        playerhand.setAttribute('class', 'grid playerhand');
+        initializePlayerHand(player, playerhand);
+        this.parentElement.appendChild(playerhand);
     }
+
+
+    // if(typeof(element) === 'undefined'){
+    //     //functional-ish
+    //     playerPlaying = this.parentElement.id;
+    //     let player = findPlayerIndexFromId();
+    //     const grid = document.createElement('section');
+    //     grid.setAttribute('class', 'playerhand');
+    //     initializePlayerHand(player, grid);
+    //     this.parentElement.appendChild(grid);
+    // } else {
+    //     this.parentElement.removeChild(this.parentElement.children[this.parentElement.children.length - 1]);
+    // }
 
 
 

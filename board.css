@@ -40,6 +40,12 @@
     justify-content: space-evenly;
 }
 
+/*.playerhand {*/
+/*    grid-auto-rows: 130px;*/
+/*    grid-auto-columns: 100px;*/
+/*    justify-content: start;*/
+/*}*/
+
 .cardhand{
     justify-content: start;
 }
