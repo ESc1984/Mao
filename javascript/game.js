@@ -163,7 +163,7 @@ class Player {
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
                 this._rules.mao(this, rule);
-            } else if (rule === 'Spades' && !this._rules.sRules){
+            } else if (rule === 'Spades' && !this._rules.sRules && card.suit === 'S'){
                 this._rules.gameRules[card.suit](this, rule);
             } else {
                 this._rules.gameRules[card.value](this, rule);
@@ -198,7 +198,7 @@ class Game {
     constructor(numPlayers){
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
-        this._discardPile = new DiscardPile(card);
+        this._discardPile = new DiscardPile(card, this);
 
         this._playerList = [];
         for (let i = 0; i < numPlayers; i++){
@@ -451,7 +451,7 @@ class Rules{
 
     mao(player, state){
         let cardsLeft = player.hand.length;
-        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
+        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao') || (cardsLeft != 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
         }
         player._rules._maoRules = true;
