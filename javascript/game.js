@@ -3,7 +3,6 @@
 * should makeCards be static?
 * create statement function(s) for speaking parts? (part of interface)
 * interface - determine declarations
-* Spades rule
 */
 
 
@@ -109,6 +108,7 @@ class Player {
         this._game = game;
         this._rules = new Rules(this);
         this._turn = false;
+        //this._passes = 0;
     }
 
     get game() {
@@ -163,7 +163,7 @@ class Player {
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
                 this._rules.mao(this, rule);
-            } else if (rule === 'Spades'){
+            } else if (rule === 'Spades' && !this._rules.sRules){
                 this._rules.gameRules[card.suit](this, rule);
             } else {
                 this._rules.gameRules[card.value](this, rule);
@@ -222,15 +222,13 @@ class Game {
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        this._passes = 0;
+        //this._passes = 0;
 
         this._playerList = [];
         for (let i = 0; i < numPlayers; i++){
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
-        this._passes = 0;
-        console.log('This game of Mao is officially in session.')
     }
 
     getPlayer(index){
@@ -245,13 +243,13 @@ class Game {
         return this._discardPile;
     }
 
-    get numPasses(){
-        return this._passes;
-    }
-
-    set passes(numPasses) {
-        this._passes = numPasses;
-    }
+    // get numPasses(){
+    //     return this._passes;
+    // }
+    //
+    // set passes(numPasses) {
+    //     this._passes = numPasses;
+    // }
 
     dealHand(){
         let hand = [];
@@ -315,6 +313,16 @@ class Game {
 class Rules{
     constructor(player){
         this._player = player;
+// <<<<<<<<< Temporary merge branch 1
+//         this._gameRules = {
+//             "A": this.acePlayed(player),
+//             "7": this.sevenPlayed(player, "HAND"), //declarations TBA
+//             "8": this.eightPlayed(player),
+//             "J": this.jackPlayed(player, 'D'),
+//             "Q": this.queenPlayed(player, "AHCW"),
+//             "K": this.kingPlayed(player, "AHCM"),
+//             "S": this.spadePlayed(player, "S")
+// =========
         this.gameRules = {
             "A": this.acePlayed,
             "2": this.noRule,
@@ -333,6 +341,7 @@ class Rules{
             "H": this.noRule,
             "D": this.noRule,
             "C": this.noRule
+// >>>>>>>>> Temporary merge branch 2
         };
         this._sevRules = false;
         this._jRules = false;
@@ -340,7 +349,7 @@ class Rules{
         this._kRules = false;
         this._sRules = false;
         this._maoRules = false;
-        this._nicecount = 0;
+        //this._nicecount = 0;
     }
 
     // get gameRules(){
@@ -395,13 +404,13 @@ class Rules{
         this._maoRules = val;
     }
 
-    get niceCount(){
-        return this._nicecount;
-    }
-
-    set niceCount(val){
-        this._nicecount = val;
-    }
+    // get niceCount(){
+    //     return this._nicecount;
+    // }
+    //
+    // set niceCount(val){
+    //     this._nicecount = val;
+    // }
 
     resetRules(){
         this._sevRules = false;
@@ -454,6 +463,13 @@ class Rules{
     }
 
     spadePlayed(player, state){
+// <<<<<<<<< Temporary merge branch 1
+//         if(state !== 'S'){
+//             player.game.drawCard();
+//             console.log('Failure to declare spades.')
+//         } else {
+//             console.log(state);
+// =========
         if(state !== 'Spades'){
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
