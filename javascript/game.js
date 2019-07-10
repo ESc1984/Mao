@@ -109,7 +109,6 @@ class Player {
         this._game = game;
         this._rules = new Rules(this);
         this._turn = false;
-        //this._passes = 0;
     }
 
     get game() {
@@ -135,7 +134,7 @@ class Player {
     passTurn() {
         this._rules.passTurnCheckRules();
         if (this._turn) {
-            this._game.passes = this._game.numPasses + 1;
+            this._game.passes = this._game.passes + 1;
             this._game.updateTurn();
         }
     };
@@ -206,6 +205,15 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+        this._passes = 0;
+    }
+
+    get passes(){
+        return this._passes;
+    }
+
+    set passes(num){
+        this._passes = num;
     }
 
     getPlayer(index){
