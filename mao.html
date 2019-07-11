@@ -4,19 +4,29 @@
     <meta charset="UTF-8">
     <title>Mao</title>
     <link rel="stylesheet" type="text/css" href="board.css"/>
+    <script type="text/javascript" src="javascript/phaser.min.js"></script>
     <script type="text/javascript" src="javascript/game.js"></script>
 </head>
 <body>
-<div id="game">
+<div id="overlay">
+    <div id="startGame">
+        <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
+        <input name="numPlayersPrompt" id="numPlayers" type="number">
+        <button id="numPlayersSubmit" class="submit" onclick="numPlayersDecided(document.getElementById('numPlayers').value);
+            removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
+            removeElement(document.getElementById('numPlayers'))">Submit</button><br>
+    </div>
+</div>
+<p id="played"></p>
+<p id="alert"></p>
+<div id="gameBoard"></div>
+</body>
+</html>
+<!--<div id="game">
     <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players (2-8)</label>
     <input name="numPlayersPrompt" id="numPlayers" type="number" step='1' min="2" max="8">
     <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
         removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
         removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
     <button id="playCard">Play Turn</button>
-
-</div>
-<p id="played"></p>
-<p id="alert"></p>
-</body>
-</html>
+-->
