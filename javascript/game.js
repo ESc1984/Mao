@@ -475,6 +475,7 @@ class Rules{
 class StartScene extends Phaser.Scene {
     constructor() {
         super({key: 'StartScene'});
+        gameState.eightPlayed = false;
     }
 
     preload() {
@@ -504,31 +505,40 @@ class StartScene extends Phaser.Scene {
 
 class GameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'GameScene'})
+        super({key: 'GameScene'});
     }
 
     create() {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
+        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
 
         gameState.playTurn = this.add.text(800, 100, 'Play Turn');
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
             for(let i = 0; i < gameState.playerPlaying.hand.length; i++){
-                if(gameState.playerPlaying.hand[i].suit === gameState.selectedCard.suit && gameState.playerPlaying.hand[i].value === gameState.selectedCard.value){
+                if(gameState.playerPlaying.hand[i].suit === gameState.selectedCard.suit && gameState.playerPlaying.hand[i].value === gameState.selectedCard.value) {
                     cardIndex = i;
                     break;
                 }
             }
-            gameState.playerPlaying.playCard(cardIndex, []);
+            if(gameState.selectedCard.value === '8'){
+                (gameState.eightPlayed == true) ? gameState.eightPlayed = false : gameState.eightPlayed = true;
+            }
+            gameState.playerPlaying.playCard(cardIndex, gameState.selectedRules);
+            gameState.selectedRules =[];
             this.scene.restart();
         });
 
         let container;
         let playerSpacing = 200;
-        ourGame.playerList.forEach(player => {
+
+        let playerList = ourGame.playerList;
+        if(gameState.eightPlayed){
+            playerList = playerList.slice().reverse();
+        } else {}
+        playerList.forEach(player => {
             gameState[player] = this.add.text(100, playerSpacing, player.name);
 
             gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
@@ -536,10 +546,13 @@ class GameScene extends Phaser.Scene {
             gameState[player].passTurn.on('pointerup', () => {
                 gameState.playerPlaying = player;
                 gameState.playerPlaying.passTurn();
+                gameState.selectedRules =[];
+                this.scene.restart();
             });
 
             container = this.add.container(130, playerSpacing + 100);
             let cardSpacing = 20;
+
             player.hand.forEach(card => {
                 let cardId = card.suit + card.value;
                 let playCard = this.add.sprite(cardSpacing, 0, cardId);
@@ -556,15 +569,34 @@ class GameScene extends Phaser.Scene {
             playerSpacing += 200;
         });
 
-        let ruleContainer = this.add.container(game.config.width - 200, 100);
-        let ruleA
+        let ruleContainer = this.add.container(game.config.width/3 + 30, 53);
+        gameState.selectedRules = [];
+        let width = 10;
+        let spades = this.add.text(width, 5, "Spades", {fill: '#ffffff', fontSize: '14px'});
+            //spades.setInteractive();
+        let hearts = this.add.text(width + 75, 5, "Hearts", {fill: '#ffffff', fontSize: '14px'});
+        let clubs = this.add.text(width + 150, 5, "Clubs", {fill: '#ffffff', fontSize: '14px'});
+        let diamonds = this.add.text(width + 215, 5, "Diamonds", {fill: '#ffffff', fontSize: '14px'});
+        let haveNiceDay = this.add.text(width, 70, "Have a Nice Day", {fill: '#ffffff', fontSize: '14px'});
+        let chairman = this.add.text(width + 150, 70, "All Hail the Chairman", {fill: '#ffffff', fontSize: '14px'});
+        let chairwoman = this.add.text(width, 36.5, "All Hail the Chairwoman", {fill: '#ffffff', fontSize: '14px'});
+        let mao = this.add.text(width + 215, 36.5, "Mao", {fill: '#ffffff', fontSize: '14px'});
+
+        let specialRules = [spades, hearts, clubs, diamonds, haveNiceDay, chairwoman, chairman, mao];
+        specialRules.forEach(rule => {
+            rule.setInteractive();
+            rule.on('pointerup', () => {
+                gameState.selectedRules.push(rule.text);
+            });
+            ruleContainer.add(rule);
+        });
 
     }
 
     update() {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
+        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
     }
 }
 
