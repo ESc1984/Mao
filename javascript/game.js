@@ -470,39 +470,43 @@ class Rules{
 
 
 
-let gameState = {};
 
-let config = {
-    backgroundColor: 0xADD8E6,
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    },
-    parent: 'mao-game'
-};
+class StartScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'StartScene'});
+    }
 
-let game = new Phaser.Game(config);
+    preload() {
+        let suit = ['C', 'D', 'H', 'S'];
+        let value = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'J', 'K', 'Q', 'X'];
+        let key, path;
+        for(let s = 0; s < suit.length; s++){
+            for(let v = 0; v < value.length; v++){
+                key = suit[s] + value[v];
+                path = 'images/' + key + '.png';
+                this.load.image(key, path);
+            }
+        }
+    }
 
-
-function preload() {
-    let suit = ['C', 'D', 'H', 'S'];
-    let value = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'J', 'K', 'Q', 'X'];
-    let key, path;
-    for(let s = 0; s < suit.length; s++){
-        for(let v = 0; v < value.length; v++){
-            key = suit[s] + value[v];
-            path = 'images/' + key + '.png';
-            this.load.image(key, path);
+    update() {
+        if(ourGame){
+            this.add.text( 150, 250, 'Click to start!', {fill: '#000000', fontSize: '20px'});
+            this.input.on('pointerdown', () => {
+                this.scene.stop('StarScene');
+                this.scene.start('GameScene');
+            });
         }
     }
 }
 
-function create() {
-}
 
-function update() {
-    if(ourGame){
+class GameScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'GameScene'})
+    }
+
+    create() {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
@@ -518,18 +522,23 @@ function update() {
                 }
             }
             gameState.playerPlaying.playCard(cardIndex, []);
-            gameState.playerPlaying.hand = [];
-            this.container.restart();
+            this.scene.restart();
         });
 
         let container;
         let playerSpacing = 200;
         ourGame.playerList.forEach(player => {
             gameState[player] = this.add.text(100, playerSpacing, player.name);
-            container = this.add.container(130, playerSpacing + 100);
 
+            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
+            gameState[player].passTurn.setInteractive();
+            gameState[player].passTurn.on('pointerup', () => {
+                gameState.playerPlaying = player;
+                gameState.playerPlaying.passTurn();
+            });
+
+            container = this.add.container(130, playerSpacing + 100);
             let cardSpacing = 20;
-            let cards = [];
             player.hand.forEach(card => {
                 let cardId = card.suit + card.value;
                 let playCard = this.add.sprite(cardSpacing, 0, cardId);
@@ -539,18 +548,23 @@ function update() {
                     gameState.playerPlaying = player;
                     gameState.currentHand = container;
                 });
-                cards.push(playCard);
+                container.add(playCard);
 
                 cardSpacing += 100;
             });
-            container.add(cards);
-            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
-            gameState[player].passTurn.setInteractive();
-            gameState[player].passTurn.on('pointerup', player.passTurn);
             playerSpacing += 200;
         });
     }
 }
+
+let gameState = {};
+
+let config = {
+    backgroundColor: 0xADD8E6,
+    parent: 'mao-game',
+    scene: [StartScene, GameScene]
+};
+const game = new Phaser.Game(config);
 
 
 
