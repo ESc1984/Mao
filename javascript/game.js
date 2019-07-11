@@ -131,6 +131,10 @@ class Player {
         this._hand.push(card);
     }
 
+    handSize(){
+        return this._hand.length;
+    }
+
     passTurn() {
         this._rules.passTurnCheckRules();
         if (this._turn) {
@@ -163,12 +167,15 @@ class Player {
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
                 this._rules.mao(this, rule);
-            } else if (rule === 'Spades' && !this._rules.sRules){
+            } else if (rule === 'Spades' && !this._rules.sRules && card.suit === 'S'){
                 this._rules.gameRules[card.suit](this, rule);
             } else {
                 this._rules.gameRules[card.value](this, rule);
             }
         });
+        if(this.hand.length === 2 && !this._rules.maoRules){
+            this._rules.mao(this, "");
+        }
         if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
             || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
             || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
@@ -176,9 +183,6 @@ class Player {
         }
         if(!(card.suit === 'S' && this._rules.sRules)){
             this._rules.gameRules[card.suit](this, "");
-        }
-        if(this.hand.length === 2 && !this._rules.maoRules){
-            this._rules.mao(this, "");
         }
     }
 
@@ -229,6 +233,7 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
         }
         this._playerList[0].turn = true;
+        this._passes = 0;
     }
 
     getPlayer(index){
@@ -243,13 +248,13 @@ class Game {
         return this._discardPile;
     }
 
-    // get numPasses(){
-    //     return this._passes;
-    // }
-    //
-    // set passes(numPasses) {
-    //     this._passes = numPasses;
-    // }
+    get numPasses(){
+        return this._passes;
+    }
+
+    set passes(numPasses) {
+        this._passes = numPasses;
+    }
 
     dealHand(){
         let hand = [];
@@ -262,8 +267,9 @@ class Game {
     drawCard(player){
         let card = this._playDeck.deal();
         let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
-        addCardsToPlayer(card,grid);
+        addCardsToPlayer(card, grid);
         player.receiveCard(card);
+        //grid.parentElement.getElementsByClassName('hand').getElementsByClassName('numCards').innerHTML = player.hand.length;
     }
 
     updateTurn(){
@@ -324,6 +330,10 @@ class Rules{
 //             "S": this.spadePlayed(player, "S")
 // =========
         this.gameRules = {
+            "S": this.spadePlayed,
+            "H": this.noRule,
+            "D": this.noRule,
+            "C": this.noRule,
             "A": this.acePlayed,
             "2": this.noRule,
             "3": this.noRule,
@@ -336,11 +346,11 @@ class Rules{
             "X": this.noRule,
             "J": this.jackPlayed,
             "Q": this.queenPlayed,
-            "K": this.kingPlayed,
-            "S": this.spadePlayed,
-            "H": this.noRule,
-            "D": this.noRule,
-            "C": this.noRule
+            "K": this.kingPlayed
+            // "S": this.spadePlayed,
+            // "H": this.noRule,
+            // "D": this.noRule,
+            // "C": this.noRule
 // >>>>>>>>> Temporary merge branch 2
         };
         this._sevRules = false;
@@ -428,6 +438,7 @@ class Rules{
     passTurnCheckRules(){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
+            document.getElementById("alert").innerHTML = '~ Failure to play in turn';
         }
     }
 
@@ -525,7 +536,7 @@ class Rules{
 
     mao(player, state){
         let cardsLeft = player.hand.length;
-        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
+        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')||(cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         }
@@ -563,7 +574,14 @@ function displayPlayerHand(playerIndex) {
 }
 
 function startGame(numPlayers) {
-    ourGame = new Game(numPlayers);
+    let playCount = numPlayers;
+    if (numPlayers > 8){
+        playCount = 8;
+    }
+    if (numPlayers < 2){
+        playCount = 2;
+    }
+    ourGame = new Game(playCount);
     createDiscardFunctionality();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
@@ -573,6 +591,7 @@ function startGame(numPlayers) {
         gamePlayer.dataset.name = player.name;
         //gamePlayer.innerHTML = player.name;
         game.appendChild(gamePlayer);
+
 
         // const grid = document.createElement('section');
         // grid.setAttribute('class', 'grid');
@@ -588,11 +607,19 @@ function startGame(numPlayers) {
         hand.innerHTML = player.name;
         hand.onclick = openHand;
         gamePlayer.appendChild(hand);
-        const passBtn = document.createElement("button");
-        passBtn.setAttribute('class', 'pass');
-        passBtn.innerHTML = 'Pass Turn';
-        passBtn.onclick = passTurn;
-        gamePlayer.appendChild(passBtn);
+
+        let numCards = document.createElement('h3');
+        numCards.classList.add('numCards');
+        numCards.setAttribute('class', 'numCards');
+        numCards.setAttribute('id', `${player.name}numCards`);
+        numCards.innerHTML = player.hand.length.toString();
+        hand.appendChild(numCards);
+
+        // const passBtn = document.createElement("button");
+        // passBtn.setAttribute('class', 'pass');
+        // passBtn.innerHTML = 'Pass Turn';
+        // passBtn.onclick = passTurn;
+        // gamePlayer.appendChild(passBtn);
 
 
         // const grid = document.createElement('section');
@@ -651,13 +678,20 @@ function openHand() {
     //if(typeof(element) != 'undefined'){
         //let player = document.querySelector(`#${this.parentNode.name}`);
         let player = this.parentNode;
+        let pass = player.querySelector('.pass');
         let playerhand = player.querySelector('.playerhand');
         //can't read queryselector of player (null) when closing
+        pass.parentNode.removeChild(pass);
         playerhand.parentNode.removeChild(playerhand);
         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
         playerPlaying = this.parentElement.id;
         let player = findPlayerIndexFromId();
+        const passBtn = document.createElement("button");
+        passBtn.setAttribute('class', 'pass');
+        passBtn.innerHTML = 'Pass Turn';
+        passBtn.onclick = passTurn;
+        this.parentElement.appendChild(passBtn);
         const playerhand = document.createElement('section');
         playerhand.setAttribute('class', 'grid playerhand');
         initializePlayerHand(player, playerhand);
@@ -722,7 +756,13 @@ function addCardsToPlayer(card, grid){
     playCard.setAttribute("id", card.suit + card.value);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
+    //let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML;
+    //grid.parentElement.getElementsByClassName('numCards').innerHTML = newCards.toString();
     grid.appendChild(playCard);
+    //grid.parentElement.getElementsByClassName('numCards').innerHTML =
+    // let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML.parseInt + 1;
+    // grid.parentElement.getElementsByClassName('numCards').innerHTML = newCards.toString();
+        //numCards.innerHTML = player.hand.length.toString();
 }
 
 function passTurn() {

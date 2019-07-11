@@ -40,6 +40,11 @@
     justify-content: space-evenly;
 }
 
+.numCards{
+    margin: 0;
+    font-size: 25px;
+}
+
 /*.playerhand {*/
 /*    grid-auto-rows: 130px;*/
 /*    grid-auto-columns: 100px;*/
@@ -60,7 +65,7 @@
 /*}*/
 
 body {
-    background-color: #12300c;
+    background-color: #09590e;
 }
 
 label {
@@ -73,7 +78,13 @@ button {
     color: gold;
     background-color: firebrick;
     font-family: Copperplate;
-    font-size: 20px;
+    font-size: 25px;
+    margin: 5px;
+}
+
+.ruleButton {
+    font-size: 22px;
+    margin: 0;
 }
 
 .player {
