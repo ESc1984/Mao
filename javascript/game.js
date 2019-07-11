@@ -22,7 +22,7 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 100; i++){
+        for (let i = 0; i < 150; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
             cards.push({suit: suits[su], value: values[val]})
@@ -85,14 +85,12 @@ class DiscardPile {
     }
 
     addToDiscard(card){
-        //let disc = document.getElementById("discard");
+        let disc = document.getElementById("discard");
         this._cards.unshift(card);
         if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.jRules === true)){
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
-        //disc.removeChild(disc.children[0]);
-        //addCardsToPlayer(card, disc);
     }
 }
 
@@ -131,6 +129,10 @@ class Player {
         this._hand.push(card);
     }
 
+    handSize(){
+        return this._hand.length;
+    }
+
     passTurn() {
         this._rules.passTurnCheckRules();
         if (this._turn) {
@@ -150,10 +152,10 @@ class Player {
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
                 this._rules.resetRules();
                 // let player = document.querySelector(`#${this.name}`);
-                // let grid = player.querySelector(".grid");
-                // let identifier = "#" + card.suit + card.value;
-                // let element = grid.querySelector(identifier);
-                // element.parentNode.removeChild(element);
+                //let grid = player.querySelector(".playerhand");
+                //let identifier = "#" + card.suit + card.value;
+                //let element = grid.querySelector(identifier);
+                //element.parentNode.removeChild(element);
             }
             this._rules.findWin();
             this._game.updateTurn();
@@ -170,6 +172,9 @@ class Player {
                 this._rules.gameRules[card.value](this, rule);
             }
         });
+        if(this.hand.length === 2 && !this._rules.maoRules){
+            this._rules.mao(this, "");
+        }
         if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
             || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
             || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
@@ -177,9 +182,6 @@ class Player {
         }
         if(!(card.suit === 'S' && this._rules.sRules)){
             this._rules.gameRules[card.suit](this, "");
-        }
-        if(this.hand.length === 2 && !this._rules.maoRules){
-            this._rules.mao(this, "");
         }
     }
 
@@ -207,6 +209,7 @@ class Game {
             this._playerList.push(new Player(this.dealHand(), playerNames[i], this));
         }
         this._playerList[0].turn = true;
+        this._passes = 0;
     }
 
     getPlayer(index){
@@ -239,8 +242,8 @@ class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        //let grid = document.getElementById(player.name).children[1];
-        //addCardsToPlayer(card,grid);
+        //let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
+        //addCardsToPlayer(card, grid);
         player.receiveCard(card);
     }
 
@@ -325,7 +328,7 @@ class Rules{
     get sevRules(){
         return this._sevRules;
     }
-    
+
     set sevRules(val){
         this._sevRules = val;
     }
@@ -333,7 +336,7 @@ class Rules{
     get jRules(){
         return this._jRules;
     }
-    
+
     set jRules(val){
         this._jRules = val;
     }
@@ -386,26 +389,31 @@ class Rules{
     passTurnCheckRules(){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
+            //document.getElementById("alert").innerHTML = '~ Failure to play in turn';                                        --ALERT
         }
     }
 
     playedCardCheckRules(card){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
+            //document.getElementById("alert").innerHTML = '~ Failure to play in turn';                                        --ALERT
         } else if (!this.cardMatch(card)) {
             this._player.game.drawCard(this._player);
+            //document.getElementById("alert").innerHTML = '~ Failure to play within proper values';                             --ALERT
         }
     }
 
     noRule(player, state){
         if(state !== ""){
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = '~ Failure to declare in turn'                                            --ALERT
         }
     }
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = '~ Failure to declare Spades';                                                --ALERT
         }
         player._rules._sRules = true;
     }
@@ -417,6 +425,7 @@ class Rules{
     sevenPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';                                 --ALERT
         }
         player._rules._sevRules = true;
     }
@@ -434,6 +443,7 @@ class Rules{
             player.game.discardPile.expectedSuit = suit.charAt(0);
         } else {
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';                                          --ALERT
         }
         player._rules._jRules = true;
     }
@@ -441,6 +451,7 @@ class Rules{
     kingPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';                             --ALERT
         }
         player._rules._kRules = true;
     }
@@ -448,22 +459,26 @@ class Rules{
     queenPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
+            //document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';                                 --ALERT
         }
         player._rules._qRules = true;
     }
 
     mao(player, state){
         let cardsLeft = player.hand.length;
-        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
+        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao') || (cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
+            document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         }
         player._rules._maoRules = true;
     }
 
     findWin(){
         if (this._player.hand.length === 0){
-            console.log('Congratulations, ' + (this._player.name) + ' - you have won this round of Mao');
-            //end game
+            //document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";                     --ALERT
+            // for (let i = 0; i < this._player.game.playerList.length; i++){
+            //     this._player.game.playerList[i].hand = [];
+            // }
         }
     }
 }
@@ -524,7 +539,7 @@ class GameScene extends Phaser.Scene {
                 }
             }
             if(gameState.selectedCard.value === '8'){
-                (gameState.eightPlayed == true) ? gameState.eightPlayed = false : gameState.eightPlayed = true;
+                (gameState.eightPlayed === true) ? gameState.eightPlayed = false : gameState.eightPlayed = true;
             }
             gameState.playerPlaying.playCard(cardIndex, gameState.selectedRules);
             gameState.selectedRules =[];
@@ -633,6 +648,12 @@ function overlay() {
 
 function numPlayersDecided(numPlayers) {
     players = numPlayers;
+    if (players > 8){
+        players = 8;
+    }
+    if (players < 2){
+        players = 2;
+    }
     let startGamePrompt = document.getElementById('startGame');
     for(let i = 0; i < numPlayers; i++){
         let namePrompt = document.createElement('label');
@@ -676,136 +697,35 @@ function saveNames() {
 
 
 
-
-
-// let game;
-// let selectedCard;
-// let playerPlaying;
-// let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
-// let selectedRules = [];
-//
-//
-//
-//
-// function displayPlayerHand(playerIndex) {
-//     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
-// }
-//
-// function startGame(numPlayers) {
-//     ourGame = new Game(numPlayers);
-//     createDiscardFunctionality();
-//     ourGame.playerList.forEach(player => {
-//         const gamePlayer = document.createElement('div');
-//         gamePlayer.classList.add('player');
-//         gamePlayer.setAttribute("class", "player");
-//         gamePlayer.setAttribute("id", player.name);
-//         gamePlayer.dataset.name = player.name;
-//         gamePlayer.innerHTML = player.name;
-//         game.appendChild(gamePlayer);
+// function openHand() {
+//     let element = this.parentElement.getElementsByClassName('playerhand');
+//     if (element.length != 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+//         //if(typeof(element) != 'undefined'){
+//         //let player = document.querySelector(`#${this.parentNode.name}`);
+//         let player = this.parentNode;
+//         let pass = player.querySelector('.pass');
+//         let playerhand = player.querySelector('.playerhand');
+//         //can't read queryselector of player (null) when closing
+//         pass.parentNode.removeChild(pass);
+//         playerhand.parentNode.removeChild(playerhand);
+//         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
+//     } else {
+//         playerPlaying = this.parentElement.id;
+//         let player = findPlayerIndexFromId();
 //         const passBtn = document.createElement("button");
 //         passBtn.setAttribute('class', 'pass');
 //         passBtn.innerHTML = 'Pass Turn';
 //         passBtn.onclick = passTurn;
-//         gamePlayer.appendChild(passBtn);
-//         const grid = document.createElement('section');
-//         grid.setAttribute('class', 'grid');
-//         gamePlayer.appendChild(grid);
-//         initializePlayerHand(player, grid);
-//     });
-// }
-//
-// function createDiscardFunctionality(){
-//     const discard = document.createElement('section');
-//     discard.setAttribute('id', 'discard');
-//     discard.setAttribute('class', 'grid');
-//     game.appendChild(discard);
-//     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
-//     const ruleButtonGrid = document.createElement('section');
-//     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
-//     ruleButtonGrid.setAttribute('class', 'grid');
-//     game.appendChild(ruleButtonGrid);
-//     specialRules.forEach(rule => {
-//         createRuleButtons(ruleButtonGrid, rule);
-//     });
-// }
-//
-// function createRuleButtons(grid, specialRule){
-//     const ruleBtn = document.createElement('button');
-//     ruleBtn.setAttribute('class', 'ruleButton');
-//     ruleBtn.setAttribute('id', specialRule);
-//     ruleBtn.innerHTML = specialRule;
-//     ruleBtn.onclick = selectedRule;
-//     grid.appendChild(ruleBtn);
-// }
-//
-// function selectedRule(){
-//     selectedRules.unshift(this.innerHTML);
-// }
-//
-// function initializePlayerHand(player, grid){
-//     const gameGrid = grid;
-//     player.hand.forEach(card => {
-//         addCardsToPlayer(card, grid)
-//     });
-// }
-//
-// function addCardsToPlayer(card, grid){
-//     const playCard = document.createElement('div');
-//     playCard.classList.add('card');
-//     playCard.setAttribute("id", card.suit + card.value);
-//     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
-//     playCard.onclick = selectCard;
-//     grid.appendChild(playCard);
-// }
-//
-// function passTurn() {
-//     playerPlaying = this.parentElement.id;
-//     let player = findPlayerIndexFromId();
-//     player.passTurn();
-//     selectedRules = [];
-// }
-//
-// function playTurn() {
-//     let player = findPlayerIndexFromId();
-//     let cardIndex = -1;
-//     for(let i = 0; i < player.hand.length; i++){
-//         if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
-//             cardIndex = i;
-//         }
+//         this.parentElement.appendChild(passBtn);
+//         const playerhand = document.createElement('section');
+//         playerhand.setAttribute('class', 'grid playerhand');
+//         initializePlayerHand(player, playerhand);
+//         this.parentElement.appendChild(playerhand);
 //     }
-//     player.playCard(cardIndex, selectedRules);
-//     selectedRules = [];
 // }
-//
-// function findPlayerIndexFromId(){
-//     let playerIndex = -1;
-//     for (let i = 0; i < ourGame.playerList.length; i++) {
-//         if (ourGame.playerList[i].name === playerPlaying) {
-//             playerIndex = i;
-//         }
-//     }
-//     let player = ourGame.playerList[playerIndex];
-//     return player;
-// }
-//
-//
-// function selectCard() {
-//     playerPlaying = this.parentElement.parentElement.id;
-//     selectedCard = this.id;
-// }
-//
 
 
 
 
-// let ourGame = new Game(3);
-// let player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(0);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.passTurn();
-// player = ourGame.getPlayer(0);
-// player.playCard(0);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(2);
-// player = ourGame.getPlayer(ourGame.getCurrentPlayer());
-// player.playCard(6);
+
+

@@ -17,9 +17,16 @@
             removeElement(document.getElementById('numPlayers'))">Submit</button><br>
     </div>
 </div>
+<p id="played"></p>
+<p id="alert"></p>
 <div id="gameBoard"></div>
 </body>
 </html>
-<!--onclick="startGame(document.getElementById('numPlayers').value);
+<!--<div id="game">
+    <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players (2-8)</label>
+    <input name="numPlayersPrompt" id="numPlayers" type="number" step='1' min="2" max="8">
+    <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
         removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
-        removeVisibility(document.getElementById('numPlayersPrompt'))"-->
+        removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
+    <button id="playCard">Play Turn</button>
+-->

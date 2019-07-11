@@ -3,12 +3,37 @@ canvas{
 }
 
 .card{
-    margin: 2px;
+    margin: 5px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
     height: 120px;
-    width: 100px;
+    width: 90px;
+}
+
+.card:after {
+  content: "";
+  background: papayawhip;
+  display: block;
+  position: relative;
+  padding-top: 150%;
+  padding-left: 100%;
+    border-radius: 5px;
+  /*margin-left: -20px !important;*/
+  /*margin-top: -120%;*/
+  opacity: 0;
+  transition: all 0.5s
+}
+
+.card:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+}
+
+.hand {
+    font-size: 28px;
 }
 
 .grid{
@@ -17,6 +42,21 @@ canvas{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
+}
+
+.numCards{
+    margin: 0;
+    font-size: 25px;
+}
+
+/*.playerhand {*/
+/*    grid-auto-rows: 130px;*/
+/*    grid-auto-columns: 100px;*/
+/*    justify-content: start;*/
+/*}*/
+
+.cardhand{
+    justify-content: start;
 }
 
 .pass{
@@ -41,6 +81,53 @@ canvas{
     margin: auto;
     background-color: #fff;
     padding:15px;
+}
+/*.selected {*/
+/*    border: 10px yellow;*/
+/*    border-radius: 10px;*/
+/*}*/
+
+body {
+    background-color: #09590e;
+}
+
+label {
+    color: gold;
+    font-family: Copperplate;
+    font-size: 30px;
+}
+
+button {
+    color: gold;
+    background-color: firebrick;
+    font-family: Copperplate;
+    font-size: 25px;
+    margin: 5px;
+}
+
+.ruleButton {
+    font-size: 22px;
+    margin: 0;
+}
+
+.player {
+    color: gold;
+    background-color: black;
+    font-family: Copperplate;
+    font-size: 25px;
+}
+
+#alert {
+    color: whitesmoke;
+    background-color: firebrick;
+    font-family: Copperplate;
+    font-size: 30px;
+}
+
+#played {
+    color: goldenrod;
+    font-family: Copperplate;
+    font-size: 30px;
 }
 
 .startGame{
