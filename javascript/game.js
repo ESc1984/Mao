@@ -151,11 +151,6 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
                 this._rules.resetRules();
-                // let player = document.querySelector(`#${this.name}`);
-                //let grid = player.querySelector(".playerhand");
-                //let identifier = "#" + card.suit + card.value;
-                //let element = grid.querySelector(identifier);
-                //element.parentNode.removeChild(element);
             }
             this._rules.findWin();
             this._game.updateTurn();
@@ -242,8 +237,6 @@ class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        //let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
-        //addCardsToPlayer(card, grid);
         player.receiveCard(card);
     }
 
@@ -508,9 +501,9 @@ class StartScene extends Phaser.Scene {
 
     update() {
         if(ourGame){
-            this.add.text( 150, 250, 'Click to start!', {fill: '#000000', fontSize: '20px'});
+            this.add.text( 150, 250, 'Click to start!', {fill: '#B22222', fontSize: '20px', fontFamily: '"Oriya MN"'});
             this.input.on('pointerdown', () => {
-                this.scene.stop('StarScene');
+                this.scene.stop('StartScene');
                 this.scene.start('GameScene');
             });
         }
@@ -528,7 +521,7 @@ class GameScene extends Phaser.Scene {
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
 
-        gameState.playTurn = this.add.text(800, 100, 'Play Turn');
+        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fontFamily: '"Oriya MN"'});
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
@@ -556,9 +549,9 @@ class GameScene extends Phaser.Scene {
             playerList = ourGame.playerList;
         }
         playerList.forEach(player => {
-            gameState[player] = this.add.text(100, playerSpacing, player.name);
+            gameState[player] = this.add.text(100, playerSpacing, player.name, {fontSize: '25px', fontFamily: '"Oriya MN"'});
 
-            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
+            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn', {fontFamily: '"Oriya MN"'});
             gameState[player].passTurn.setInteractive();
             gameState[player].passTurn.on('pointerup', () => {
                 gameState.playerPlaying = player;
@@ -589,15 +582,14 @@ class GameScene extends Phaser.Scene {
         let ruleContainer = this.add.container(game.config.width/3 + 30, 53);
         gameState.selectedRules = [];
         let width = 10;
-        let spades = this.add.text(width, 5, "Spades", {fill: '#ffffff', fontSize: '14px'});
-            //spades.setInteractive();
-        let hearts = this.add.text(width + 75, 5, "Hearts", {fill: '#ffffff', fontSize: '14px'});
-        let clubs = this.add.text(width + 150, 5, "Clubs", {fill: '#ffffff', fontSize: '14px'});
-        let diamonds = this.add.text(width + 215, 5, "Diamonds", {fill: '#ffffff', fontSize: '14px'});
-        let haveNiceDay = this.add.text(width, 70, "Have a Nice Day", {fill: '#ffffff', fontSize: '14px'});
-        let chairman = this.add.text(width + 150, 70, "All Hail the Chairman", {fill: '#ffffff', fontSize: '14px'});
-        let chairwoman = this.add.text(width, 36.5, "All Hail the Chairwoman", {fill: '#ffffff', fontSize: '14px'});
-        let mao = this.add.text(width + 215, 36.5, "Mao", {fill: '#ffffff', fontSize: '14px'});
+        let spades = this.add.text(width, 5, "Spades", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let hearts = this.add.text(width + 75, 5, "Hearts", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let clubs = this.add.text(width + 150, 5, "Clubs", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let diamonds = this.add.text(width + 215, 5, "Diamonds", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let haveNiceDay = this.add.text(width, 70, "Have a Nice Day", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let chairman = this.add.text(width + 150, 70, "All Hail the Chairman", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let chairwoman = this.add.text(width, 36.5, "All Hail the Chairwoman", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
+        let mao = this.add.text(width + 215, 36.5, "Mao", {fill: '#ffffff', fontSize: '14px', fontFamily: '"Oriya MN"'});
 
         let specialRules = [spades, hearts, clubs, diamonds, haveNiceDay, chairwoman, chairman, mao];
         specialRules.forEach(rule => {
@@ -620,7 +612,7 @@ class GameScene extends Phaser.Scene {
 let gameState = {};
 
 let config = {
-    backgroundColor: 0xADD8E6,
+    backgroundColor: 0x8d8c8c,
     parent: 'mao-game',
     scene: [StartScene, GameScene]
 };
@@ -631,7 +623,7 @@ const game = new Phaser.Game(config);
 
 
 let ourGame;
-let players;
+let players = 0;
 let gameBoard;
 
 window.onload = function gameLoaded() {
@@ -647,15 +639,15 @@ function overlay() {
 }
 
 function numPlayersDecided(numPlayers) {
-    players = numPlayers;
-    if (players > 8){
+    if (numPlayers > 8) {
         players = 8;
-    }
-    if (players < 2){
+    } else if (numPlayers < 2 || players === null){
         players = 2;
+    } else {
+        players = numPlayers;
     }
     let startGamePrompt = document.getElementById('startGame');
-    for(let i = 0; i < numPlayers; i++){
+    for(let i = 0; i < players; i++){
         let namePrompt = document.createElement('label');
         namePrompt.id = 'namePlayers';
         namePrompt.setAttribute('for', 'namePlayers' + i);

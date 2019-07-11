@@ -71,7 +71,8 @@ canvas{
     width:38%;
     margin-left: 26%;
     text-align:center;
-    background-color: #000;
+    font-family: "Oriya MN";
+    background-color: #8f5617;
     z-index: 1000;
     overflow-y: scroll;
     box-shadow: -1px 2px 15px -1px #000;
@@ -79,6 +80,7 @@ canvas{
 
 #overlay div {
     margin: auto;
+    font-family: "Oriya MN";
     background-color: #fff;
     padding:15px;
 }
@@ -88,19 +90,19 @@ canvas{
 /*}*/
 
 body {
-    background-color: #09590e;
+    background-color: #8d8c8c;
 }
 
 label {
     color: gold;
-    font-family: Copperplate;
+    font-family: "Oriya MN";
     font-size: 30px;
 }
 
 button {
     color: gold;
     background-color: firebrick;
-    font-family: Copperplate;
+    font-family: "Oriya MN";
     font-size: 25px;
     margin: 5px;
 }
@@ -112,21 +114,21 @@ button {
 
 .player {
     color: gold;
-    background-color: black;
-    font-family: Copperplate;
+    background-color: #28731b;
+    font-family: "Oriya MN";
     font-size: 25px;
 }
 
 #alert {
     color: whitesmoke;
     background-color: firebrick;
-    font-family: Copperplate;
+    font-family: "Oriya MN";
     font-size: 30px;
 }
 
 #played {
     color: goldenrod;
-    font-family: Copperplate;
+    font-family: "Oriya MN";
     font-size: 30px;
 }
 
