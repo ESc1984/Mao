@@ -135,6 +135,7 @@ class Player {
         this._rules.passTurnCheckRules();
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
+            this._game.passCount();
             this._game.updateTurn();
         }
     };
@@ -554,6 +555,12 @@ class GameScene extends Phaser.Scene {
             });
             playerSpacing += 200;
         });
+    }
+
+    update() {
+        let discardCard = ourGame.discardPile.topDiscard();
+        let discardId = discardCard.suit + discardCard.value;
+        gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
     }
 }
 
