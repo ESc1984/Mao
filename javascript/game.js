@@ -503,64 +503,52 @@ function create() {
 
 function update() {
     if(ourGame){
+        let discardCard = ourGame.discardPile.topDiscard();
+        let discardId = discardCard.suit + discardCard.value;
+        gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
 
+        gameState.playTurn = this.add.text(800, 100, 'Play Turn');
+        gameState.playTurn.setInteractive();
+        gameState.playTurn.on('pointerup', () => {
+            let cardIndex = -1;
+            for(let i = 0; i < gameState.playerPlaying.hand.length; i++){
+                if(gameState.playerPlaying.hand[i].suit === gameState.selectedCard.suit && gameState.playerPlaying.hand[i].value === gameState.selectedCard.value){
+                    cardIndex = i;
+                    break;
+                }
+            }
+            gameState.playerPlaying.playCard(cardIndex, []);
+            gameState.playerPlaying.hand = [];
+            this.container.restart();
+        });
 
+        let container;
+        let playerSpacing = 200;
+        ourGame.playerList.forEach(player => {
+            gameState[player] = this.add.text(100, playerSpacing, player.name);
+            container = this.add.container(130, playerSpacing + 100);
 
+            let cardSpacing = 20;
+            let cards = [];
+            player.hand.forEach(card => {
+                let cardId = card.suit + card.value;
+                let playCard = this.add.sprite(cardSpacing, 0, cardId);
+                playCard.setInteractive();
+                playCard.on('pointerup', () => {
+                    gameState.selectedCard = card;
+                    gameState.playerPlaying = player;
+                    gameState.currentHand = container;
+                });
+                cards.push(playCard);
 
-
-
-
-
-
-
-
-
-
-
-
-
-        // let discardCard = ourGame.discardPile.topDiscard();
-        // let discardId = discardCard.suit + discardCard.value;
-        // gameState.topDiscard = this.add.image(game.config.width/2, 100, discardId);
-        //
-        // gameState.playTurn = this.add.text(800, 100, 'Play Turn');
-        // gameState.playTurn.setInteractive();
-        // gameState.playTurn.on('pointerup', () => {
-        //     let cardIndex = -1;
-        //     for(let i = 0; i < gameState.playerPlaying.hand.length; i++){
-        //         if(gameState.playerPlaying.hand[i].suit === gameState.selectedCard.suit && gameState.playerPlaying.hand[i].value === gameState.selectedCard.value){
-        //             cardIndex = i;
-        //             break;
-        //         }
-        //     }
-        //     gameState.playerPlaying.playCard(cardIndex, []);
-        //     this.scene.restart();
-        // });
-        //
-        // let playerSpacing = 200;
-        // ourGame.playerList.forEach(player => {
-        //     gameState[player] = this.add.text(100, playerSpacing, player.name);
-        //
-        //     let cardSpacing = 220;
-        //     let cardIndex = 0;
-        //     player.hand.forEach(card => {
-        //         let cardId = card.suit + card.value;
-        //         gameState[player][cardId] = this.add.sprite(cardSpacing, playerSpacing + 80, cardId);
-        //         gameState[player][cardId].setInteractive();
-        //         gameState[player][cardId].on('pointerup', () => {
-        //             gameState.selectedCard = card;
-        //             gameState.playerPlaying = player;
-        //         });
-        //
-        //         cardSpacing += 100;
-        //         cardIndex++;
-        //     });
-        //
-        //     gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
-        //     gameState[player].passTurn.setInteractive();
-        //     gameState[player].passTurn.on('pointerup', player.passTurn);
-        //     playerSpacing += 200;
-        // });
+                cardSpacing += 100;
+            });
+            container.add(cards);
+            gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn');
+            gameState[player].passTurn.setInteractive();
+            gameState[player].passTurn.on('pointerup', player.passTurn);
+            playerSpacing += 200;
+        });
     }
 }
 
