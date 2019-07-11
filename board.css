@@ -1,3 +1,7 @@
+canvas{
+    width: 100%
+}
+
 .card{
     margin: 5px;
     background-size: contain;
@@ -59,6 +63,25 @@
     margin: 2px;
 }
 
+#overlay {
+    visibility: hidden;
+    position: absolute;
+    top: auto;
+    bottom: 620px;
+    width:38%;
+    margin-left: 26%;
+    text-align:center;
+    background-color: #000;
+    z-index: 1000;
+    overflow-y: scroll;
+    box-shadow: -1px 2px 15px -1px #000;
+}
+
+#overlay div {
+    margin: auto;
+    background-color: #fff;
+    padding:15px;
+}
 /*.selected {*/
 /*    border: 10px yellow;*/
 /*    border-radius: 10px;*/
@@ -105,4 +128,28 @@ button {
     color: goldenrod;
     font-family: Copperplate;
     font-size: 30px;
+}
+
+.startGame{
+    padding-left: 0px;
+    margin-bottom: 20px;
+}
+
+.startGame #startButton {
+    background-color: #2ecc71;
+    color: #fff;
+    border: 1px solid #fff;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 15px 15px;
+}
+
+.close{
+    width: auto;
+    height: 20px;
+    position: relative;
+    right:inherit;
+    top: 12px;
+    margin-bottom: 13px;
+    border: gray;
 }
