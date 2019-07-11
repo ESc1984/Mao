@@ -555,6 +555,10 @@ class GameScene extends Phaser.Scene {
             });
             playerSpacing += 200;
         });
+
+        let ruleContainer = this.add.container(game.config.width - 200, 100);
+        let ruleA
+
     }
 
     update() {
