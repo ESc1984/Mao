@@ -537,7 +537,9 @@ class GameScene extends Phaser.Scene {
         let playerList = ourGame.playerList;
         if(gameState.eightPlayed){
             playerList = playerList.slice().reverse();
-        } else {}
+        } else {
+            playerList = ourGame.playerList;
+        }
         playerList.forEach(player => {
             gameState[player] = this.add.text(100, playerSpacing, player.name);
 
