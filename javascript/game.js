@@ -22,7 +22,7 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 150; i++){
+        for (let i = 0; i < 1000; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
             cards.push({suit: suits[su], value: values[val]})
@@ -382,31 +382,31 @@ class Rules{
     passTurnCheckRules(){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
-            //document.getElementById("alert").innerHTML = '~ Failure to play in turn';                                        --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - - - - FAILURE TO PLAY IN TURN - - - - - - - - - - - - - - - - - - -';
         }
     }
 
     playedCardCheckRules(card){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
-            //document.getElementById("alert").innerHTML = '~ Failure to play in turn';                                        --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - - - - FAILURE TO PLAY IN TURN - - - - - - - - - - - - - - - - - - -';
         } else if (!this.cardMatch(card)) {
             this._player.game.drawCard(this._player);
-            //document.getElementById("alert").innerHTML = '~ Failure to play within proper values';                             --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - FAILURE TO PLAY WITHIN PROPER VALUES - - - - - - - - - - - -';
         }
     }
 
     noRule(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = '~ Failure to declare in turn'                                            --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - - FAILURE TO DECLARE IN TURN - - - - - - - - - - - - - - - - -';
         }
     }
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = '~ Failure to declare Spades';                                                --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - FAILURE TO DECLARE SPADES - - - - - - - - - - - - - - - -';
         }
         player._rules._sRules = true;
     }
@@ -418,7 +418,7 @@ class Rules{
     sevenPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';                                 --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - FAILURE TO DECLARE HAVE A NICE DAY - - - - - - - - - - - - -';
         }
         player._rules._sevRules = true;
     }
@@ -436,7 +436,7 @@ class Rules{
             player.game.discardPile.expectedSuit = suit.charAt(0);
         } else {
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';                                          --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - FAILURE TO DECLARE A SUIT - - - - - - - - - - - - - - - -';
         }
         player._rules._jRules = true;
     }
@@ -444,7 +444,7 @@ class Rules{
     kingPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';                             --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - FAILURE TO DECLARE ALL HAIL THE CHAIRMAN - - - - - - - - - -';
         }
         player._rules._kRules = true;
     }
@@ -452,7 +452,7 @@ class Rules{
     queenPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            //document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';                                 --ALERT
+            document.getElementById("alert").innerHTML = '- - - - - - - - FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN - - - - - - - -';
         }
         player._rules._qRules = true;
     }
@@ -461,14 +461,14 @@ class Rules{
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao') || (cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
+            document.getElementById("alert").innerHTML = '- - - - - - - - - - - - - - - - - - FAILURE TO DECLARE MAO - - - - - - - - - - - - - - - - - -';
         }
         player._rules._maoRules = true;
     }
 
     findWin(){
         if (this._player.hand.length === 0){
-            //document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";                     --ALERT
+            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
             // }
@@ -501,7 +501,11 @@ class StartScene extends Phaser.Scene {
 
     update() {
         if(ourGame){
-            this.add.text( 150, 250, 'Click to start!', {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 250, 70, "- Click on a card to select it", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 250, 100, "- Make statements by clicking on them at the top", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 250, 130, "- Click 'Play Turn' to play your card", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 250, 160, "- Skip your turn with your 'Pass Turn' button", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 250, 200, 'Click Anywhere to Begin this Round of MAO', {fill: '#ffd700', fontSize: '25px', fontFamily: "Oriya MN"});
             this.input.on('pointerdown', () => {
                 this.scene.stop('StartScene');
                 this.scene.start('GameScene');
@@ -521,7 +525,7 @@ class GameScene extends Phaser.Scene {
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
 
-        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN"});
+        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
@@ -570,6 +574,7 @@ class GameScene extends Phaser.Scene {
                 playCard.on('pointerup', () => {
                     gameState.selectedCard = card;
                     gameState.playerPlaying = player;
+                    document.getElementById('alert').innerHTML = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
                     currentHand.forEach(c => {
                         c.clearTint();
                     });
