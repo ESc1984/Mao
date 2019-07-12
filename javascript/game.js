@@ -515,20 +515,26 @@ class StartScene extends Phaser.Scene {
 }
 
 
+let cursors;
 class GameScene extends Phaser.Scene {
+
     constructor() {
         super({key: 'GameScene'});
     }
 
     create() {
-        this.cameras.main.setBounds(0, 0, gameState.width, gameState.height);
+        cursors = this.input.keyboard.createCursorKeys();
 
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId).setScrollFactor(0);
+        let topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        topDiscard.setScrollFactor(0, 0);
+        gameState.topDiscard = topDiscard;
 
 
-        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'}).setScrollFactor(0);
+        let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
+        playTurn.setScrollFactor(0, 0);
+        gameState.playTurn = playTurn;
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
@@ -560,6 +566,7 @@ class GameScene extends Phaser.Scene {
 
             gameState[player].passTurn = this.add.text(900, playerSpacing, 'Pass Turn', {fill: '#ffd700', fontFamily: "Oriya MN"});
             gameState[player].passTurn.setInteractive();
+
             gameState[player].passTurn.on('pointerup', () => {
                 gameState.playerPlaying = player;
                 gameState.playerPlaying.passTurn();
@@ -570,6 +577,7 @@ class GameScene extends Phaser.Scene {
             container = this.add.container(130, playerSpacing + 100);
             let cardSpacing = 20;
             let currentHand = [];
+
             player.hand.forEach(card => {
                 let cardId = card.suit + card.value;
                 let playCard = this.add.sprite(cardSpacing, 0, cardId);
@@ -591,7 +599,8 @@ class GameScene extends Phaser.Scene {
             playerSpacing += 200;
         });
 
-        let ruleContainer = this.add.container(game.config.width/3 + 30, 53).setScrollFactor(0);
+        let ruleContainer = this.add.container(game.config.width/3 + 30, 53);
+        ruleContainer.setScrollFactor(0, 0);
         gameState.selectedRules = [];
         let width = 10;
         let spades = this.add.text(width, 5, "Spades", {fill: '#ffd700', fontSize: '14px', fontFamily: "Oriya MN"});
@@ -605,6 +614,7 @@ class GameScene extends Phaser.Scene {
 
         let specialRules = [spades, hearts, clubs, diamonds, haveNiceDay, chairwoman, chairman, mao];
         specialRules.forEach(rule => {
+            rule.setScrollFactor(0, 0);
             rule.setInteractive();
             rule.on('pointerup', () => {
                 gameState.selectedRules.push(rule.text);
@@ -614,6 +624,15 @@ class GameScene extends Phaser.Scene {
     }
 
     update() {
+        if (cursors.up.isDown)                  //this.cameras.cameras[0].y < this.canvas.height &&
+        {
+            this.cameras.cameras[0].y += 4;
+        }
+        else if (cursors.down.isDown)           //this.cameras.cameras[0].y > 0 &&
+        {
+            this.cameras.cameras[0].y -= 4;
+        }
+
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);

@@ -4,6 +4,10 @@ canvas{
     margin-top: 90px;
 }
 
+canvas container{
+    position: fixed;
+}
+
 .card{
     margin: 5px;
     background-size: contain;
