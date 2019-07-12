@@ -1,6 +1,7 @@
 canvas{
     width: 100%;
     height: 100%;
+    margin-top: 90px;
 }
 
 .card{
@@ -132,10 +133,12 @@ button {
 
 #alert {
     color: gold;
+    margin-top: 0px;
     background-color: #9c1f1f;
     font-family: "Oriya MN";
     font-size: 50px;
     text-align: center;
+    position: fixed;
 }
 
 #played {

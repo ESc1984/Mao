@@ -521,16 +521,14 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.cameras.main.setBounds(0, 0, gameState.width, gameState.height);
+
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        let topDiscard = this.add.image(game.config.width/4, 100, discardId);
-        topDiscard.setScrollFactor(0);
-        gameState.topDiscard = topDiscard;
+        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId).setScrollFactor(0);
 
 
-        let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
-        playTurn.setScrollFactor(0);
-        gameState.playTurn = playTurn;
+        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'}).setScrollFactor(0);
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
@@ -579,7 +577,7 @@ class GameScene extends Phaser.Scene {
                 playCard.on('pointerup', () => {
                     gameState.selectedCard = card;
                     gameState.playerPlaying = player;
-                    document.getElementById('alert').innerHTML = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
+                    document.getElementById('alert').innerHTML = "";
                     currentHand.forEach(c => {
                         c.clearTint();
                     });
@@ -593,7 +591,7 @@ class GameScene extends Phaser.Scene {
             playerSpacing += 200;
         });
 
-        let ruleContainer = this.add.container(game.config.width/3 + 30, 53);
+        let ruleContainer = this.add.container(game.config.width/3 + 30, 53).setScrollFactor(0);
         gameState.selectedRules = [];
         let width = 10;
         let spades = this.add.text(width, 5, "Spades", {fill: '#ffd700', fontSize: '14px', fontFamily: "Oriya MN"});
@@ -613,7 +611,6 @@ class GameScene extends Phaser.Scene {
             });
             ruleContainer.add(rule);
         });
-        ruleContainer.setScrollFactor(0);
     }
 
     update() {
