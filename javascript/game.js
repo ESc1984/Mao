@@ -626,6 +626,7 @@ class GameScene extends Phaser.Scene {
 let gameState = {};
 
 let config = {
+    type: Phaser.AUTO,
     backgroundColor: 0x9C1F1F,
     parent: 'mao-game',
     scene: [StartScene, GameScene],
