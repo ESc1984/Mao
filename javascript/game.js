@@ -523,9 +523,14 @@ class GameScene extends Phaser.Scene {
     create() {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        let topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        topDiscard.setScrollFactor(0);
+        gameState.topDiscard = topDiscard;
 
-        gameState.playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
+
+        let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
+        playTurn.setScrollFactor(0);
+        gameState.playTurn = playTurn;
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
             let cardIndex = -1;
@@ -608,14 +613,13 @@ class GameScene extends Phaser.Scene {
             });
             ruleContainer.add(rule);
         });
-
+        ruleContainer.setScrollFactor(0);
     }
 
     update() {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
-        game.height = this.height;
     }
 }
 
