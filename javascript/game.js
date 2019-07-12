@@ -610,6 +610,7 @@ class GameScene extends Phaser.Scene {
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
         gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        game.height = this.height;
     }
 }
 
@@ -618,7 +619,8 @@ let gameState = {};
 let config = {
     backgroundColor: 0x9C1F1F,
     parent: 'mao-game',
-    scene: [StartScene, GameScene]
+    scene: [StartScene, GameScene],
+    height: 1768
 };
 const game = new Phaser.Game(config);
 
