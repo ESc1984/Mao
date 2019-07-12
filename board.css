@@ -66,8 +66,8 @@ canvas{
 #overlay {
     visibility: hidden;
     position: absolute;
-    top: auto;
-    bottom: 620px;
+    top: 150px;
+    bottom: auto;
     width:38%;
     margin-left: 26%;
     text-align:center;
@@ -129,10 +129,11 @@ button {
 }
 
 #alert {
-    color: whitesmoke;
-    background-color: gold;
+    color: gold;
+    background-color: #9c1f1f;
     font-family: "Oriya MN";
-    font-size: 30px;
+    font-size: 50px;
+    text-align: center;
 }
 
 #played {
