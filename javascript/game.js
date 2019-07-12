@@ -527,9 +527,7 @@ class GameScene extends Phaser.Scene {
 
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        let topDiscard = this.add.image(game.config.width/4, 100, discardId);
-        topDiscard.setScrollFactor(0, 0);
-        gameState.topDiscard = topDiscard;
+        gameState.topDiscard = this.add.image(game.config.width/4, 100, discardId).setScrollFactor(0, 0);
 
 
         let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
