@@ -469,6 +469,7 @@ class Rules{
     findWin(){
         if (this._player.hand.length === 0){
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            //this??.scene.stop(scene key);
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
             // }
@@ -501,11 +502,14 @@ class StartScene extends Phaser.Scene {
 
     update() {
         if(ourGame){
-            this.add.text( 250, 70, "- Click on a card to select it", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
-            this.add.text( 250, 100, "- Make statements by clicking on them at the top", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
-            this.add.text( 250, 130, "- Click 'Play Turn' to play your card", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
-            this.add.text( 250, 160, "- Skip your turn with your 'Pass Turn' button", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
-            this.add.text( 250, 200, 'Click Anywhere to Begin this Round of MAO', {fill: '#ffd700', fontSize: '25px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 20, "How To Play", {fill: '#ffd700', fontSize: '25px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 60, "- Click on a card to select it", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 90, "- Make statements by clicking on them at the top", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 120, "- Click 'Play Turn' to play your card", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 150, "- Skip your turn with your 'Pass Turn' button", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 200, "Rules of Mao", {fill: '#ffd700', fontSize: '25px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 240, "1. We do not disclose the rules of Mao", {fill: '#ffd700', fontSize: '20px', fontFamily: "Oriya MN"});
+            this.add.text( 270, 300, 'Click Anywhere to Begin this Round of MAO', {fill: '#ffd700', fontSize: '25px', fontFamily: "Oriya MN"});
             this.input.on('pointerdown', () => {
                 this.scene.stop('StartScene');
                 this.scene.start('GameScene');
@@ -623,13 +627,30 @@ class GameScene extends Phaser.Scene {
     }
 }
 
+class WinScene extends Phaser.Scene {
+    constructor(name) {
+        super({key: 'WinScene'});
+        this._winnerName = name.toUpperCase();
+    }
+
+    update() {
+        if(ourGame){
+            this.add.text( 10, 100, `CONGRATULATIONS, ${this._winnerName} -- YOU HAVE WON THIS ROUND OF MAO`, {fill: '#ffd700', fontSize: '50px', fontFamily: "Oriya MN"});
+            this.add.text( 400, 200, "Play Again?", {fill: '#ffd700', fontSize: '50px', fontFamily: "Oriya MN"});
+            // this.input.on('pointerdown', () => {
+            //     restart game option?
+            // });
+        }
+    }
+}
+
 let gameState = {};
 
 let config = {
     type: Phaser.AUTO,
     backgroundColor: 0x9C1F1F,
     parent: 'mao-game',
-    scene: [StartScene, GameScene],
+    scene: [StartScene, GameScene, WinScene],
     height: 1768
 };
 const game = new Phaser.Game(config);
