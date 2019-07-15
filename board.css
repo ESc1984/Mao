@@ -9,7 +9,7 @@
 
 .card:after {
   content: "";
-  background: papayawhip;
+  background: #ffe75c;
   display: block;
   position: relative;
   padding-top: 150%;
@@ -65,19 +65,19 @@
 /*}*/
 
 body {
-    background-color: #09590e;
+    background-color: #b0210b;
 }
 
 label {
     color: gold;
-    font-family: Copperplate;
+    font-family: Oriya MN;
     font-size: 30px;
 }
 
 button {
     color: gold;
-    background-color: firebrick;
-    font-family: Copperplate;
+    background-color: #780e0e;
+    font-family: Oriya MN;
     font-size: 25px;
     margin: 5px;
 }
@@ -89,20 +89,20 @@ button {
 
 .player {
     color: gold;
-    background-color: black;
-    font-family: Copperplate;
+    background-color: #303030;
+    font-family: Oriya MN;
     font-size: 25px;
 }
 
 #alert {
     color: whitesmoke;
-    background-color: firebrick;
-    font-family: Copperplate;
+    background-color: #b0210b;
+    font-family: Oriya MN;
     font-size: 30px;
 }
 
 #played {
     color: goldenrod;
-    font-family: Copperplate;
+    font-family: Oriya MN;
     font-size: 30px;
 }
