@@ -40,6 +40,23 @@
     justify-content: space-evenly;
 }
 
+#ruleButtonGrid {
+    margin-top: 35px;
+    display: grid;
+    column-gap: 10px;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+#topGrid{
+    grid-template-columns: 1fr 3fr 1fr;
+}
+
+#discard .card {
+    width: 130px;
+    height: 190px;
+}
+
 .numCards{
     margin: 0;
     font-size: 25px;
@@ -91,12 +108,14 @@ button {
 #playCard {
     display: block;
     width: 150px;
-    margin: 0 auto;
+    margin-left: 5px;
 }
 
 .ruleButton {
     font-size: 22px;
     margin: 0;
+    text-align: center;
+    height: fit-content;
 }
 
 .player {

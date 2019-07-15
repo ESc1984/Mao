@@ -108,7 +108,6 @@ class Player {
         this._game = game;
         this._rules = new Rules(this);
         this._turn = false;
-        //this._passes = 0;
     }
 
     get game() {
@@ -186,29 +185,6 @@ class Player {
         }
     }
 
-    // sendRuleDeclarations(card, selectedRules){
-    //     selectedRules.forEach(rule => {
-    //         if(rule === 'Mao'){
-    //             this._rules.mao(this, rule);
-    //         } else if (rule === 'Spades' && !this._rules.sRules){
-    //             this._rules.gameRules[card.suit](this, rule);
-    //         } else {
-    //             this._rules.gameRules[card.value](this, rule);
-    //         }
-    //     });
-    //     if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
-    //         || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
-    //         || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
-    //         this._rules.gameRules[card.value](this, "");
-    //     }
-    //     if(!(card.suit === 'S' && this._rules.sRules)){
-    //         this._rules.gameRules[card.suit](this, "");
-    //     }
-    //     if(this.hand.length === 2 && !this._rules.maoRules){
-    //         this._rules.mao(this, "");
-    //     }
-    // }
-
     set turn(turn) {
         this._turn = turn;
     }
@@ -226,7 +202,7 @@ class Game {
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        //this._passes = 0;
+        this._passes = 0;
 
         this._playerList = [];
         for (let i = 0; i < numPlayers; i++){
@@ -319,16 +295,6 @@ class Game {
 class Rules{
     constructor(player){
         this._player = player;
-// <<<<<<<<< Temporary merge branch 1
-//         this._gameRules = {
-//             "A": this.acePlayed(player),
-//             "7": this.sevenPlayed(player, "HAND"), //declarations TBA
-//             "8": this.eightPlayed(player),
-//             "J": this.jackPlayed(player, 'D'),
-//             "Q": this.queenPlayed(player, "AHCW"),
-//             "K": this.kingPlayed(player, "AHCM"),
-//             "S": this.spadePlayed(player, "S")
-// =========
         this.gameRules = {
             "S": this.spadePlayed,
             "H": this.noRule,
@@ -346,12 +312,7 @@ class Rules{
             "X": this.noRule,
             "J": this.jackPlayed,
             "Q": this.queenPlayed,
-            "K": this.kingPlayed
-            // "S": this.spadePlayed,
-            // "H": this.noRule,
-            // "D": this.noRule,
-            // "C": this.noRule
-// >>>>>>>>> Temporary merge branch 2
+            "K": this.kingPlayed,
         };
         this._sevRules = false;
         this._jRules = false;
@@ -359,7 +320,6 @@ class Rules{
         this._kRules = false;
         this._sRules = false;
         this._maoRules = false;
-        //this._nicecount = 0;
     }
 
     // get gameRules(){
@@ -414,14 +374,6 @@ class Rules{
         this._maoRules = val;
     }
 
-    // get niceCount(){
-    //     return this._nicecount;
-    // }
-    //
-    // set niceCount(val){
-    //     this._nicecount = val;
-    // }
-
     resetRules(){
         this._sevRules = false;
         this._jRules = false;
@@ -442,20 +394,6 @@ class Rules{
         }
     }
 
-    // playedCardCheckRules(card){
-    //     if(!this._player.turn) {
-    //         this._player.game.drawCard(this._player);
-    //     } else if (!this.cardMatch(card)) {
-    //         this._player.game.drawCard(this._player);
-    //     }
-    // }
-
-    // noRule(player, state){
-    //     if(state !== ""){
-    // cardMatch(card){
-    //     return ( (card.suit === this._player.game.discardPile.expectedSuit) || (card.value === this._player.game.discardPile.expectedValue))
-    // }
-
     playedCardCheckRules(card){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
@@ -474,13 +412,6 @@ class Rules{
     }
 
     spadePlayed(player, state){
-// <<<<<<<<< Temporary merge branch 1
-//         if(state !== 'S'){
-//             player.game.drawCard();
-//             console.log('Failure to declare spades.')
-//         } else {
-//             console.log(state);
-// =========
         if(state !== 'Spades'){
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
@@ -565,7 +496,7 @@ let selectedRules = [];
 
 window.onload = function gameLoaded() {
     game = document.getElementById("game");
-    document.getElementById("playCard").addEventListener("click", playTurn);
+    //document.getElementById("topGrid").addEventListener("click", startGame());
 };
 
 
@@ -582,12 +513,7 @@ function startGame(numPlayers) {
         playCount = 2;
     }
     ourGame = new Game(playCount);
-    const playCard = document.createElement('button');
-    playCard.setAttribute('id', 'playCard');
-    playCard.innerHTML = 'Play Turn';
-    playCard.onclick = playTurn;
-    game.appendChild(playCard);
-    createDiscardFunctionality();
+    createTopBar();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
         gamePlayer.classList.add('player');
@@ -636,6 +562,19 @@ function startGame(numPlayers) {
     });
 }
 
+function createTopBar(){
+    const topGrid = document.createElement('section');
+    topGrid.setAttribute('id', 'topGrid');
+    topGrid.setAttribute('class', 'grid');
+    game.appendChild(topGrid);
+    createDiscardFunctionality(topGrid);
+    const playCard = document.createElement('button');
+    playCard.setAttribute('id', 'playCard');
+    playCard.innerHTML = 'Play<br>Turn';
+    playCard.onclick = playTurn;
+    topGrid.appendChild(playCard);
+}
+
 // function createPlayTurn(){
 //     const playCard = document.createElement('button');
 //     playCard.setAttribute('id', 'playCard');
@@ -643,16 +582,16 @@ function startGame(numPlayers) {
 //     //playCard.onclick = playTurn;
 // }
 
-function createDiscardFunctionality(){
+function createDiscardFunctionality(grid){
     const discard = document.createElement('section');
     discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
-    game.appendChild(discard);
+    grid.appendChild(discard);
     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
     const ruleButtonGrid = document.createElement('section');
     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
     ruleButtonGrid.setAttribute('class', 'grid');
-    game.appendChild(ruleButtonGrid);
+    grid.appendChild(ruleButtonGrid);
     specialRules.forEach(rule => {
         createRuleButtons(ruleButtonGrid, rule);
     });
@@ -710,7 +649,6 @@ function openHand() {
         this.parentElement.appendChild(playerhand);
     }
 
-
     // if(typeof(element) === 'undefined'){
     //     //functional-ish
     //     playerPlaying = this.parentElement.id;
@@ -747,6 +685,32 @@ function openHand() {
     //selectedRules = [];
 }
 
+//     let startGamePrompt = document.getElementById('startGame');
+//     for(let i = 0; i < players; i++){
+//         let namePrompt = document.createElement('label');
+//         namePrompt.id = 'namePlayers';
+//         namePrompt.setAttribute('for', 'namePlayers' + i);
+//         namePrompt.innerHTML = "Enter Player's Name: ";
+//         let nameHolder = document.createElement('input');
+//         nameHolder.name = 'namePlayersPrompt';
+//         nameHolder.id = 'namePlayers' + i;
+//         nameHolder.type = 'text';
+//         let newLine = document.createElement('br');
+//
+//         startGamePrompt.appendChild(namePrompt);
+//         startGamePrompt.appendChild(newLine);
+//         startGamePrompt.appendChild(newLine);
+//         startGamePrompt.appendChild(nameHolder);
+//         startGamePrompt.appendChild(newLine);
+//         startGamePrompt.appendChild(newLine);
+//     }
+//     let startButton = document.createElement('button');
+//     startButton.class ='close';
+//     startButton.id = 'startButton';
+//     startButton.innerHTML = 'Start Game';
+//     startButton.onclick = saveNames;
+//     startGamePrompt.appendChild(startButton);
+// }
 
 // playerPlaying = this.parentElement.id;
 // let player = findPlayerIndexFromId();
