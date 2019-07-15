@@ -136,6 +136,7 @@ button {
     font-family: "Oriya MN";
     font-size: 50px;
     text-align: center;
+    position: fixed;
 }
 
 #played {

@@ -579,7 +579,7 @@ class GameScene extends Phaser.Scene {
                 playCard.on('pointerup', () => {
                     gameState.selectedCard = card;
                     gameState.playerPlaying = player;
-                    document.getElementById('alert').innerHTML = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -";
+                    document.getElementById('alert').innerHTML = "";
                     currentHand.forEach(c => {
                         c.clearTint();
                     });
