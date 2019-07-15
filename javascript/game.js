@@ -631,7 +631,7 @@ class GameScene extends Phaser.Scene {
 
     update() {
 
-        if (cursors.up.isDown)                  //this.cameras.cameras[0].y < this.canvas.height &&
+        if (cursors.up.isDown )                  //&& this.cameras.cameras[0].y < this.game.canvas.height - 300
         {
             this.cameras.cameras[0].y += 4;
             ruleContainer.y -= 4;
@@ -640,7 +640,7 @@ class GameScene extends Phaser.Scene {
             gameState.topDiscard.y -= 4;
             gameState.playTurn.y -= 4;
         }
-        else if (cursors.down.isDown)           //this.cameras.cameras[0].y > 0 &&
+        else if (cursors.down.isDown )           //this.cameras.cameras[0].y > 0 &&
         {
             this.cameras.cameras[0].y -= 4;
             ruleContainer.y += 4;
