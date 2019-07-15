@@ -18,18 +18,28 @@
   /*margin-left: -20px !important;*/
   /*margin-top: -120%;*/
   opacity: 0;
-  transition: all 0.5s
+  transition: all 0.5s;
+
 }
 
 .card:active:after {
     padding: 0;
     margin: 0;
     opacity: 1;
-    transition: 0s
+    transition: 0s;
+    outline-color: palegoldenrod;
+    outline-width: 100px;
 }
+
+/*.card.focus {*/
+/*    border-style: solid;*/
+/*    border-width: medium;*/
+/*    border-color: palegoldenrod;*/
+/*}*/
 
 .hand {
     font-size: 28px;
+    width: 200px;
 }
 
 .grid{
@@ -86,6 +96,7 @@ button {
     font-family: Oriya MN;
     font-size: 25px;
     margin: 5px;
+    border-color: goldenrod;
 }
 
 #playCard {
@@ -97,6 +108,15 @@ button {
 .ruleButton {
     font-size: 22px;
     margin: 0;
+    border-style: solid;
+    border-width: 2px;
+    border-color: goldenrod;
+}
+
+.ruleButton:focus {
+    border-style: solid;
+    border-width: medium;
+    border-color:palegoldenrod;
 }
 
 .player {
@@ -107,14 +127,19 @@ button {
 }
 
 #alert {
-    color: whitesmoke;
-    background-color: #b0210b;
+    color: gold;
+    background-color: #780e0e;
     font-family: Oriya MN;
-    font-size: 30px;
+    font-size: 40px;
+    display: block;
+    text-align: center;
 }
 
 #played {
-    color: goldenrod;
+    display: block;
+    color: gold;
     font-family: Oriya MN;
     font-size: 30px;
+    padding: 10px;
+    margin-left: 500px;
 }
