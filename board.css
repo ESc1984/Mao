@@ -125,6 +125,20 @@ button {
     font-size: 25px;
 }
 
+#overlay #startGame{
+    width: fit-content;
+    margin-top: 140px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#overlay p {
+    margin-top: 70px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #alert {
     color: whitesmoke;
     background-color: #b0210b;
