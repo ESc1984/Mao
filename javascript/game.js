@@ -515,7 +515,7 @@ class StartScene extends Phaser.Scene {
 }
 
 
-let cursors, ruleContainer, background;
+let cursors, ruleContainer, background, background2;
 class GameScene extends Phaser.Scene {
 
     constructor() {
@@ -525,15 +525,20 @@ class GameScene extends Phaser.Scene {
     create() {
         cursors = this.input.keyboard.createCursorKeys();
 
-        background = this.add.rectangle(0, 0, 1024, 340, 0xffd700);
+        background = this.add.rectangle(0, 0, 1000, 340, 0x9C1F1F);
+        background.depth = 900;
+        background2 = this.add.rectangle(1000, 0, 1000, 340, 0x9C1F1F);
+        background2.depth = 900;
 
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
         let topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        topDiscard.depth = 1000;
         gameState.topDiscard = topDiscard;      //.setScrollFactor(0, 0);
 
         let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
         //playTurn.setScrollFactor(0);
+        playTurn.depth = 1000;
         gameState.playTurn = playTurn;
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
@@ -601,6 +606,7 @@ class GameScene extends Phaser.Scene {
 
         ruleContainer = this.add.container(game.config.width/3 + 30, 53);       //.setScrollFactor(0, 0, true);
         //ruleContainer.setScrollFactor(0);
+        ruleContainer.depth = 1000;
         gameState.selectedRules = [];
         let width = 10;
         let spades = this.add.text(width, 5, "Spades", {fill: '#ffd700', fontSize: '14px', fontFamily: "Oriya MN"});
@@ -630,6 +636,7 @@ class GameScene extends Phaser.Scene {
             this.cameras.cameras[0].y += 4;
             ruleContainer.y -= 4;
             background.y -= 4;
+            background2.y -= 4;
             gameState.topDiscard.y -= 4;
             gameState.playTurn.y -= 4;
         }
@@ -638,6 +645,7 @@ class GameScene extends Phaser.Scene {
             this.cameras.cameras[0].y -= 4;
             ruleContainer.y += 4;
             background.y += 4;
+            background2.y += 4;
             gameState.topDiscard.y += 4;
             gameState.playTurn.y += 4;
         }
