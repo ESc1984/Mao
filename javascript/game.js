@@ -582,6 +582,11 @@ function startGame(numPlayers) {
         playCount = 2;
     }
     ourGame = new Game(playCount);
+    const playCard = document.createElement('button');
+    playCard.setAttribute('id', 'playCard');
+    playCard.innerHTML = 'Play Turn';
+    playCard.onclick = playTurn;
+    game.appendChild(playCard);
     createDiscardFunctionality();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
@@ -630,6 +635,13 @@ function startGame(numPlayers) {
         //gamePlayer.appendChild(grid);
     });
 }
+
+// function createPlayTurn(){
+//     const playCard = document.createElement('button');
+//     playCard.setAttribute('id', 'playCard');
+//     // playCard.innerHTML = 'Play Turn';
+//     //playCard.onclick = playTurn;
+// }
 
 function createDiscardFunctionality(){
     const discard = document.createElement('section');

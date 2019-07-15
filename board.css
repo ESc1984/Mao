@@ -74,12 +74,24 @@ label {
     font-size: 30px;
 }
 
+p {
+    color: gold;
+    font-family: Oriya MN;
+    font-size: 25px;
+}
+
 button {
     color: gold;
     background-color: #780e0e;
     font-family: Oriya MN;
     font-size: 25px;
     margin: 5px;
+}
+
+#playCard {
+    display: block;
+    width: 150px;
+    margin: 0 auto;
 }
 
 .ruleButton {

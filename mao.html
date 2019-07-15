@@ -10,13 +10,18 @@
 <div id="game">
     <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players (2-8)</label>
     <input name="numPlayersPrompt" id="numPlayers" type="number" step='1' min="2" max="8">
+    <p id="guide">HOW TO PLAY<br>- Click on a card to select it<br>- Make statements by clicking on them at the top<br>- Click 'Play Turn' to play your card<br>- Skip your turn with your 'Pass Turn' button<br>RULES OF MAO<br>1. We do not disclose the rules of Mao<br></p>
     <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
-        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));
-        removeVisibility(document.getElementById('numPlayersPrompt'))">Start Game</button>
-    <button id="playCard">Play Turn</button>
+        this.style.display = 'none'; document.getElementById('numPlayers').style.display = 'none';
+        document.getElementById('numPlayersPrompt').style.display = 'none';
+        document.getElementById('guide').style.display = 'none';">Start Game</button>
+<!--        removeVisibility(this);removeVisibility(document.getElementById('numPlayers'));-->
+<!--        removeVisibility(document.getElementById('numPlayersPrompt'))-->
+<!--    <button id="playCard">Play Turn</button>-->
 
 </div>
 <p id="played"></p>
 <p id="alert"></p>
 </body>
 </html>
+
