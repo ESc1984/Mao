@@ -515,7 +515,7 @@ class StartScene extends Phaser.Scene {
 }
 
 
-let cursors;
+let cursors, ruleContainer, background;
 class GameScene extends Phaser.Scene {
 
     constructor() {
@@ -525,13 +525,15 @@ class GameScene extends Phaser.Scene {
     create() {
         cursors = this.input.keyboard.createCursorKeys();
 
+        background = this.add.rectangle(0, 0, 1024, 340, 0xffd700);
+
         let discardCard = ourGame.discardPile.topDiscard();
         let discardId = discardCard.suit + discardCard.value;
-        let topDiscard = this.add.image(game.config.width/4, 100, discardId).setScrollFactor(0);
-        gameState.topDiscard = topDiscard;
+        let topDiscard = this.add.image(game.config.width/4, 100, discardId);
+        gameState.topDiscard = topDiscard;      //.setScrollFactor(0, 0);
 
         let playTurn = this.add.text(800, 100, 'Play Turn', {fill: '#ffd700', fontFamily: "Oriya MN", fontSize: '25px'});
-        playTurn.setScrollFactor(0);
+        //playTurn.setScrollFactor(0);
         gameState.playTurn = playTurn;
         gameState.playTurn.setInteractive();
         gameState.playTurn.on('pointerup', () => {
@@ -597,8 +599,8 @@ class GameScene extends Phaser.Scene {
             playerSpacing += 200;
         });
 
-        let ruleContainer = this.add.container(game.config.width/3 + 30, 53);
-        ruleContainer.setScrollFactor(0);
+        ruleContainer = this.add.container(game.config.width/3 + 30, 53);       //.setScrollFactor(0, 0, true);
+        //ruleContainer.setScrollFactor(0);
         gameState.selectedRules = [];
         let width = 10;
         let spades = this.add.text(width, 5, "Spades", {fill: '#ffd700', fontSize: '14px', fontFamily: "Oriya MN"});
@@ -626,10 +628,18 @@ class GameScene extends Phaser.Scene {
         if (cursors.up.isDown)                  //this.cameras.cameras[0].y < this.canvas.height &&
         {
             this.cameras.cameras[0].y += 4;
+            ruleContainer.y -= 4;
+            background.y -= 4;
+            gameState.topDiscard.y -= 4;
+            gameState.playTurn.y -= 4;
         }
         else if (cursors.down.isDown)           //this.cameras.cameras[0].y > 0 &&
         {
             this.cameras.cameras[0].y -= 4;
+            ruleContainer.y += 4;
+            background.y += 4;
+            gameState.topDiscard.y += 4;
+            gameState.playTurn.y += 4;
         }
     }
 }
