@@ -198,15 +198,15 @@ class Player {
 
 
 class Game {
-    constructor(numPlayers){
+    constructor(playerList){
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._passes = 0;
 
         this._playerList = [];
-        for (let i = 0; i < numPlayers; i++){
-            this._playerList.push(new Player(this.dealHand(), ('player' + i), this));
+        for (let i = 0; i < playerList.length; i++){
+            this._playerList.push(new Player(this.dealHand(), playerList[i], this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
@@ -489,30 +489,83 @@ class Rules{
 
 let ourGame;
 let game;
+let players;
 let selectedCard;
 let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
 
 window.onload = function gameLoaded() {
-    game = document.getElementById("game");
-    //document.getElementById("topGrid").addEventListener("click", startGame());
+    game = document.getElementById("gameBoard");
+    overlay();
 };
+
+function overlay() {
+    let el = document.getElementById("overlay");
+    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    window.scrollTo(0, 0);
+    if(el.style.visibility == 'hidden'){
+        removeElement(el);
+    }
+}
+
+function numPlayersDecided(numPlayers) {
+    if (numPlayers > 8) {
+        players = 8;
+    } else if (numPlayers < 2 || numPlayers === null){
+        players = 2;
+    } else {
+        players = numPlayers;
+    }
+    let startGamePrompt = document.getElementById('startGame');
+    for(let i = 0; i < players; i++){
+        let namePrompt = document.createElement('label');
+        namePrompt.id = 'namePlayers';
+        namePrompt.setAttribute('for', 'namePlayers' + i);
+        namePrompt.innerHTML = "Enter Player's Name: ";
+        let nameHolder = document.createElement('input');
+        nameHolder.name = 'namePlayersPrompt';
+        nameHolder.id = 'namePlayers' + i;
+        nameHolder.type = 'text';
+        let newLine = document.createElement('br');
+
+        startGamePrompt.appendChild(namePrompt);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(nameHolder);
+        startGamePrompt.appendChild(newLine);
+        startGamePrompt.appendChild(newLine);
+    }
+    let startButton = document.createElement('button');
+    startButton.class ='close';
+    startButton.id = 'startButton';
+    startButton.innerHTML = 'Start Game';
+    startButton.onclick = saveNames;
+    startGamePrompt.appendChild(startButton);
+}
+
+function removeElement(element) {
+    element.parentNode.removeChild(element);
+}
+
+function saveNames() {
+    let num = players;
+    players = [];
+    for (let i = 0; i < num; i++) {
+        players.push(document.getElementById('namePlayers' + i).value);
+    }
+    overlay();
+    startGame(players);
+}
 
 
 function displayPlayerHand(playerIndex) {
     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
 }
 
-function startGame(numPlayers) {
-    let playCount = numPlayers;
-    if (numPlayers > 8){
-        playCount = 8;
-    }
-    if (numPlayers < 2){
-        playCount = 2;
-    }
-    ourGame = new Game(playCount);
+function startGame(players) {
+    //let playCount = players.length;
+    ourGame = new Game(players);
     createTopBar();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
@@ -520,17 +573,8 @@ function startGame(numPlayers) {
         gamePlayer.setAttribute("class", "player");
         gamePlayer.setAttribute("id", player.name);
         gamePlayer.dataset.name = player.name;
-        //gamePlayer.innerHTML = player.name;
         game.appendChild(gamePlayer);
 
-
-        // const grid = document.createElement('section');
-        // grid.setAttribute('class', 'grid');
-        // grid.setAttribute('class', `${player.name}hand`);
-        // grid.style.display = 'none';
-        // initializePlayerHand(player, grid);
-        //
-        // gamePlayer.appendChild(grid);
 
         const hand = document.createElement('button');
         hand.setAttribute('class', 'hand');
@@ -545,20 +589,6 @@ function startGame(numPlayers) {
         numCards.setAttribute('id', `${player.name}numCards`);
         numCards.innerHTML = player.hand.length.toString();
         hand.appendChild(numCards);
-
-        // const passBtn = document.createElement("button");
-        // passBtn.setAttribute('class', 'pass');
-        // passBtn.innerHTML = 'Pass Turn';
-        // passBtn.onclick = passTurn;
-        // gamePlayer.appendChild(passBtn);
-
-
-        // const grid = document.createElement('section');
-        // grid.setAttribute('class', 'grid');
-        // grid.setAttribute('class', `${player.name}hand`);
-        //initializePlayerHand(player, grid);
-
-        //gamePlayer.appendChild(grid);
     });
 }
 
@@ -566,21 +596,14 @@ function createTopBar(){
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');
-    game.appendChild(topGrid);
     createDiscardFunctionality(topGrid);
     const playCard = document.createElement('button');
     playCard.setAttribute('id', 'playCard');
     playCard.innerHTML = 'Play<br>Turn';
     playCard.onclick = playTurn;
     topGrid.appendChild(playCard);
+    game.appendChild(topGrid);
 }
-
-// function createPlayTurn(){
-//     const playCard = document.createElement('button');
-//     playCard.setAttribute('id', 'playCard');
-//     // playCard.innerHTML = 'Play Turn';
-//     //playCard.onclick = playTurn;
-// }
 
 function createDiscardFunctionality(grid){
     const discard = document.createElement('section');
