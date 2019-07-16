@@ -86,7 +86,8 @@ class DiscardPile {
     addToDiscard(card){
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
-        if(this._game.rules.rulesInPlay.contains('wild') && !(this._game.rules.wildRules === true)){                                //CHANGE HERE
+        let arr = this._game.rules.rulesInPlay;
+        if(! ( (this._game.rules.wildRules.card === card.suit ||this._game.rules.wildRules.card === card.value) && this._game.rules.wildRules.played === true ) ){
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
@@ -134,7 +135,7 @@ class Player {
     }
 
     passTurn() {
-        this._game.rules.passTurnCheckRules();
+        this._game.rules.passTurnCheckRules(this);
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
@@ -143,45 +144,77 @@ class Player {
 
     playCard(cardIndex, selectedRules) {
         let card = this._hand[cardIndex];
-        this._game.rules.playedCardCheckRules(card);
+        this._game.rules.playedCardCheckRules(card, this);
         if(this._turn) {
-            if(this._game.rules.cardMatch(card)) {
+            if(this._game.rules.cardMatch(card, this)) {
                 this._game.passes = 0;
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
                 this._game.rules.resetRules();
-                let player = document.querySelector(`#${this.name}`);
+                let player = game.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
                 let identifier = "#" + card.suit + card.value;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
             }
-            this._game.rules.findWin();
+            this._game.rules.findWin(this);
             this._game.updateTurn();
         }
     }
 
     sendRuleDeclarations(card, selectedRules){
-        selectedRules.forEach(rule => {
-            if(rule === 'Mao'){
-                this._game.rules.mao(this, rule);
-            } else if (rule === 'Spades' && !this._game.rules.spadeRules && card.suit === 'S'){                              //CHANGE THIS
-                this._game.rules.gameRules[card.suit](this, rule);
+        selectedRules.forEach(selected => {
+            if(selected === 'Mao'){
+                this._game.rules.mao(this, selected);
+            } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')){
+                this._game.rules.gameRules[0].function(this, selected);
             } else {
-                this._game.rules.gameRules[card.value](this, rule);
+                this._game.rules.rulesInPlay.forEach(rule => {
+                    if(this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit){
+                        this._game.rules[rule + 'Played'](this, selected);
+                    }
+                });
             }
         });
-        if(this.hand.length === 2 && !this._game.rules.maoRules){
+
+        if(this.hand.length === 2 && !this._game.rules.maoRules.played){
             this._game.rules.mao(this, "");
         }
-        if((card.value === '7' && !this._game.rules.niceDayRules) || (card.value === 'J' && !this._game.rules.wildRules)             //CHANGE THIS
-            || (card.value === 'Q' && !this._game.rules.chairwomanRules) || (card.value === 'K' && !this._game.rules.chairmanRules)
-            || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
-            this._game.rules.gameRules[card.value](this, "");
-        }
-        if(!(card.suit === 'S' && this._game.rules.spadeRules)){                                                             //CHANGE THIS -- if rule is in play
-            this._game.rules.gameRules[card.suit](this, "");
-        }
+        // if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
+        //     this._game.rules.gameRules[0].function(this, "");
+        // }
+        this._game.rules.gameRules.forEach(rule => {
+            let checkPlayedStatus = rule.function.toString();
+            checkPlayedStatus = checkPlayedStatus.substring(0, checkPlayedStatus.indexOf("("));
+            checkPlayedStatus.replace("Played", "Rules");
+            if(rule.function != this._game.rules.noRule){
+                if( (rule.card === card.suit || rule.card === card.value) && !this._game.rules[checkPlayedStatus].played){
+                    rule.function(this, "");
+                }
+            }
+        });
+
+
+        // selectedRules.forEach(rule => {
+        //     if(rule === 'Mao'){
+        //         this._game.rules.mao(this, rule);
+        //     } else if (rule === 'Spades' && !this._game.rules.spadeRules.played && (card.suit === this._game.rules.spadeRules.card || card.value === this._game.rules.spadeRules.card) ){                              //CHANGE THIS
+        //         this._game.rules.gameRules[this._game.rules.spadeRules.card].function(this, rule);
+        //     } else {
+        //         this._game.rules.gameRules[card.value](this, rule);
+        //     }
+        // });
+        // if(this.hand.length === 2 && !this._game.rules.maoRules){
+        //     this._game.rules.mao(this, "");
+        // }
+        // if((card.value === '7' && !this._game.rules.niceDayRules) || (card.value === 'J' && !this._game.rules.wildRules)             //CHANGE THIS
+        //     || (card.value === 'Q' && !this._game.rules.chairwomanRules) || (card.value === 'K' && !this._game.rules.chairmanRules)
+        //     || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
+        //     this._game.rules.gameRules[card.value](this, "");
+        // }
+        // if(!(card.suit === 'S' && this._game.rules.spadeRules)){                                                             //CHANGE THIS -- if rule is in play
+        //     this._game.rules.gameRules[card.suit](this, "");
+        // }
     }
 
     set turn(turn) {
@@ -272,6 +305,7 @@ class Game {
         for(let i = 0; i < this._playerList.length; i++) {
             if(this._playerList[i].turn){
                 playerIndex = i;
+                break;
             }
         }
         return playerIndex;
@@ -298,7 +332,7 @@ class Game {
 class Rules{
     constructor(player, numRules){
         this._player = player;
-        this.gameRules = [                              //CHANGE THIS, SOMEHOW RANDOMLY ASSIGN
+        this.gameRules = [
             {value:"S", function: this.noRule},
             {value:"H", function: this.noRule},
             {value:"D", function: this.noRule},
@@ -326,7 +360,7 @@ class Rules{
             {function: this.skipPlayed, name: 'skip'},
             {function: this.reversePlayed, name: 'reverse'}
         ];
-        this.rulesInPlay = [];
+        this._rulesInPlay = [];
 
         this._niceDayRules = {played: false};
         this._wildRules = {played: false};
@@ -334,13 +368,15 @@ class Rules{
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
         this._maoRules = {played: false};
+        this._skipRules = {played: false};
+        this._reverseRules = {played: false};
 
         this.pickRules(numRules);
     }
 
-    // get gameRules(){
-    //     return this._gameRules;
-    // }
+    get rulesInPlay(){
+        return this._rulesInPlay;
+    }
 
     get niceDayRules(){
         return this._niceDayRules;
@@ -366,10 +402,18 @@ class Rules{
         return this._maoRules;
     }
 
+    get reverseRules(){
+        return this._reverseRules;
+    }
+
+    get skipRules(){
+        return this._skipRules;
+    }
+
     pickRules(num){
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
-            let cardNum = Math.floor(Math.random() * this.gameRules.length);
+            let cardNum = Math.floor(Math.random() * 13 + 4);
             if (this.allRules[ruleNum].name === 'spade'){
                 this.gameRules[0].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -388,9 +432,7 @@ class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
-        if(rule.name != 'skip' && rule.name != 'reverse') {
-            this[name].card = card.value;
-        }
+        this[name].card = card.value;
     }
 
     resetRules(){
@@ -400,25 +442,27 @@ class Rules{
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
         this._maoRules.played = false;
+        this._skipRules.played = false;
+        this._reverseRules.played = false;
     }
 
-    cardMatch(card){
-        return ( (card.suit === this._player.game.discardPile.expectedSuit) || (card.value === this._player.game.discardPile.expectedValue))
+    cardMatch(card, player){
+        return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
     }
 
-    passTurnCheckRules(){
-        if(!this._player.turn) {
-            this._player.game.drawCard(this._player);
+    passTurnCheckRules(player){
+        if(!player.turn) {
+            player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to play in turn';
         }
     }
 
-    playedCardCheckRules(card){
-        if(!this._player.turn) {
-            this._player.game.drawCard(this._player);
+    playedCardCheckRules(card, player){
+        if(!player.turn) {
+            player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to play in turn';
-        } else if (!this.cardMatch(card)) {
-            this._player.game.drawCard(this._player);
+        } else if (!this.cardMatch(card, player)) {
+            player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to play within proper values';
         }
     }
@@ -435,7 +479,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
         }
-        this._spadeRules.played = true;
+        this._spadeRules[played] = true;
     }
 
     skipPlayed(player){
@@ -446,8 +490,9 @@ class Rules{
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
+        } else{
+            this._niceDayRules[played] = true;
         }
-        this._niceDayRules.played = true;
     }
 
     reversePlayed(player){
@@ -461,27 +506,29 @@ class Rules{
     wildPlayed(player, suit){
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
+            this._wildRules[played] = true;
         } else {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
         }
-        this._wildRules.played = true;
     }
 
     chairmanPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
+        } else {
+            this._chairmanRules[played] = true;
         }
-        this._chairmanRules.played = true;
     }
 
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
+        } else {
+            this._chairwomanRules[played] = true;
         }
-        this._chairwomanRules.played = true;
     }
 
     mao(player, state){
@@ -489,12 +536,13 @@ class Rules{
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')||(cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
+        } else {
+            this._maoRules[played] = true;
         }
-        this._maoRules.played = true;
     }
 
-    findWin(){
-        if (this._player.hand.length === 0){
+    findWin(player){
+        if (player.hand.length === 0){
             document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
@@ -655,11 +703,11 @@ function createRuleButtons(grid, specialRule){
     ruleBtn.setAttribute('id', specialRule);
     ruleBtn.innerHTML = specialRule;
     ruleBtn.onclick = selectedRule;
-    // if (specialRule === 'Have a Nice Day'){
-    //     let newCount = ourGame._rules.niceCount + 1;
-    //     ruleBtn.onclick = (ourGame._rules.niceCount(newCount));
-    // }
-    //ruleBtn.onclick = document.getElementById("played").innerHTML = '-"' + specialRule + '"-';
+            // if (specialRule === 'Have a Nice Day'){
+            //     let newCount = ourGame._rules.niceCount + 1;
+            //     ruleBtn.onclick = (ourGame._rules.niceCount(newCount));
+            // }
+            //ruleBtn.onclick = document.getElementById("played").innerHTML = '-"' + specialRule + '"-';
     grid.appendChild(ruleBtn);
 }
 
