@@ -86,7 +86,7 @@ class DiscardPile {
     addToDiscard(card){
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
-        if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.jRules === true)){
+        if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.wildRules === true)){                          //CHANGE HERE
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
@@ -102,11 +102,11 @@ class DiscardPile {
 
 
 class Player {
-    constructor(hand, name, game) {
+    constructor(hand, name, game, numRules) {
         this._hand = hand;
         this._name = name;
         this._game = game;
-        this._rules = new Rules(this);
+        this._rules = new Rules(this, numRules);
         this._turn = false;
     }
 
@@ -166,7 +166,7 @@ class Player {
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
                 this._rules.mao(this, rule);
-            } else if (rule === 'Spades' && !this._rules.sRules && card.suit === 'S'){
+            } else if (rule === 'Spades' && !this._rules.spadeRules && card.suit === 'S'){                              //CHANGE THIS
                 this._rules.gameRules[card.suit](this, rule);
             } else {
                 this._rules.gameRules[card.value](this, rule);
@@ -175,12 +175,12 @@ class Player {
         if(this.hand.length === 2 && !this._rules.maoRules){
             this._rules.mao(this, "");
         }
-        if((card.value === '7' && !this._rules.sevRules) || (card.value === 'J' && !this._rules.jRules)
-            || (card.value === 'Q' && !this._rules.qRules) || (card.value === 'K' && !this._rules.kRules)
+        if((card.value === '7' && !this._rules.niceDayRules) || (card.value === 'J' && !this._rules.wildRules)             //CHANGE THIS
+            || (card.value === 'Q' && !this._rules.chairwomanRules) || (card.value === 'K' && !this._rules.chairmanRules)
             || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
             this._rules.gameRules[card.value](this, "");
         }
-        if(!(card.suit === 'S' && this._rules.sRules)){
+        if(!(card.suit === 'S' && this._rules.spadeRules)){                                                             //CHANGE THIS -- if rule is in play
             this._rules.gameRules[card.suit](this, "");
         }
     }
@@ -198,15 +198,14 @@ class Player {
 
 
 class Game {
-    constructor(playerList){
+    constructor(playerList, numRules){
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        this._passes = 0;
 
         this._playerList = [];
         for (let i = 0; i < playerList.length; i++){
-            this._playerList.push(new Player(this.dealHand(), playerList[i], this));
+            this._playerList.push(new Player(this.dealHand(), playerList[i], this, numRules));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
@@ -293,32 +292,41 @@ class Game {
 
 
 class Rules{
-    constructor(player){
+    constructor(player, numRules){
         this._player = player;
-        this.gameRules = {
-            "S": this.spadePlayed,
+        this.gameRules = {                              //CHANGE THIS, SOMEHOW RANDOMLY ASSIGN 
+            "S": this.noRule,
             "H": this.noRule,
             "D": this.noRule,
             "C": this.noRule,
-            "A": this.acePlayed,
+            "A": this.noRule,
             "2": this.noRule,
             "3": this.noRule,
             "4": this.noRule,
             "5": this.noRule,
             "6": this.noRule,
-            "7": this.sevenPlayed, //declarations TBA
-            "8": this.eightPlayed,
+            "7": this.noRule,
+            "8": this.noRule,
             "9": this.noRule,
             "X": this.noRule,
-            "J": this.jackPlayed,
-            "Q": this.queenPlayed,
-            "K": this.kingPlayed,
+            "J": this.noRule,
+            "Q": this.noRule,
+            "K": this.noRule,
         };
-        this._sevRules = false;
-        this._jRules = false;
-        this._qRules = false;
-        this._kRules = false;
-        this._sRules = false;
+        this.allRules = {
+            niceDay: this.niceDayPlayed,
+            wild: this.wildPlayed,
+            chairwoman: this.chairwomanPlayed,
+            chairman: this.chairmanPlayed,
+            spade: this.spadePlayed,
+            skip: this.skipPlayed,
+            reverse: this.reversePlayed
+        };
+        this._niceDayRules = false;
+        this._wildRules = false;
+        this._chairwomanRules = false;
+        this._chairmanRules = false;
+        this._spadeRules = false;
         this._maoRules = false;
     }
 
@@ -326,44 +334,44 @@ class Rules{
     //     return this._gameRules;
     // }
 
-    get sevRules(){
-        return this._sevRules;
+    get niceDayRules(){
+        return this._niceDayRules;
     }
 
-    set sevRules(val){
-        this._sevRules = val;
+    set niceDayRules(val){
+        this._niceDayRules = val;
     }
 
-    get jRules(){
-        return this._jRules;
+    get wildRules(){
+        return this._wildRules;
     }
 
-    set jRules(val){
-        this._jRules = val;
+    set wildRules(val){
+        this._wildRules = val;
     }
 
-    get qRules(){
-        return this._qRules;
+    get chairwomanRules(){
+        return this._chairwomanRules;
     }
 
-    set qRules(val){
-        this._qRules = val;
+    set chairwomanRules(val){
+        this._chairwomanRules = val;
     }
 
-    get kRules(){
-        return this._kRules;
+    get chairmanRules(){
+        return this._chairmanRules;
     }
 
-    set kRules(val){
-        this._kRules = val;
+    set chairmanRules(val){
+        this._chairmanRules = val;
     }
 
-    get sRules(){
-        return this._sRules;
+    get spadeRules(){
+        return this._spadeRules;
     }
 
-    set sRules(val){
-        this._sRules = val;
+    set spadeRules(val){
+        this._spadeRules = val;
     }
 
     get maoRules(){
@@ -375,11 +383,11 @@ class Rules{
     }
 
     resetRules(){
-        this._sevRules = false;
-        this._jRules = false;
-        this._qRules = false;
-        this._kRules = false;
-        this._sRules = false;
+        this._niceDayRules = false;
+        this._wildRules = false;
+        this._chairwomanRules = false;
+        this._chairmanRules = false;
+        this._spadeRules = false;
         this._maoRules = false;
     }
 
@@ -416,22 +424,22 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
         }
-        player._rules._sRules = true;
+        player._rules._spadeRules = true;
     }
 
-    acePlayed(player){
+    skipPlayed(player){
         player.game.updateTurn();
     }
 
-    sevenPlayed(player, state){
+    niceDayPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
         }
-        player._rules._sevRules = true;
+        player._rules._niceDayRules = true;
     }
 
-    eightPlayed(player){
+    reversePlayed(player){
         player.game.playerList.reverse();
         if (player.game.playerList.length === 2){
             player.game.updateTurn();
@@ -439,30 +447,30 @@ class Rules{
     }
 
 
-    jackPlayed(player, suit){
+    wildPlayed(player, suit){
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
         } else {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
         }
-        player._rules._jRules = true;
+        player._rules._wildRules = true;
     }
 
-    kingPlayed(player, state){ //requires card?
+    chairmanPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
         }
-        player._rules._kRules = true;
+        player._rules._chairmanRules = true;
     }
 
-    queenPlayed(player, state){
+    chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
         }
-        player._rules._qRules = true;
+        player._rules._chairwomanRules = true;
     }
 
     mao(player, state){
@@ -489,6 +497,7 @@ class Rules{
 
 let ourGame;
 let game;
+let ruleNumber;
 let players;
 let selectedCard;
 let playerPlaying;
@@ -544,10 +553,6 @@ function numPlayersDecided(numPlayers) {
     startGamePrompt.appendChild(startButton);
 }
 
-function removeElement(element) {
-    element.parentNode.removeChild(element);
-}
-
 function saveNames() {
     let num = players;
     players = [];
@@ -558,6 +563,19 @@ function saveNames() {
     startGame(players);
 }
 
+function numRulesDecided(numRules){
+    if(numRules > 7){
+        ruleNumber = 7;
+    } else if (numRules < 2) {
+        ruleNumber = 2;
+    } else {
+        ruleNumber = numRules;
+    }
+}
+
+function removeElement(element) {
+    element.parentNode.removeChild(element);
+}
 
 function displayPlayerHand(playerIndex) {
     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
@@ -565,7 +583,7 @@ function displayPlayerHand(playerIndex) {
 
 function startGame(players) {
     //let playCount = players.length;
-    ourGame = new Game(players);
+    ourGame = new Game(players, ruleNumber);
     createTopBar();
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
@@ -648,8 +666,8 @@ function initializePlayerHand(player, grid){
 
 function openHand() {
     let element = this.parentElement.getElementsByClassName('playerhand');
-    if (element.length != 0 && typeof(element) != "undefined"){ //giving me warnings i'm concerned about
-    //if(typeof(element) != 'undefined'){
+    if (element.length != 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+        //if(typeof(element) != 'undefined'){
         //let player = document.querySelector(`#${this.parentNode.name}`);
         let player = this.parentNode;
         let pass = player.querySelector('.pass');
@@ -671,83 +689,7 @@ function openHand() {
         initializePlayerHand(player, playerhand);
         this.parentElement.appendChild(playerhand);
     }
-
-    // if(typeof(element) === 'undefined'){
-    //     //functional-ish
-    //     playerPlaying = this.parentElement.id;
-    //     let player = findPlayerIndexFromId();
-    //     const grid = document.createElement('section');
-    //     grid.setAttribute('class', 'playerhand');
-    //     initializePlayerHand(player, grid);
-    //     this.parentElement.appendChild(grid);
-    // } else {
-    //     this.parentElement.removeChild(this.parentElement.children[this.parentElement.children.length - 1]);
-    // }
-
-
-
-
-    //this.parentElement.getElementsByClassName('hand').onclick = ;
-
-    //now make it go away
-    //onclick, set to none
-    //update penalties
-
-
-
-    // for (let i = 0; i < x.length; i++) {
-    //     x[i].style.visibility = "hidden";
-    // }
-    // this.style.visibility = 'visible';
-    //document.getElementById(hand).style.visibility = "visible";
-
-
-    //playerPlaying = this.parentElement.id;
-    //let player = findPlayerIndexFromId();
-    //player.passTurn();
-    //selectedRules = [];
 }
-
-//     let startGamePrompt = document.getElementById('startGame');
-//     for(let i = 0; i < players; i++){
-//         let namePrompt = document.createElement('label');
-//         namePrompt.id = 'namePlayers';
-//         namePrompt.setAttribute('for', 'namePlayers' + i);
-//         namePrompt.innerHTML = "Enter Player's Name: ";
-//         let nameHolder = document.createElement('input');
-//         nameHolder.name = 'namePlayersPrompt';
-//         nameHolder.id = 'namePlayers' + i;
-//         nameHolder.type = 'text';
-//         let newLine = document.createElement('br');
-//
-//         startGamePrompt.appendChild(namePrompt);
-//         startGamePrompt.appendChild(newLine);
-//         startGamePrompt.appendChild(newLine);
-//         startGamePrompt.appendChild(nameHolder);
-//         startGamePrompt.appendChild(newLine);
-//         startGamePrompt.appendChild(newLine);
-//     }
-//     let startButton = document.createElement('button');
-//     startButton.class ='close';
-//     startButton.id = 'startButton';
-//     startButton.innerHTML = 'Start Game';
-//     startButton.onclick = saveNames;
-//     startGamePrompt.appendChild(startButton);
-// }
-
-// playerPlaying = this.parentElement.id;
-// let player = findPlayerIndexFromId();
-// player.passTurn();
-
-
-// function unappear(){
-//     let thing = this.parentElement.getElementsByClassName('grid');
-//     if (thing.style.display === "none") {
-//         thing.style.display = "block";
-//     } else {
-//         thing.style.display = "none";
-//     }
-// }
 
 function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
@@ -755,13 +697,7 @@ function addCardsToPlayer(card, grid){
     playCard.setAttribute("id", card.suit + card.value);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
-    //let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML;
-    //grid.parentElement.getElementsByClassName('numCards').innerHTML = newCards.toString();
     grid.appendChild(playCard);
-    //grid.parentElement.getElementsByClassName('numCards').innerHTML =
-    // let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML.parseInt + 1;
-    // grid.parentElement.getElementsByClassName('numCards').innerHTML = newCards.toString();
-        //numCards.innerHTML = player.hand.length.toString();
 }
 
 function passTurn() {
