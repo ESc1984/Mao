@@ -1,10 +1,14 @@
 .card{
     margin: 5px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #303030;
+    border-radius: 7px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    height: 120px;
-    width: 90px;
+    height: 123px;
+    width: 80px;
 }
 
 .card:after {
@@ -14,7 +18,7 @@
   position: relative;
   padding-top: 150%;
   padding-left: 100%;
-    border-radius: 5px;
+    border-radius: 7px;
   /*margin-left: -20px !important;*/
   /*margin-top: -120%;*/
   opacity: 0;
@@ -27,15 +31,15 @@
     margin: 0;
     opacity: 1;
     transition: 0s;
-    outline-color: palegoldenrod;
-    outline-width: 100px;
 }
 
-/*.card.focus {*/
-/*    border-style: solid;*/
-/*    border-width: medium;*/
-/*    border-color: palegoldenrod;*/
-/*}*/
+.card.selectedCard {
+    border-color: palegoldenrod;
+}
+
+.card.discard {
+    border-color: #b0210b;
+}
 
 .hand {
     font-size: 28px;
@@ -99,6 +103,10 @@ button {
     border-color: goldenrod;
 }
 
+button:focus {
+    outline: none;
+}
+
 #playCard {
     display: block;
     width: 150px;
@@ -107,17 +115,14 @@ button {
 
 .ruleButton {
     font-size: 22px;
-    margin: 0;
-    border-style: solid;
-    border-width: 2px;
-    border-color: goldenrod;
+    /*margin: 0;*/
 }
 
-.ruleButton:focus {
-    border-style: solid;
-    border-width: medium;
-    border-color:palegoldenrod;
-}
+/*.ruleButton:focus {*/
+/*    border-style: solid;*/
+/*    border-width: medium;*/
+/*    border-color:palegoldenrod;*/
+/*}*/
 
 .player {
     color: gold;
@@ -141,5 +146,5 @@ button {
     font-family: Oriya MN;
     font-size: 30px;
     padding: 10px;
-    margin-left: 500px;
+    margin-left: 510px;
 }

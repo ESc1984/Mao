@@ -21,10 +21,10 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 150; i++){
+        for (let i = 0; i < 1000; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
-            cards.push({suit: suits[su], value: values[val]})
+            cards.push({suit: suits[su], value: values[val], num: i})
         }
         return cards;
     }
@@ -156,7 +156,7 @@ class Player {
                 this._rules.resetRules();
                 let player = document.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
-                let identifier = "#" + card.suit + card.value;
+                let identifier = "#" + card.suit + card.value + card.num;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
             }
@@ -547,7 +547,10 @@ class Rules{
 
     findWin(){
         if (this._player.hand.length === 0){
+            document.getElementById('alert').style.fontSize = '80px';
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            //document.getElementById('playCard').display = 'none';
+            //document.getElementById('discard').display = 'none';
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
             // }
@@ -589,6 +592,7 @@ function startGame(numPlayers) {
     playCard.onclick = playTurn;
     game.appendChild(playCard);
     createDiscardFunctionality();
+    //selectedCard = game.discardPile.topDiscard();
     const speak = document.createElement('speak');
     speak.setAttribute('id', 'played');
     speak.innerHTML = '- ';
@@ -653,6 +657,7 @@ function createDiscardFunctionality(){
     const discard = document.createElement('section');
     discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
+    discard.classList.add('discard');
     game.appendChild(discard);
     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
     const ruleButtonGrid = document.createElement('section');
@@ -680,7 +685,7 @@ function createRuleButtons(grid, specialRule){
 }
 
 function selectedRule(){
-    document.getElementById('played').insertAdjacentHTML("beforeend", this.innerHTML + ', ');
+    document.getElementById('played').insertAdjacentHTML("beforeend", this.innerHTML + ' - ');
     document.getElementById('played').style.color = 'gold';
     selectedRules.unshift(this.innerHTML);
 }
@@ -711,6 +716,7 @@ function openHand() {
         let playerhand = player.querySelector('.playerhand');
         //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
+        console.log(playerhand.parentNode);
         playerhand.parentNode.removeChild(playerhand);
         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
@@ -725,6 +731,7 @@ function openHand() {
         playerhand.setAttribute('class', 'grid playerhand');
         initializePlayerHand(player, playerhand);
         this.parentElement.appendChild(playerhand);
+        console.log(playerhand.parentNode);
     }
 
 
@@ -782,7 +789,7 @@ function openHand() {
 function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
-    playCard.setAttribute("id", card.suit + card.value);
+    playCard.setAttribute("id", card.suit + card.value + card.num);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
     //let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML;
@@ -831,13 +838,19 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
+    let oldcard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
+    document.getElementById(this.id).classList.toggle('selectedCard');
+    if (oldcard !== undefined) {
+        document.getElementById(oldcard).classList.toggle('selectedCard');
+    }
+    //document.getElementById(this.id).focus();
+    //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
     //selectedCard.style.border = '100px double gold';
     document.getElementById("alert").innerHTML = '';
     //document.getElementById("played").innerHTML = '';
 }
-
 
 function removeVisibility(object) {
     object.style.visibility = "hidden";
