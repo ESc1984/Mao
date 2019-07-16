@@ -107,6 +107,12 @@ button:focus {
     outline: none;
 }
 
+.redoButton {
+    padding: 20px;
+    font-size: 60px;
+    display: none;
+}
+
 #playCard {
     display: block;
     width: 150px;

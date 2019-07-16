@@ -549,6 +549,8 @@ class Rules{
         if (this._player.hand.length === 0){
             document.getElementById('alert').style.fontSize = '80px';
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            document.getElementById('redoButton').style.display = 'block';
+            //passBtn.onclick = passTurn;
             //document.getElementById('playCard').display = 'none';
             //document.getElementById('discard').display = 'none';
             // for (let i = 0; i < this._player.game.playerList.length; i++){
@@ -716,7 +718,10 @@ function openHand() {
         let playerhand = player.querySelector('.playerhand');
         //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
-        console.log(playerhand.parentNode);
+        console.log(playerhand.parentNode.children);
+
+        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+
         playerhand.parentNode.removeChild(playerhand);
         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
@@ -731,7 +736,6 @@ function openHand() {
         playerhand.setAttribute('class', 'grid playerhand');
         initializePlayerHand(player, playerhand);
         this.parentElement.appendChild(playerhand);
-        console.log(playerhand.parentNode);
     }
 
 
