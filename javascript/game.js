@@ -86,7 +86,7 @@ class DiscardPile {
     addToDiscard(card){
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
-        if(! (card.value === 'J' && this._game.playerList[this._game.getCurrentPlayer()]._rules.wildRules === true)){                          //CHANGE HERE
+        if(this._game.rules.rulesInPlay.contains('wild') && !(this._game.rules.wildRules === true)){                                //CHANGE HERE
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
@@ -102,11 +102,10 @@ class DiscardPile {
 
 
 class Player {
-    constructor(hand, name, game, numRules) {
+    constructor(hand, name, game) {
         this._hand = hand;
         this._name = name;
         this._game = game;
-        this._rules = new Rules(this, numRules);
         this._turn = false;
     }
 
@@ -135,7 +134,7 @@ class Player {
     }
 
     passTurn() {
-        this._rules.passTurnCheckRules();
+        this._game.rules.passTurnCheckRules();
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
@@ -144,20 +143,20 @@ class Player {
 
     playCard(cardIndex, selectedRules) {
         let card = this._hand[cardIndex];
-        this._rules.playedCardCheckRules(card);
+        this._game.rules.playedCardCheckRules(card);
         if(this._turn) {
-            if(this._rules.cardMatch(card)) {
+            if(this._game.rules.cardMatch(card)) {
                 this._game.passes = 0;
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
-                this._rules.resetRules();
+                this._game.rules.resetRules();
                 let player = document.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
                 let identifier = "#" + card.suit + card.value;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
             }
-            this._rules.findWin();
+            this._game.rules.findWin();
             this._game.updateTurn();
         }
     }
@@ -165,23 +164,23 @@ class Player {
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(rule => {
             if(rule === 'Mao'){
-                this._rules.mao(this, rule);
-            } else if (rule === 'Spades' && !this._rules.spadeRules && card.suit === 'S'){                              //CHANGE THIS
-                this._rules.gameRules[card.suit](this, rule);
+                this._game.rules.mao(this, rule);
+            } else if (rule === 'Spades' && !this._game.rules.spadeRules && card.suit === 'S'){                              //CHANGE THIS
+                this._game.rules.gameRules[card.suit](this, rule);
             } else {
-                this._rules.gameRules[card.value](this, rule);
+                this._game.rules.gameRules[card.value](this, rule);
             }
         });
-        if(this.hand.length === 2 && !this._rules.maoRules){
-            this._rules.mao(this, "");
+        if(this.hand.length === 2 && !this._game.rules.maoRules){
+            this._game.rules.mao(this, "");
         }
-        if((card.value === '7' && !this._rules.niceDayRules) || (card.value === 'J' && !this._rules.wildRules)             //CHANGE THIS
-            || (card.value === 'Q' && !this._rules.chairwomanRules) || (card.value === 'K' && !this._rules.chairmanRules)
+        if((card.value === '7' && !this._game.rules.niceDayRules) || (card.value === 'J' && !this._game.rules.wildRules)             //CHANGE THIS
+            || (card.value === 'Q' && !this._game.rules.chairwomanRules) || (card.value === 'K' && !this._game.rules.chairmanRules)
             || (card.value !== '7' && card.value !== 'J' && card.value !== 'Q' && card.value !== 'K')){
-            this._rules.gameRules[card.value](this, "");
+            this._game.rules.gameRules[card.value](this, "");
         }
-        if(!(card.suit === 'S' && this._rules.spadeRules)){                                                             //CHANGE THIS -- if rule is in play
-            this._rules.gameRules[card.suit](this, "");
+        if(!(card.suit === 'S' && this._game.rules.spadeRules)){                                                             //CHANGE THIS -- if rule is in play
+            this._game.rules.gameRules[card.suit](this, "");
         }
     }
 
@@ -202,6 +201,7 @@ class Game {
         this._playDeck = new Deck();
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
+        this._rules = new Rules(this, numRules);
 
         this._playerList = [];
         for (let i = 0; i < playerList.length; i++){
@@ -209,6 +209,10 @@ class Game {
         }
         this._playerList[0].turn = true;
         this._passes = 0;
+    }
+
+    get rules(){
+        return this._rules;
     }
 
     getPlayer(index){
@@ -294,40 +298,44 @@ class Game {
 class Rules{
     constructor(player, numRules){
         this._player = player;
-        this.gameRules = {                              //CHANGE THIS, SOMEHOW RANDOMLY ASSIGN 
-            "S": this.noRule,
-            "H": this.noRule,
-            "D": this.noRule,
-            "C": this.noRule,
-            "A": this.noRule,
-            "2": this.noRule,
-            "3": this.noRule,
-            "4": this.noRule,
-            "5": this.noRule,
-            "6": this.noRule,
-            "7": this.noRule,
-            "8": this.noRule,
-            "9": this.noRule,
-            "X": this.noRule,
-            "J": this.noRule,
-            "Q": this.noRule,
-            "K": this.noRule,
-        };
-        this.allRules = {
-            niceDay: this.niceDayPlayed,
-            wild: this.wildPlayed,
-            chairwoman: this.chairwomanPlayed,
-            chairman: this.chairmanPlayed,
-            spade: this.spadePlayed,
-            skip: this.skipPlayed,
-            reverse: this.reversePlayed
-        };
-        this._niceDayRules = false;
-        this._wildRules = false;
-        this._chairwomanRules = false;
-        this._chairmanRules = false;
-        this._spadeRules = false;
-        this._maoRules = false;
+        this.gameRules = [                              //CHANGE THIS, SOMEHOW RANDOMLY ASSIGN
+            {value:"S", function: this.noRule},
+            {value:"H", function: this.noRule},
+            {value:"D", function: this.noRule},
+            {value:"C", function: this.noRule},
+            {value:"A", function: this.noRule},
+            {value:"2", function: this.noRule},
+            {value:"3", function: this.noRule},
+            {value:"4", function: this.noRule},
+            {value:"5", function: this.noRule},
+            {value:"6", function: this.noRule},
+            {value:"7", function: this.noRule},
+            {value:"8", function: this.noRule},
+            {value:"9", function: this.noRule},
+            {value:"X", function: this.noRule},
+            {value:"J", function: this.noRule},
+            {value:"Q", function: this.noRule},
+            {value:"K", function: this.noRule}
+        ];
+        this.allRules = [
+            {function: this.niceDayPlayed, name: 'niceDay'},
+            {function: this.wildPlayed, name: 'wild'},
+            {function: this.chairwomanPlayed, name: 'chairwoman'},
+            {function: this.chairmanPlayed, name: 'chairman'},
+            {function: this.spadePlayed, name: 'spade'},
+            {function: this.skipPlayed, name: 'skip'},
+            {function: this.reversePlayed, name: 'reverse'}
+        ];
+        this.rulesInPlay = [];
+
+        this._niceDayRules = {played: false};
+        this._wildRules = {played: false};
+        this._chairwomanRules = {played: false};
+        this._chairmanRules = {played: false};
+        this._spadeRules = {played: false};
+        this._maoRules = {played: false};
+
+        this.pickRules(numRules);
     }
 
     // get gameRules(){
@@ -338,57 +346,60 @@ class Rules{
         return this._niceDayRules;
     }
 
-    set niceDayRules(val){
-        this._niceDayRules = val;
-    }
-
     get wildRules(){
         return this._wildRules;
-    }
-
-    set wildRules(val){
-        this._wildRules = val;
     }
 
     get chairwomanRules(){
         return this._chairwomanRules;
     }
 
-    set chairwomanRules(val){
-        this._chairwomanRules = val;
-    }
-
     get chairmanRules(){
         return this._chairmanRules;
-    }
-
-    set chairmanRules(val){
-        this._chairmanRules = val;
     }
 
     get spadeRules(){
         return this._spadeRules;
     }
 
-    set spadeRules(val){
-        this._spadeRules = val;
-    }
-
     get maoRules(){
         return this._maoRules;
     }
 
-    set maoRules(val){
-        this._maoRules = val;
+    pickRules(num){
+        for(let i = 0; i < num; i++){
+            let ruleNum = Math.floor(Math.random() * this.allRules.length);
+            let cardNum = Math.floor(Math.random() * this.gameRules.length);
+            if (this.allRules[ruleNum].name === 'spade'){
+                this.gameRules[0].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule(this.gameRules[0], this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            } else if(this.gameRules[cardNum].function === this.noRule){
+                this.gameRules[cardNum].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule(this.gameRules[cardNum], this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            } else {
+                i--;
+            }
+        }
+    }
+
+    storeCardRule(card, rule, name){
+        this.rulesInPlay.push(rule.name);
+        if(rule.name != 'skip' && rule.name != 'reverse') {
+            this[name].card = card.value;
+        }
     }
 
     resetRules(){
-        this._niceDayRules = false;
-        this._wildRules = false;
-        this._chairwomanRules = false;
-        this._chairmanRules = false;
-        this._spadeRules = false;
-        this._maoRules = false;
+        this._niceDayRules.played = false;
+        this._wildRules.played = false;
+        this._chairwomanRules.played = false;
+        this._chairmanRules.played = false;
+        this._spadeRules.played = false;
+        this._maoRules.played = false;
     }
 
     cardMatch(card){
@@ -424,7 +435,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
         }
-        player._rules._spadeRules = true;
+        this._spadeRules.played = true;
     }
 
     skipPlayed(player){
@@ -436,7 +447,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
         }
-        player._rules._niceDayRules = true;
+        this._niceDayRules.played = true;
     }
 
     reversePlayed(player){
@@ -454,7 +465,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
         }
-        player._rules._wildRules = true;
+        this._wildRules.played = true;
     }
 
     chairmanPlayed(player, state){ //requires card?
@@ -462,7 +473,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
         }
-        player._rules._chairmanRules = true;
+        this._chairmanRules.played = true;
     }
 
     chairwomanPlayed(player, state){
@@ -470,7 +481,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
         }
-        player._rules._chairwomanRules = true;
+        this._chairwomanRules.played = true;
     }
 
     mao(player, state){
@@ -479,7 +490,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         }
-        player._rules._maoRules = true;
+        this._maoRules.played = true;
     }
 
     findWin(){
