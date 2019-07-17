@@ -746,13 +746,12 @@ function displayPlayerHand(playerIndex) {
 function startGame(players) {
     ourGame = new Game(players, ruleNumber);
     createTopBar();
-    const playCard = document.createElement('button');
-    playCard.setAttribute('id', 'playCard');
-    playCard.innerHTML = 'Play Turn';
-    playCard.onclick = playTurn;
-    game.appendChild(playCard);
-    createDiscardFunctionality();
-    //selectedCard = game.discardPile.topDiscard();
+    // const playCard = document.createElement('button');
+    // playCard.setAttribute('id', 'playCard');
+    // playCard.innerHTML = 'Play Turn';
+    // playCard.onclick = playTurn;
+    // game.appendChild(playCard);
+    // //selectedCard = game.discardPile.topDiscard();
     const speak = document.createElement('speak');
     speak.setAttribute('id', 'played');
     speak.innerHTML = '- ';
@@ -765,7 +764,6 @@ function startGame(players) {
         gamePlayer.setAttribute("id", player.name);
         gamePlayer.dataset.name = player.name;
         game.appendChild(gamePlayer);
-
 
         const hand = document.createElement('button');
         hand.setAttribute('class', 'hand');
