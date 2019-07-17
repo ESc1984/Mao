@@ -243,7 +243,6 @@ class Game {
         let card = this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._rules = new Rules(this, numRules);
-
         this._playerList = [];
         for (let i = 0; i < playerList.length; i++){
             this._playerList.push(new Player(this.dealHand(), playerList[i], this, numRules));
@@ -339,7 +338,6 @@ class Game {
 
 class Rules{
     constructor(player, numRules){
-        this._player = player;
         this.gameRules = [
             {value:"S", function: this.noRule},
             {value:"H", function: this.noRule},
@@ -379,7 +377,11 @@ class Rules{
         this._skipRules = {played: false};
         this._reverseRules = {played: false};
 
-        this.pickRules(numRules);
+        if(numRules === false){
+            this.normalRules();
+        } else {
+            this.pickRules(numRules);
+        }
     }
 
     get rulesInPlay(){
@@ -436,6 +438,37 @@ class Rules{
                 i--;
             }
         }
+    }
+
+    normalRules(){
+        this.gameRules = [
+            {value:"S", function: this.spadePlayed},
+            {value:"H", function: this.noRule},
+            {value:"D", function: this.noRule},
+            {value:"C", function: this.noRule},
+            {value:"A", function: this.skipPlayed},
+            {value:"2", function: this.noRule},
+            {value:"3", function: this.noRule},
+            {value:"4", function: this.noRule},
+            {value:"5", function: this.noRule},
+            {value:"6", function: this.noRule},
+            {value:"7", function: this.niceDayPlayed},
+            {value:"8", function: this.reversePlayed},
+            {value:"9", function: this.noRule},
+            {value:"X", function: this.noRule},
+            {value:"J", function: this.wildPlayed},
+            {value:"Q", function: this.chairwomanPlayed},
+            {value:"K", function: this.chairmanPlayed}
+        ];
+        this._rulesInPlay = ['niceDay', 'wild',
+                'chairwoman', 'chairman', 'spade', 'skip', 'reverse'];
+        this.niceDayRules.card = '7';
+        this.wildRules.card = 'J';
+        this.chairwomanRules.card = 'Q';
+        this.chairmanRules.card = 'K';
+        this.spadeRules.card = 'S';
+        this.skipRules.card = 'A';
+        this.reverseRules.card = '8';
     }
 
     storeCardRule(card, rule, name){
@@ -573,7 +606,7 @@ class Rules{
 
 let ourGame;
 let game;
-let ruleNumber;
+let ruleNumber = false;
 let players;
 let selectedCard;
 let playerPlaying;
@@ -587,11 +620,81 @@ window.onload = function gameLoaded() {
 
 function overlay() {
     let el = document.getElementById("overlay");
-    el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    el.style.visibility = (el.style.visibility === "visible") ? "hidden" : "visible";
     window.scrollTo(0, 0);
-    if(el.style.visibility == 'hidden'){
+    if(el.style.visibility === 'hidden'){
         removeElement(el);
     }
+}
+
+
+
+//       removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
+//       removeElement(document.getElementById('numRules'));
+//       removeElement(document.getElementById('numRulesPrompt'));
+//       removeElement(document.getElementById('numPlayers'))">Submit</button><br>
+
+function submitButton(parent, random){
+    const submitButton = document.createElement('button');
+    submitButton.id = 'numPlayersSubmit';
+    submitButton.classList.add('submit');
+    submitButton.innerHTML = 'Submit';
+    submitButton.onclick = () => {
+        removeElement(submitButton);
+        numPlayersDecided(document.getElementById('numPlayers').value);
+        removeElement(document.getElementById('numPlayersPrompt'));
+        removeElement(document.getElementById('numPlayers'));
+        if(random === true){
+            numRulesDecided(document.getElementById('numRules').value);
+            removeElement(document.getElementById('numRulesPrompt'));
+            removeElement(document.getElementById('numRules'));
+        }
+    };
+    parent.appendChild(submitButton);
+}
+
+function namePrompt(parent){
+    const numPlayersPrompt = document.createElement('label');
+    numPlayersPrompt.id = 'numPlayersPrompt';
+    numPlayersPrompt.setAttribute('for', 'numPlayers');
+    numPlayersPrompt.innerHTML = "Enter Number of Players ";
+
+    const numPlayersResponse = document.createElement('input');
+    numPlayersResponse.name = 'numPlayersPrompt';
+    numPlayersResponse.id = 'numPlayers';
+    numPlayersResponse.type = 'number';
+    const newLine = document.createElement('br');
+
+    parent.appendChild(numPlayersPrompt);
+    parent.appendChild(numPlayersResponse);
+    parent.appendChild(newLine);
+    parent.appendChild(newLine);
+}
+
+function randomGame(){
+    let startGame = document.getElementById('startGame');
+    startGame.style.visibility = 'visible';
+    namePrompt(startGame);
+    const numRulesPrompt = document.createElement('label');
+        numRulesPrompt.id = 'numRulesPrompt';
+        numRulesPrompt.setAttribute('for', 'numRules');
+        numRulesPrompt.innerHTML = 'Enter Number of Rules ';
+    const numRulesResponse = document.createElement('input');
+        numRulesResponse.name = 'numRulesPrompt';
+        numRulesResponse.id = 'numRules';
+        numRulesResponse.type = 'number';
+    const newLine = document.createElement('br');
+    startGame.appendChild(numRulesPrompt);
+    startGame.appendChild(numRulesResponse);
+    startGame.appendChild(newLine);
+    submitButton(startGame, true);
+}
+
+function standardGame(){
+    let startGame = document.getElementById('startGame');
+    startGame.style.visibility = 'visible';
+    namePrompt(startGame);
+    submitButton(startGame, false);
 }
 
 function numPlayersDecided(numPlayers) {

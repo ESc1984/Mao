@@ -8,19 +8,13 @@
 </head>
 <body>
     <div id="overlay">
-        <div id="startGame">
-            <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players</label>
-            <input name="numPlayersPrompt" id="numPlayers" type="number"> <br> <br>
-            <label id="numRulesPrompt" for="numRules">Enter Number of Rules</label>
-            <input name="numRulesPrompt" id="numRules" type="number"> <br>
-            <button id="numPlayersSubmit" class="submit" onclick="numPlayersDecided(document.getElementById('numPlayers').value);
-                numRulesDecided(document.getElementById('numRules').value);
-                removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
-                removeElement(document.getElementById('numRules'));
-                removeElement(document.getElementById('numRulesPrompt'));
-                removeElement(document.getElementById('numPlayers'))">Submit</button><br>
+        <div id="startPage">
+            <p id="guide">HOW TO PLAY<br>- Click on a card to select it<br>- Make statements by clicking on them at the top<br>- Click 'Play Turn' to play your card<br>- Skip your turn with your 'Pass Turn' button<br><br>RULES OF MAO<br>1. We do not disclose the rules of Mao<br></p>
+            <br> <br>
+            <button id="standardGame" class="submit" onclick="removeElement(document.getElementById('startPage'));standardGame()">Standard Game</button>
+            <button id="randomGame" class="submit" onclick="removeElement(document.getElementById('startPage'));randomGame()">Random Game</button>
         </div>
-        <p id="guide">HOW TO PLAY<br>- Click on a card to select it<br>- Make statements by clicking on them at the top<br>- Click 'Play Turn' to play your card<br>- Skip your turn with your 'Pass Turn' button<br>RULES OF MAO<br>1. We do not disclose the rules of Mao<br></p>
+        <div id="startGame"></div>
     </div>
 <p id="played"></p>
 <div id="gameBoard"></div>
