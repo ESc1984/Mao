@@ -8,9 +8,18 @@
 </head>
 <body>
 <div id="game">
-    <label id="numPlayersPrompt" for="numPlayers">Enter Number of Players (2-8)</label>
+    <label id="numPlayersPrompt" for="numPlayers">ENTER NUMBER OF PLAYERS (2-8)</label>
     <input name="numPlayersPrompt" id="numPlayers" type="number" step='1' min="2" max="8">
-    <p id="guide">HOW TO PLAY<br>- Click on a card to select it<br>- Make statements by clicking on them at the top<br>- Click 'Play Turn' to play your card<br>- Skip your turn with your 'Pass Turn' button<br>RULES OF MAO<br>1. We do not disclose the rules of Mao<br></p>
+    <p id="guide">
+        HOW TO PLAY<br>
+        - Use the hand buttons to open and close your hand<br>
+        - Click on a card to select it<br>
+        - Make statements by clicking on them at the top<br>
+        - Click 'Play Turn' to play your card<br>
+        - Skip your turn with your 'Pass Turn' button<br>
+        RULES OF MAO<br>
+        1. We do not disclose the rules of Mao<br>
+    </p>
     <button id="startButton" onclick="startGame(document.getElementById('numPlayers').value);
         this.style.display = 'none'; document.getElementById('numPlayers').style.display = 'none';
         document.getElementById('numPlayersPrompt').style.display = 'none';
@@ -20,8 +29,9 @@
 <!--    <button id="playCard">Play Turn</button>-->
 
 </div>
-<p id="played"></p>
+<!--<p id="played"></p>-->
 <p id="alert"></p>
+<button id="redoButton" onclick="location.reload()">Play Again?</button>
 </body>
 </html>
 

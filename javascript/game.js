@@ -21,10 +21,10 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 150; i++){
+        for (let i = 0; i < 200; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
-            cards.push({suit: suits[su], value: values[val]})
+            cards.push({suit: suits[su], value: values[val], num: i})
         }
         return cards;
     }
@@ -144,6 +144,8 @@ class Player {
     };
 
     playCard(cardIndex, selectedRules) {
+        document.getElementById('played').innerHTML = '- ';
+        document.getElementById('played').style.color = '#b0210b';
         let card = this._hand[cardIndex];
         this._rules.playedCardCheckRules(card);
         if(this._turn) {
@@ -154,7 +156,7 @@ class Player {
                 this._rules.resetRules();
                 let player = document.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
-                let identifier = "#" + card.suit + card.value;
+                let identifier = "#" + card.suit + card.value + card.num;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
             }
@@ -438,7 +440,7 @@ class Rules{
     passTurnCheckRules(){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
-            document.getElementById("alert").innerHTML = '~ Failure to play in turn';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO TO PLAY IN TURN -<br>');
         }
     }
 
@@ -459,17 +461,17 @@ class Rules{
     playedCardCheckRules(card){
         if(!this._player.turn) {
             this._player.game.drawCard(this._player);
-            document.getElementById("alert").innerHTML = '~ Failure to play in turn';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY IN TURN -<br>');
         } else if (!this.cardMatch(card)) {
             this._player.game.drawCard(this._player);
-            document.getElementById("alert").innerHTML = '~ Failure to play within proper values';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY WITHIN PROPER VALUES -<br>');
         }
     }
 
     noRule(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare in turn'
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
         }
     }
 
@@ -483,7 +485,7 @@ class Rules{
 // =========
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE SPADES -<br>');
         }
         player._rules._sRules = true;
     }
@@ -495,7 +497,7 @@ class Rules{
     sevenPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
+            document.getElementById("alert").insertAdjacentHTML("beforeend", '- FAILURE TO DECLARE HAVE A NICE DAY -<br>');
         }
         player._rules._sevRules = true;
     }
@@ -513,7 +515,7 @@ class Rules{
             player.game.discardPile.expectedSuit = suit.charAt(0);
         } else {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE A SUIT -<br>');
         }
         player._rules._jRules = true;
     }
@@ -521,7 +523,7 @@ class Rules{
     kingPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRMAN -<br>');
         }
         player._rules._kRules = true;
     }
@@ -529,7 +531,7 @@ class Rules{
     queenPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>');
         }
         player._rules._qRules = true;
     }
@@ -538,14 +540,31 @@ class Rules{
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')||(cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
             player.game.drawCard(player);
-            document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE MAO -<br>');
         }
         player._rules._maoRules = true;
     }
 
     findWin(){
         if (this._player.hand.length === 0){
-            document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";
+            //document.getElementById('game').style.display = 'none';
+            for (let i = 0; i < document.getElementById('game').children.length; i++){
+                document.getElementById('game').children[i].style.display = 'none';
+            }
+
+            // const redoButton = document.createElement('button');
+            // redoButton.classList.add('redoButton');
+            // redoButton.innerHTML = 'Play Turn';
+            // //redoButton.onclick;
+            // game.appendChild(redoButton);
+
+            document.getElementById('alert').style.fontSize = '80px';
+            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            //console.log(document.getElementById('game').parentElement);
+            document.getElementById('redoButton').style.display = 'block';
+            //passBtn.onclick = passTurn;
+            //document.getElementById('playCard').display = 'none';
+            //document.getElementById('discard').display = 'none';
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
             // }
@@ -565,7 +584,6 @@ let selectedRules = [];
 
 window.onload = function gameLoaded() {
     game = document.getElementById("game");
-    document.getElementById("playCard").addEventListener("click", playTurn);
 };
 
 
@@ -588,6 +606,12 @@ function startGame(numPlayers) {
     playCard.onclick = playTurn;
     game.appendChild(playCard);
     createDiscardFunctionality();
+    //selectedCard = game.discardPile.topDiscard();
+    const speak = document.createElement('speak');
+    speak.setAttribute('id', 'played');
+    speak.innerHTML = '- ';
+    speak.style.color = '#b0210b';
+    game.appendChild(speak);
     ourGame.playerList.forEach(player => {
         const gamePlayer = document.createElement('div');
         gamePlayer.classList.add('player');
@@ -617,7 +641,7 @@ function startGame(numPlayers) {
         numCards.classList.add('numCards');
         numCards.setAttribute('class', 'numCards');
         numCards.setAttribute('id', `${player.name}numCards`);
-        numCards.innerHTML = player.hand.length.toString();
+        numCards.innerHTML = player.hand.length.toString() + ' cards';
         hand.appendChild(numCards);
 
         // const passBtn = document.createElement("button");
@@ -647,6 +671,7 @@ function createDiscardFunctionality(){
     const discard = document.createElement('section');
     discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
+    discard.classList.add('discard');
     game.appendChild(discard);
     const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
     const ruleButtonGrid = document.createElement('section');
@@ -664,6 +689,7 @@ function createRuleButtons(grid, specialRule){
     ruleBtn.setAttribute('id', specialRule);
     ruleBtn.innerHTML = specialRule;
     ruleBtn.onclick = selectedRule;
+    //ruleBtn.onclick = showSelected;
     // if (specialRule === 'Have a Nice Day'){
     //     let newCount = ourGame._rules.niceCount + 1;
     //     ruleBtn.onclick = (ourGame._rules.niceCount(newCount));
@@ -673,8 +699,18 @@ function createRuleButtons(grid, specialRule){
 }
 
 function selectedRule(){
+    document.getElementById('played').insertAdjacentHTML("beforeend", this.innerHTML + ' - ');
+    document.getElementById('played').style.color = 'gold';
     selectedRules.unshift(this.innerHTML);
 }
+
+// function showSelected(){
+//     this.style.border = 'solid 2px gold';
+// }
+//
+// function unSelect(){
+//     this.style.border = '#b0210b';
+// }
 
 function initializePlayerHand(player, grid){
     //const gameGrid = grid;
@@ -694,6 +730,12 @@ function openHand() {
         let playerhand = player.querySelector('.playerhand');
         //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
+        //console.log(playerhand.parentNode.children);
+        if (playerhand.children.length === 1){
+            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+        } else {
+            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+        }
         playerhand.parentNode.removeChild(playerhand);
         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
@@ -765,7 +807,7 @@ function openHand() {
 function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
-    playCard.setAttribute("id", card.suit + card.value);
+    playCard.setAttribute("id", card.suit + card.value + card.num);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
     //let newCards = grid.parentElement.getElementsByClassName('numCards').innerHTML;
@@ -790,12 +832,15 @@ function playTurn() {
     let player = findPlayerIndexFromId();
     let cardIndex = -1;
     for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
+        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) /*&& player.hand[i].num.toString() === selectedCard.charAt(2)*/){
             cardIndex = i;
         }
     }
     player.playCard(cardIndex, selectedRules);
     selectedRules = [];
+    // game.getElementById(ruleButtonGrid).forEach(rbut => {
+    //     rbut.unSelect;
+    // })
 }
 
 function findPlayerIndexFromId(){
@@ -811,12 +856,19 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
+    let oldcard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
+    document.getElementById(this.id).classList.toggle('selectedCard');
+    if (oldcard !== undefined) {
+        document.getElementById(oldcard).classList.toggle('selectedCard');
+    }
+    //document.getElementById(this.id).focus();
+    //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
+    //selectedCard.style.border = '100px double gold';
     document.getElementById("alert").innerHTML = '';
     //document.getElementById("played").innerHTML = '';
 }
-
 
 function removeVisibility(object) {
     object.style.visibility = "hidden";

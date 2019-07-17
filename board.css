@@ -1,10 +1,14 @@
 .card{
     margin: 5px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #303030;
+    border-radius: 10px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
-    height: 120px;
-    width: 90px;
+    height: 123px;
+    width: 80px;
 }
 
 .card:after {
@@ -14,22 +18,32 @@
   position: relative;
   padding-top: 150%;
   padding-left: 100%;
-    border-radius: 5px;
+    border-radius: 7px;
   /*margin-left: -20px !important;*/
   /*margin-top: -120%;*/
   opacity: 0;
-  transition: all 0.5s
+  transition: all 0.5s;
+
 }
 
 .card:active:after {
     padding: 0;
     margin: 0;
     opacity: 1;
-    transition: 0s
+    transition: 0s;
 }
+
+.card.selectedCard {
+    border-color: palegoldenrod;
+}
+
+/*.card.discard {*/
+/*    border-color: #b0210b;*/
+/*}*/
 
 .hand {
     font-size: 28px;
+    width: 200px;
 }
 
 .grid{
@@ -86,6 +100,22 @@ button {
     font-family: Oriya MN;
     font-size: 25px;
     margin: 5px;
+    border-color: goldenrod;
+}
+
+button:focus {
+    outline: none;
+}
+
+button:active {
+    background-color: #c21515;
+}
+
+#redoButton {
+    display: none;
+    padding: 20px;
+    font-size: 40px;
+    margin: 0 auto;
 }
 
 #playCard {
@@ -95,8 +125,7 @@ button {
 }
 
 .ruleButton {
-    font-size: 22px;
-    margin: 0;
+    font-size: 20px;
 }
 
 .player {
@@ -107,14 +136,21 @@ button {
 }
 
 #alert {
-    color: whitesmoke;
-    background-color: #b0210b;
+    color: gold;
+    background-color: #780e0e;
     font-family: Oriya MN;
-    font-size: 30px;
+    font-size: 40px;
+    display: block;
+    text-align: center;
 }
 
 #played {
-    color: goldenrod;
+    display: block;
+    color: gold;
     font-family: Oriya MN;
     font-size: 30px;
+    padding: 10px;
+    text-align: center;
+    /*margin-left: 510px;*/
+
 }
