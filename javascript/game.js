@@ -21,7 +21,7 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 150; i++){
+        for (let i = 0; i < 250; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
             cards.push({suit: suits[su], value: values[val]})
@@ -169,26 +169,34 @@ class Player {
             } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')){
                 this._game.rules.gameRules[0].function(this, selected);
             } else {
+                let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit){
+                    if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         this._game.rules[rule + 'Played'](this, selected);
+                        sent = true;
+
                     }
                 });
+                if(sent === false){
+                    this._game.drawCard(this);
+                }
             }
         });
 
         if(this.hand.length === 2 && !this._game.rules.maoRules.played){
             this._game.rules.mao(this, "");
         }
-        // if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
-        //     this._game.rules.gameRules[0].function(this, "");
-        // }
+
+        if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
+             this._game.rules.gameRules[0].function(this, "");
+        }
+
         this._game.rules.gameRules.forEach(rule => {
             let checkPlayedStatus = rule.function.toString();
-            checkPlayedStatus = checkPlayedStatus.substring(0, checkPlayedStatus.indexOf("("));
-            checkPlayedStatus.replace("Played", "Rules");
+            checkPlayedStatus = checkPlayedStatus.substring(0, checkPlayedStatus.indexOf("Played"));
+            checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function != this._game.rules.noRule){
-                if( (rule.card === card.suit || rule.card === card.value) && !this._game.rules[checkPlayedStatus].played){
+                if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
                     rule.function(this, "");
                 }
             }
@@ -478,8 +486,9 @@ class Rules{
         if(state !== 'Spades'){
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Spades';
+        } else {
+            player.game.rules.spadeRules.played = true;
         }
-        this._spadeRules[played] = true;
     }
 
     skipPlayed(player){
@@ -491,7 +500,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
         } else{
-            this._niceDayRules[played] = true;
+            this._niceDayRules.played = true;
         }
     }
 
@@ -506,7 +515,7 @@ class Rules{
     wildPlayed(player, suit){
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
-            this._wildRules[played] = true;
+            this._wildRules.played = true;
         } else {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
@@ -518,7 +527,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
         } else {
-            this._chairmanRules[played] = true;
+            this._chairmanRules.played = true;
         }
     }
 
@@ -527,7 +536,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
         } else {
-            this._chairwomanRules[played] = true;
+            this._chairwomanRules.played = true;
         }
     }
 
@@ -537,7 +546,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         } else {
-            this._maoRules[played] = true;
+            this._maoRules.played = true;
         }
     }
 
