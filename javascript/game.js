@@ -21,7 +21,7 @@ class Deck{
 
     makeCards(){
         let cards = [];
-        for (let i = 0; i < 1000; i++){
+        for (let i = 0; i < 200; i++){
             let su = Math.floor(Math.random()*4);
             let val = Math.floor(Math.random()*13);
             cards.push({suit: suits[su], value: values[val], num: i})
@@ -547,8 +547,20 @@ class Rules{
 
     findWin(){
         if (this._player.hand.length === 0){
+            //document.getElementById('game').style.display = 'none';
+            for (let i = 0; i < document.getElementById('game').children.length; i++){
+                document.getElementById('game').children[i].style.display = 'none';
+            }
+
+            // const redoButton = document.createElement('button');
+            // redoButton.classList.add('redoButton');
+            // redoButton.innerHTML = 'Play Turn';
+            // //redoButton.onclick;
+            // game.appendChild(redoButton);
+
             document.getElementById('alert').style.fontSize = '80px';
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + this._player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            //console.log(document.getElementById('game').parentElement);
             document.getElementById('redoButton').style.display = 'block';
             //passBtn.onclick = passTurn;
             //document.getElementById('playCard').display = 'none';
@@ -718,10 +730,12 @@ function openHand() {
         let playerhand = player.querySelector('.playerhand');
         //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
-        console.log(playerhand.parentNode.children);
-
-        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-
+        //console.log(playerhand.parentNode.children);
+        if (playerhand.children.length === 1){
+            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+        } else {
+            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+        }
         playerhand.parentNode.removeChild(playerhand);
         //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {

@@ -107,10 +107,15 @@ button:focus {
     outline: none;
 }
 
-.redoButton {
-    padding: 20px;
-    font-size: 60px;
+button:active {
+    background-color: #c21515;
+}
+
+#redoButton {
     display: none;
+    padding: 20px;
+    font-size: 40px;
+    margin: 0 auto;
 }
 
 #playCard {
@@ -120,15 +125,8 @@ button:focus {
 }
 
 .ruleButton {
-    font-size: 22px;
-    /*margin: 0;*/
+    font-size: 20px;
 }
-
-/*.ruleButton:focus {*/
-/*    border-style: solid;*/
-/*    border-width: medium;*/
-/*    border-color:palegoldenrod;*/
-/*}*/
 
 .player {
     color: gold;
@@ -152,5 +150,7 @@ button:focus {
     font-family: Oriya MN;
     font-size: 30px;
     padding: 10px;
-    margin-left: 510px;
+    text-align: center;
+    /*margin-left: 510px;*/
+
 }
