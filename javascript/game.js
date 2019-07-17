@@ -491,8 +491,12 @@ class Rules{
         }
     }
 
-    skipPlayed(player){
+    skipPlayed(player, state){
+        if(state != ""){
+            player.game.drawCard(player);
+        }
         player.game.updateTurn();
+        player.game.rules.skipRules.played = true;
     }
 
     niceDayPlayed(player, state){
@@ -500,22 +504,26 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Have a Nice Day';
         } else{
-            this._niceDayRules.played = true;
+            player.game.rules.niceDayRules.played = true;
         }
     }
 
-    reversePlayed(player){
+    reversePlayed(player, state){
+        if(state != ""){
+            player.game.drawCard(player);
+        }
         player.game.playerList.reverse();
         if (player.game.playerList.length === 2){
             player.game.updateTurn();
         }
+        player.game.rules.reverseRules.played = true;
     }
 
 
     wildPlayed(player, suit){
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
-            this._wildRules.played = true;
+            player.game.rules.wildRules.played = true;
         } else {
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = ' ~ Failure to declare a suit';
@@ -527,7 +535,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairman';
         } else {
-            this._chairmanRules.played = true;
+            player.game.rules.chairmanRules.played = true;
         }
     }
 
@@ -536,7 +544,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare All Hail the Chairwoman';
         } else {
-            this._chairwomanRules.played = true;
+            player.game.rules.chairwomanRules.played = true;
         }
     }
 
@@ -546,7 +554,7 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById("alert").innerHTML = '~ Failure to declare Mao';
         } else {
-            this._maoRules.played = true;
+            player.game.rules.maoRules.played = true;
         }
     }
 
