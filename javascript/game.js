@@ -832,7 +832,7 @@ function playTurn() {
     let player = findPlayerIndexFromId();
     let cardIndex = -1;
     for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1)){
+        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) /*&& player.hand[i].num.toString() === selectedCard.charAt(2)*/){
             cardIndex = i;
         }
     }

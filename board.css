@@ -3,7 +3,7 @@
     border-style: solid;
     border-width: 3px;
     border-color: #303030;
-    border-radius: 7px;
+    border-radius: 10px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
@@ -37,9 +37,9 @@
     border-color: palegoldenrod;
 }
 
-.card.discard {
-    border-color: #b0210b;
-}
+/*.card.discard {*/
+/*    border-color: #b0210b;*/
+/*}*/
 
 .hand {
     font-size: 28px;
