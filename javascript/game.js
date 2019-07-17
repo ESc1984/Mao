@@ -560,7 +560,7 @@ class Rules{
 
     findWin(player){
         if (player.hand.length === 0){
-            document.getElementById("alert").innerHTML = 'Congratulations, ' + this._player.name + " - you have won this round of Mao";
+            document.getElementById("alert").innerHTML = 'Congratulations, ' + player.name + " - you have won this round of Mao";
             // for (let i = 0; i < this._player.game.playerList.length; i++){
             //     this._player.game.playerList[i].hand = [];
             // }
