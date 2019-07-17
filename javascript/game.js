@@ -482,7 +482,7 @@ class Rules{
         if(!player.turn) {
             player.game.drawCard(player);
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY IN TURN -<br>');
-        } else if (!this.cardMatch(card)) {
+        } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY WITHIN PROPER VALUES -<br>');
         }
