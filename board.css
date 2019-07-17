@@ -23,7 +23,6 @@
   /*margin-top: -120%;*/
   opacity: 0;
   transition: all 0.5s;
-
 }
 
 .card:active:after {
@@ -52,6 +51,23 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
+}
+
+#ruleButtonGrid {
+    margin-top: 35px;
+    display: grid;
+    column-gap: 10px;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+#topGrid{
+    grid-template-columns: 1fr 3fr 1fr;
+}
+
+#discard .card {
+    width: 130px;
+    height: 190px;
 }
 
 .numCards{
@@ -121,11 +137,14 @@ button:active {
 #playCard {
     display: block;
     width: 150px;
-    margin: 0 auto;
+    margin-left: 5px;
 }
 
 .ruleButton {
     font-size: 20px;
+    margin: 0;
+    text-align: center;
+    height: fit-content;
 }
 
 .player {
@@ -133,6 +152,37 @@ button:active {
     background-color: #303030;
     font-family: Oriya MN;
     font-size: 25px;
+}
+
+#overlay #startPage{
+    text-align: center;
+    width: fit-content;
+    margin-top: 140px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#overlay #startGame{
+    text-align: center;
+    width: fit-content;
+    margin-top: 140px;
+    margin-left: auto;
+    margin-right: auto;
+    visibility: hidden;
+}
+
+#overlay p {
+    margin-top: 200px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#overlay #numPlayersSubmit {
+    margin-top: 20px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #alert {
