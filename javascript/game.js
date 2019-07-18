@@ -662,7 +662,8 @@ let ourGame;
 let game;
 let ruleNumber = false;
 let players;
-let selectedCard;
+let selectedCard = "";
+let oldCard = "";
 let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
@@ -968,17 +969,22 @@ function passTurn() {
 }
 
 function playTurn() {
-    let player = findPlayerIndexFromId();
-    let cardIndex = -1;
-    for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) /*&& player.hand[i].num.toString() === selectedCard.charAt(2)*/){
-            cardIndex = i;
+    if(selectedCard != ""){
+        let player = findPlayerIndexFromId();
+        let cardIndex = -1;
+        for(let i = 0; i < player.hand.length; i++){
+            if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) /*&& player.hand[i].num.toString() === selectedCard.charAt(2)*/){
+                cardIndex = i;
+            }
         }
+        player.playCard(cardIndex, selectedRules);
+        selectedCard = "";
+        selectedRules = [];
+        niceDayCount = 0;
+        declaration = "- ";
+    } else {
+        document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
     }
-    player.playCard(cardIndex, selectedRules);
-    selectedRules = [];
-    niceDayCount = 0;
-    declaration = "- ";
 }
 
 function findPlayerIndexFromId(){
@@ -994,12 +1000,12 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
-    let oldcard = selectedCard;
+    oldCard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
     document.getElementById(this.id).classList.toggle('selectedCard');
-    if (oldcard !== undefined) {
-        document.getElementById(oldcard).classList.toggle('selectedCard');
+    if (oldCard !== "" && oldCard !== null) {
+        document.getElementById(oldCard).classList.toggle('selectedCard');
     }
     //document.getElementById(this.id).focus();
     //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
