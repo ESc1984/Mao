@@ -148,19 +148,30 @@ class Player {
         let card = this._hand[cardIndex];
         this._game.rules.playedCardCheckRules(card, this);
         if(this._turn) {
-            if(this._game.rules.cardMatch(card, this)) {
+            if (this._game.rules.cardMatch(card, this)) {
                 this._game.passes = 0;
                 this.sendRuleDeclarations(card, selectedRules);
-                this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
+                this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
                 let player = game.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
                 let identifier = "#" + card.suit + card.value + card.num;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
+
+                let display = player.getElementsByClassName('hand')[0];
+                element = display.parentElement.getElementsByClassName('playerhand');
+                if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+                    let playerhand = player.querySelector('.playerhand');
+                    if (playerhand.children.length === 1) {
+                        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+                    } else {
+                        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+                    }
+                }
+                this._game.rules.findWin(this);
+                this._game.updateTurn();
             }
-            this._game.rules.findWin(this);
-            this._game.updateTurn();
         }
     }
 
@@ -634,13 +645,6 @@ function overlay() {
     }
 }
 
-
-
-//       removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
-//       removeElement(document.getElementById('numRules'));
-//       removeElement(document.getElementById('numRulesPrompt'));
-//       removeElement(document.getElementById('numPlayers'))">Submit</button><br>
-
 function submitButton(parent, random){
     const submitButton = document.createElement('button');
     submitButton.id = 'numPlayersSubmit';
@@ -770,12 +774,6 @@ function displayPlayerHand(playerIndex) {
 function startGame(players) {
     ourGame = new Game(players, ruleNumber);
     createTopBar();
-    // const playCard = document.createElement('button');
-    // playCard.setAttribute('id', 'playCard');
-    // playCard.innerHTML = 'Play Turn';
-    // playCard.onclick = playTurn;
-    // game.appendChild(playCard);
-    // //selectedCard = game.discardPile.topDiscard();
     const speak = document.createElement('speak');
     speak.setAttribute('id', 'played');
     speak.innerHTML = '- ';
@@ -850,7 +848,6 @@ function selectedRule(){
 }
 
 function initializePlayerHand(player, grid){
-    //const gameGrid = grid;
     player.hand.forEach(card => {
         addCardsToPlayer(card, grid);
         grid.classList.add('cardhand')
@@ -860,21 +857,11 @@ function initializePlayerHand(player, grid){
 function openHand() {
     let element = this.parentElement.getElementsByClassName('playerhand');
     if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-        //if(typeof(element) != 'undefined'){
-        //let player = document.querySelector(`#${this.parentNode.name}`);
         let player = this.parentNode;
         let pass = player.querySelector('.pass');
         let playerhand = player.querySelector('.playerhand');
-        //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
-        //console.log(playerhand.parentNode.children);
-        if (playerhand.children.length === 1){
-            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
-        } else {
-            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-        }
         playerhand.parentNode.removeChild(playerhand);
-        //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
         playerPlaying = this.parentElement.id;
         let player = findPlayerIndexFromId();
