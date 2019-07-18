@@ -1020,6 +1020,7 @@ function playTurn() {
         for(let i = 0; i < player.hand.length; i++){
             if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) && player.hand[i].num.toString() === selectedCard.substring(2)){
                 cardIndex = i;
+                break;
             }
         }
         player.playCard(cardIndex, selectedRules);
@@ -1040,6 +1041,7 @@ function findPlayerIndexFromId(){
     for (let i = 0; i < ourGame.playerList.length; i++) {
         if (ourGame.playerList[i].name === playerPlaying) {
             playerIndex = i;
+            break;
         }
     }
     let player = ourGame.playerList[playerIndex];
