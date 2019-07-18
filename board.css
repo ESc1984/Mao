@@ -207,8 +207,12 @@ button:active {
 }
 
 #alert {
-    color: gold;
-    background-color: #780e0e;
+    color: #780e0e;
+    top: 50%;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+    background-color: #ffd700ab;
     font-family: Oriya MN;
     font-size: 40px;
     display: block;
