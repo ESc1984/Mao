@@ -9,13 +9,18 @@
 <body>
     <div id="overlay">
         <div id="startPage">
-            <p id="guide">HOW TO PLAY<br>
-                - Click on a card to select it<br>
-                - Make statements by clicking on them at the top<br>
-                - Click 'Play Turn' to play your card<br>
-                - Skip your turn with your 'Pass Turn' button<br><br>
-                RULES OF MAO<br>
-                1. We do not disclose the rules of Mao<br>
+            <p class="guide">HOW TO PLAY</p>
+            <pre class="directions">
+                - Click on a card to select it
+                - Make statements by clicking on them at the top
+                - Select 'Have a Nice Day' multiple times to add
+                  'Very' to the statement
+                - Click 'Play Turn' to play your card
+                - Skip your turn with your 'Pass Turn' button
+            </pre>
+            <p class="guide">RULES OF MAO</p>
+            <p class="directions">
+                1. We do not disclose the rules of Mao
             </p>
             <br> <br>
             <button id="standardGame" class="submit" onclick="removeElement(document.getElementById('startPage'));standardGame()">Standard Game</button>

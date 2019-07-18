@@ -110,6 +110,17 @@ p {
     font-size: 25px;
 }
 
+pre {
+    color: gold;
+    font-family: Oriya MN;
+    font-size: 25px;
+    text-align: left;
+    width: fit-content;
+    margin-top: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 button {
     color: gold;
     background-color: #780e0e;
@@ -155,11 +166,21 @@ button:active {
 }
 
 #overlay #startPage{
-    text-align: center;
-    width: fit-content;
     margin-top: 140px;
+    text-align: center;
+}
+
+#overlay #startPage .directions{
+    text-align: left;
+    width: fit-content;
+    margin-top: 8px;
     margin-left: auto;
     margin-right: auto;
+}
+
+#overlay #startPage .guide{
+    margin-top: 0px;
+    text-align: center;
 }
 
 #overlay #startGame{
