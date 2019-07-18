@@ -144,12 +144,27 @@ class Player {
         return this._hand.length;
     }
 
+    updateNumCards(){
+        let player = game.querySelector(`#${this.name}`);
+        let display = player.getElementsByClassName('hand')[0];
+        let element = display.parentElement.getElementsByClassName('playerhand');
+        if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+            let playerhand = player.querySelector('.playerhand');
+            if (playerhand.children.length === 1) {
+                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+            } else {
+                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+            }
+        }
+    }
+
     passTurn() {
         this._game.rules.passTurnCheckRules(this);
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
         }
+        this.updateNumCards();
     };
 
     playCard(cardIndex, selectedRules) {
@@ -172,18 +187,8 @@ class Player {
                 this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
-            let player = game.querySelector(`#${this.name}`);
-            let display = player.getElementsByClassName('hand')[0];
-            let element = display.parentElement.getElementsByClassName('playerhand');
-            if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-                let playerhand = player.querySelector('.playerhand');
-                if (playerhand.children.length === 1) {
-                    playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
-                } else {
-                    playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-                }
-            }
         }
+        this.updateNumCards();
     }
 
     sendRuleDeclarations(card, selectedRules){
