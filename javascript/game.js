@@ -57,6 +57,11 @@ class DiscardPile {
         this._expectedSuit = card.suit;
         this._expectedValue = card.value;
         this._game = game;
+        this._sevensCount = 0;
+    }
+
+    get sevensCount(){
+        return this._sevensCount;
     }
 
     get cards() {
@@ -84,6 +89,11 @@ class DiscardPile {
     }
 
     addToDiscard(card){
+        if(card.value === '7'){
+            this._sevensCount++;
+        } else {
+            this._sevensCount = 0;
+        }
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
         let arr = this._game.rules.rulesInPlay;
@@ -134,12 +144,27 @@ class Player {
         return this._hand.length;
     }
 
+    updateNumCards(){
+        let player = game.querySelector(`#${this.name}`);
+        let display = player.getElementsByClassName('hand')[0];
+        let element = display.parentElement.getElementsByClassName('playerhand');
+        if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+            let playerhand = player.querySelector('.playerhand');
+            if (playerhand.children.length === 1) {
+                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+            } else {
+                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+            }
+        }
+    }
+
     passTurn() {
         this._game.rules.passTurnCheckRules(this);
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
         }
+        this.updateNumCards();
     };
 
     playCard(cardIndex, selectedRules) {
@@ -162,18 +187,8 @@ class Player {
                 this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
-            let player = game.querySelector(`#${this.name}`);
-            let display = player.getElementsByClassName('hand')[0];
-            let element = display.parentElement.getElementsByClassName('playerhand');
-            if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-                let playerhand = player.querySelector('.playerhand');
-                if (playerhand.children.length === 1) {
-                    playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
-                } else {
-                    playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-                }
-            }
         }
+        this.updateNumCards();
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -544,6 +559,11 @@ class Rules{
             let rule = `${state}`.toUpperCase();
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
+            if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
+                player.game.drawCard(player);
+                let penalty = "HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount + 1) + "NICE DAY";
+                document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ${penalty} -<br>`);
+            }
             player.game.rules.niceDayRules.played = true;
         }
     }
@@ -643,6 +663,8 @@ let selectedCard;
 let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
+let niceDayCount = 0;
+let declaration = "- ";
 
 window.onload = function gameLoaded() {
     game = document.getElementById("gameBoard");
@@ -855,9 +877,20 @@ function createRuleButtons(grid, specialRule){
 }
 
 function selectedRule(){
-    document.getElementById('played').insertAdjacentHTML("beforeend", this.innerHTML + ' - ');
+    let rule = this.innerHTML;
+    if(rule === "Have a Nice Day"){
+        rule = "Have a " + "Very ".repeat(niceDayCount) + "Nice Day";
+        niceDayCount++;
+        if(niceDayCount <= 1){
+            selectedRules.unshift(rule);
+        }
+        document.getElementById('played').innerHTML = declaration;
+    } else {
+        selectedRules.unshift(rule);
+        declaration = `${declaration}${rule} - `;
+    }
+    document.getElementById('played').insertAdjacentHTML("beforeend", rule + ' - ');
     document.getElementById('played').style.color = 'gold';
-    selectedRules.unshift(this.innerHTML);
 }
 
 function initializePlayerHand(player, grid){
@@ -927,6 +960,8 @@ function passTurn() {
     let player = findPlayerIndexFromId();
     player.passTurn();
     selectedRules = [];
+    niceDayCount = 0;
+    declaration = "- ";
 }
 
 function playTurn() {
@@ -939,6 +974,8 @@ function playTurn() {
     }
     player.playCard(cardIndex, selectedRules);
     selectedRules = [];
+    niceDayCount = 0;
+    declaration = "- ";
 }
 
 function findPlayerIndexFromId(){
