@@ -860,7 +860,28 @@ function selectedRule(){
 }
 
 function initializePlayerHand(player, grid){
-    player.hand.forEach(card => {
+    let sortedHand = player.hand.sort((a,b) => {
+        let x = a.suit.toLowerCase();
+        let y = b.suit.toLowerCase();
+        if(x < y) {return -1;}
+        if(x > y) {return 1;}
+        x = a.value;
+            if(x === 'A') {x = '1';}
+            else if(x === 'X') {x = '10';}
+            else if(x === 'J') {x = '11';}
+            else if(x === 'Q') {x = '12';}
+            else if(x === 'K') {x = '13';}
+        x = parseInt(x, 10);
+        y = b.value;
+            if(y === 'A') {y = '1';}
+            else if(y === 'X') {y = '10';}
+            else if(y === 'J') {y = '11';}
+            else if(y === 'Q') {y = '12';}
+            else if(y === 'K') {y = '13';}
+        y = parseInt(y, 10);
+        return x - y;
+    });
+    sortedHand.forEach(card => {
         addCardsToPlayer(card, grid);
         grid.classList.add('cardhand')
     });
