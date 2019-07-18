@@ -63,6 +63,7 @@
 
 #topGrid{
     grid-template-columns: 1fr 3fr 1fr;
+    margin-top: 50px;
 }
 
 #discard .card {
@@ -125,6 +126,10 @@ button:focus {
 
 button:active {
     background-color: #c21515;
+}
+
+input:focus {
+    outline-color: goldenrod;
 }
 
 #redoButton {
@@ -195,11 +200,13 @@ button:active {
 }
 
 #played {
+    /*position: relative;*/
     display: block;
     color: gold;
     font-family: Oriya MN;
     font-size: 30px;
-    padding: 10px;
+    /*padding-top: 10px;*/
+    padding-bottom: 40px;
     text-align: center;
     /*margin-left: 510px;*/
 

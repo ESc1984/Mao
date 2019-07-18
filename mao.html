@@ -9,14 +9,23 @@
 <body>
     <div id="overlay">
         <div id="startPage">
-            <p id="guide">HOW TO PLAY<br>- Click on a card to select it<br>- Make statements by clicking on them at the top<br>- Click 'Play Turn' to play your card<br>- Skip your turn with your 'Pass Turn' button<br><br>RULES OF MAO<br>1. We do not disclose the rules of Mao<br></p>
+            <p id="guide" font-size="40px">
+                HOW TO PLAY<br>
+                - Use the button with your name to open and close your hand<br>
+                - Click on a card to select it<br>
+                - Make statements by clicking on them at the top<br>
+                - Click 'Play Turn' to play your card<br>
+                - Skip your turn with your 'Pass Turn' button<br>
+                <br>
+                RULES OF MAO<br>
+                1. We do not disclose the rules of Mao<br>
+            </p>
             <br> <br>
             <button id="standardGame" class="submit" onclick="removeElement(document.getElementById('startPage'));standardGame()">Standard Game</button>
-            <button id="randomGame" class="submit" onclick="removeElement(document.getElementById('startPage'));randomGame()">Random Game</button>
+            <button id="randomGame" class="submit" onclick="removeElement(document.getElementById('startPage'));randomGame()">Chaos Mode</button>
         </div>
         <div id="startGame"></div>
     </div>
-<p id="played"></p>
 <div id="gameBoard"></div>
 <p id="alert"></p>
 <button id="redoButton" onclick="location.reload()">Play Again?</button>

@@ -164,6 +164,49 @@ class Player {
         }
     }
 
+    // sendRuleDeclarations(card, selectedRules){
+    //     selectedRules.forEach(selected => {
+    //         if(selected === 'Mao'){
+    //             this._game.rules.mao(this, selected);
+    //         } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')){
+    //             this._game.rules.gameRules[0].function(this, selected);
+    //         } else {
+    //             let sent = false;
+    //             this._game.rules.rulesInPlay.forEach(rule => {
+    //                 if(sent === false && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+    //                     this._game.rules[rule + 'Played'](this, selected);
+    //                     sent = true;
+    //                     //document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
+    //                 }
+    //             });
+    //             if(sent === false){
+    //                 this._game.drawCard(this);
+    //                 let rule = `${selected}`.toUpperCase();
+    //                 document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+    //             }
+    //         }
+    //     });
+    //
+    //     if(this.hand.length === 2 && !this._game.rules.maoRules.played){
+    //         this._game.rules.mao(this, "");
+    //     }
+    //
+    //     if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
+    //          this._game.rules.gameRules[0].function(this, "");
+    //     }
+    //
+    //     this._game.rules.gameRules.forEach(rule => {
+    //         let checkPlayedStatus = rule.function.toString();
+    //         checkPlayedStatus = checkPlayedStatus.substring(0, checkPlayedStatus.indexOf("Played"));
+    //         checkPlayedStatus = checkPlayedStatus + "Rules";
+    //         if(rule.function != this._game.rules.noRule){
+    //             if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
+    //                 rule.function(this, "");
+    //             }
+    //         }
+    //     });
+    // }
+
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(selected => {
             if(selected === 'Mao'){
@@ -174,13 +217,16 @@ class Player {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
                     if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
-                        this._game.rules[rule + 'Played'](this, selected);
-                        sent = true;
-
+                        if(this._game.rules[rule + 'Rules'].played === false){
+                            this._game.rules[rule + 'Played'](this, selected);
+                            sent = true;
+                        }
                     }
                 });
                 if(sent === false){
                     this._game.drawCard(this);
+                    let rule = `${selected}`.toUpperCase();
+                    document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARING ${rule} OUT OF TURN -<br>`);
                 }
             }
         });
@@ -190,7 +236,7 @@ class Player {
         }
 
         if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
-             this._game.rules.gameRules[0].function(this, "");
+            this._game.rules.gameRules[0].function(this, "");
         }
 
         this._game.rules.gameRules.forEach(rule => {
@@ -491,7 +537,7 @@ class Rules{
     noRule(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARING ${state} OUT OF TURN -<br>`);
         }
     }
 
@@ -507,6 +553,7 @@ class Rules{
     skipPlayed(player, state){
         if(state != ""){
             player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARING ${state} OUT OF TURN -<br>`);
         }
         player.game.updateTurn();
         player.game.rules.skipRules.played = true;
@@ -524,6 +571,7 @@ class Rules{
     reversePlayed(player, state){
         if(state != ""){
             player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- DECLARING ${state} OUT OF TURN -<br>');
         }
         player.game.playerList.reverse();
         if (player.game.playerList.length === 2){
@@ -640,7 +688,7 @@ function namePrompt(parent){
     const numPlayersPrompt = document.createElement('label');
     numPlayersPrompt.id = 'numPlayersPrompt';
     numPlayersPrompt.setAttribute('for', 'numPlayers');
-    numPlayersPrompt.innerHTML = "Enter Number of Players ";
+    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6)";
 
     const numPlayersResponse = document.createElement('input');
     numPlayersResponse.name = 'numPlayersPrompt';
@@ -681,19 +729,22 @@ function standardGame(){
 }
 
 function numPlayersDecided(numPlayers) {
-    if (numPlayers > 8) {
-        players = 8;
+    if (numPlayers > 6) {
+        players = 6;
     } else if (numPlayers < 2 || numPlayers === null){
         players = 2;
     } else {
         players = numPlayers;
     }
     let startGamePrompt = document.getElementById('startGame');
+    // let nameNo = document.createElement('label');
+    // nameNo.innerHTML = 'SELECT UNIQUE NAMES - NO DUPLICATION<br>';
+    // startGamePrompt.appendChild(nameNo);
     for(let i = 0; i < players; i++){
         let namePrompt = document.createElement('label');
         namePrompt.id = 'namePlayers';
         namePrompt.setAttribute('for', 'namePlayers' + i);
-        namePrompt.innerHTML = "Enter Player's Name: ";
+        namePrompt.innerHTML = `Enter Player ${i+1}'s Name: `;
         let nameHolder = document.createElement('input');
         nameHolder.name = 'namePlayersPrompt';
         nameHolder.id = 'namePlayers' + i;
@@ -716,13 +767,36 @@ function numPlayersDecided(numPlayers) {
 }
 
 function saveNames() {
-    let num = players;
-    players = [];
-    for (let i = 0; i < num; i++) {
-        players.push(document.getElementById('namePlayers' + i).value);
+    let num = parseInt(players);
+    let newPlayers = [];
+    let toCheck = [];
+    for (let h = 0; h < num; h++) {
+        toCheck.push(document.getElementById('namePlayers' + h).value.trim());
     }
+
+    for (let i = 0; i < (toCheck.length - 1); i++){
+        let diff = 2;
+        for (let j = (i + 1); j < toCheck.length; j++){
+            if (toCheck[i].toLowerCase() === toCheck[j].toLowerCase()){
+                toCheck[j] += (' '+diff.toString());
+                diff++;
+            }
+        }
+        newPlayers.push(toCheck[i]);
+        if (i+2 === toCheck.length){
+            newPlayers.push(toCheck[i+1]);
+        }
+    }
+
+    for (let k = 0; k < newPlayers.length; k++){
+        console.log(newPlayers[k]);
+    }
+
+    // for (let i = 0; i < num; i++) {
+    //     players.push(document.getElementById('namePlayers' + i).value);
+    // }
     overlay();
-    startGame(players);
+    startGame(newPlayers);
 }
 
 function numRulesDecided(numRules){
@@ -791,6 +865,11 @@ function createTopBar(){
     playCard.innerHTML = 'Play<br>Turn';
     playCard.onclick = playTurn;
     topGrid.appendChild(playCard);
+    // const speak = document.createElement('speak');
+    // speak.setAttribute('id', 'played');
+    // speak.innerHTML = '- ';
+    // speak.style.color = '#b0210b';
+    // topGrid.appendChild(speak);
     game.appendChild(topGrid);
 }
 
@@ -882,6 +961,8 @@ function passTurn() {
     let player = findPlayerIndexFromId();
     player.passTurn();
     selectedRules = [];
+    document.getElementById('played').innerHTML = '- ';
+    document.getElementById('played').style.color = '#b0210b';
 }
 
 function playTurn() {
@@ -909,6 +990,7 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
+    document.getElementById("alert").innerHTML = '';
     let oldcard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
@@ -916,11 +998,6 @@ function selectCard() {
     if (oldcard !== undefined) {
         document.getElementById(oldcard).classList.toggle('selectedCard');
     }
-    //document.getElementById(this.id).focus();
-    //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
-    //selectedCard.style.border = '100px double gold';
-    document.getElementById("alert").innerHTML = '';
-    //document.getElementById("played").innerHTML = '';
 }
 
 
