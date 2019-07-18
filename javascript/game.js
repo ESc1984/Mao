@@ -184,10 +184,11 @@ class Player {
             } else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
-                        this._game.rules[rule + 'Played'](this, selected);
-                        sent = true;
-
+                    if(sent === false && rule != 'spade' && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+                        if(this._game.rules[rule + 'Rules'].played === false){
+                            this._game.rules[rule + 'Played'](this, selected);
+                            sent = true;
+                        }
                     }
                 });
                 if(sent === false){
@@ -519,7 +520,8 @@ class Rules{
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE SPADES -<br>');
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
             player.game.rules.spadeRules.played = true;
         }
@@ -527,6 +529,8 @@ class Rules{
 
     skipPlayed(player, state){
         if(state != ""){
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             player.game.drawCard(player);
         }
         player.game.updateTurn();
@@ -536,7 +540,8 @@ class Rules{
     niceDayPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML("beforeend", '- FAILURE TO DECLARE HAVE A NICE DAY -<br>');
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
             player.game.rules.niceDayRules.played = true;
         }
@@ -544,6 +549,8 @@ class Rules{
 
     reversePlayed(player, state){
         if(state != ""){
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             player.game.drawCard(player);
         }
         player.game.playerList.reverse();
@@ -567,7 +574,8 @@ class Rules{
     chairmanPlayed(player, state){ //requires card?
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRMAN -<br>');
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
             player.game.rules.chairmanRules.played = true;
         }
@@ -576,7 +584,8 @@ class Rules{
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>');
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
             player.game.rules.chairwomanRules.played = true;
         }
@@ -585,7 +594,8 @@ class Rules{
     playAgainPlayed(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
         } else {
             let currentPlayer = player.game.getCurrentPlayer();
             player.game.playerList[currentPlayer].turn = false;
