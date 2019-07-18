@@ -148,19 +148,30 @@ class Player {
         let card = this._hand[cardIndex];
         this._game.rules.playedCardCheckRules(card, this);
         if(this._turn) {
-            if(this._game.rules.cardMatch(card, this)) {
+            if (this._game.rules.cardMatch(card, this)) {
                 this._game.passes = 0;
                 this.sendRuleDeclarations(card, selectedRules);
-                this._game.discardCard(this._hand.splice(cardIndex,1)[0]);
+                this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
                 let player = game.querySelector(`#${this.name}`);
                 let grid = player.querySelector(".playerhand");
                 let identifier = "#" + card.suit + card.value + card.num;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
+
+                let display = player.getElementsByClassName('hand')[0];
+                element = display.parentElement.getElementsByClassName('playerhand');
+                if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+                    let playerhand = player.querySelector('.playerhand');
+                    if (playerhand.children.length === 1) {
+                        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+                    } else {
+                        playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+                    }
+                }
+                this._game.rules.findWin(this);
+                this._game.updateTurn();
             }
-            this._game.rules.findWin(this);
-            this._game.updateTurn();
         }
     }
 
@@ -173,7 +184,7 @@ class Player {
             } else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+                    if(sent === false && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         this._game.rules[rule + 'Played'](this, selected);
                         sent = true;
 
@@ -181,6 +192,8 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
+                    let rule = `${selected}`.toUpperCase();
+                    document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
                 }
             }
         });
@@ -344,7 +357,8 @@ class Rules{
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
             {function: this.skipPlayed, name: 'skip'},
-            {function: this.reversePlayed, name: 'reverse'}
+            {function: this.reversePlayed, name: 'reverse'},
+            {function: this.playAgainPlayed, name: 'playAgain'}
         ];
         this._rulesInPlay = [];
 
@@ -356,6 +370,7 @@ class Rules{
         this._maoRules = {played: false};
         this._skipRules = {played: false};
         this._reverseRules = {played: false};
+        this._playAgainRules = {played: false};
 
         if(numRules === false){
             this.normalRules();
@@ -400,6 +415,10 @@ class Rules{
         return this._skipRules;
     }
 
+    get playAgainRules(){
+        return this._playAgainRules;
+    }
+
     pickRules(num){
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
@@ -427,7 +446,7 @@ class Rules{
             {value:"D", function: this.noRule},
             {value:"C", function: this.noRule},
             {value:"A", function: this.skipPlayed},
-            {value:"2", function: this.noRule},
+            {value:"2", function: this.playAgainPlayed},
             {value:"3", function: this.noRule},
             {value:"4", function: this.noRule},
             {value:"5", function: this.noRule},
@@ -441,7 +460,7 @@ class Rules{
             {value:"K", function: this.chairmanPlayed}
         ];
         this._rulesInPlay = ['niceDay', 'wild',
-                'chairwoman', 'chairman', 'spade', 'skip', 'reverse'];
+                'chairwoman', 'chairman', 'spade', 'skip', 'reverse', 'playAgain'];
         this.niceDayRules.card = '7';
         this.wildRules.card = 'J';
         this.chairwomanRules.card = 'Q';
@@ -449,6 +468,7 @@ class Rules{
         this.spadeRules.card = 'S';
         this.skipRules.card = 'A';
         this.reverseRules.card = '8';
+        this.playAgainRules.card = '2';
     }
 
     storeCardRule(card, rule, name){
@@ -465,6 +485,7 @@ class Rules{
         this._maoRules.played = false;
         this._skipRules.played = false;
         this._reverseRules.played = false;
+        this._playAgainRules.played = false;
     }
 
     cardMatch(card, player){
@@ -561,6 +582,22 @@ class Rules{
         }
     }
 
+    playAgainPlayed(player, state){
+        if(state !== ""){
+            player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
+        } else {
+            let currentPlayer = player.game.getCurrentPlayer();
+            player.game.playerList[currentPlayer].turn = false;
+            let nextPlayer = currentPlayer - 1;
+            if(currentPlayer === 0){
+                nextPlayer = player.game.playerList.length - 1;
+            }
+            player.game.playerList[nextPlayer].turn = true;
+            player.game.rules.playAgainRules.played = true;
+        }
+    }
+
     mao(player, state){
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')||(cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
@@ -609,13 +646,6 @@ function overlay() {
         removeElement(el);
     }
 }
-
-
-
-//       removeElement(this);removeElement(document.getElementById('numPlayersPrompt'));
-//       removeElement(document.getElementById('numRules'));
-//       removeElement(document.getElementById('numRulesPrompt'));
-//       removeElement(document.getElementById('numPlayers'))">Submit</button><br>
 
 function submitButton(parent, random){
     const submitButton = document.createElement('button');
@@ -746,12 +776,6 @@ function displayPlayerHand(playerIndex) {
 function startGame(players) {
     ourGame = new Game(players, ruleNumber);
     createTopBar();
-    // const playCard = document.createElement('button');
-    // playCard.setAttribute('id', 'playCard');
-    // playCard.innerHTML = 'Play Turn';
-    // playCard.onclick = playTurn;
-    // game.appendChild(playCard);
-    // //selectedCard = game.discardPile.topDiscard();
     const speak = document.createElement('speak');
     speak.setAttribute('id', 'played');
     speak.innerHTML = '- ';
@@ -826,7 +850,6 @@ function selectedRule(){
 }
 
 function initializePlayerHand(player, grid){
-    //const gameGrid = grid;
     player.hand.forEach(card => {
         addCardsToPlayer(card, grid);
         grid.classList.add('cardhand')
@@ -836,21 +859,11 @@ function initializePlayerHand(player, grid){
 function openHand() {
     let element = this.parentElement.getElementsByClassName('playerhand');
     if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-        //if(typeof(element) != 'undefined'){
-        //let player = document.querySelector(`#${this.parentNode.name}`);
         let player = this.parentNode;
         let pass = player.querySelector('.pass');
         let playerhand = player.querySelector('.playerhand');
-        //can't read queryselector of player (null) when closing
         pass.parentNode.removeChild(pass);
-        //console.log(playerhand.parentNode.children);
-        if (playerhand.children.length === 1){
-            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
-        } else {
-            playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-        }
         playerhand.parentNode.removeChild(playerhand);
-        //this.parentElement.removeChild(this.parentElement.getElementsByClassName('playerhand'));
     } else {
         playerPlaying = this.parentElement.id;
         let player = findPlayerIndexFromId();
