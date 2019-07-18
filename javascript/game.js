@@ -344,7 +344,8 @@ class Rules{
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
             {function: this.skipPlayed, name: 'skip'},
-            {function: this.reversePlayed, name: 'reverse'}
+            {function: this.reversePlayed, name: 'reverse'},
+            {function: this.playAgainPlayed, name: 'playAgain'}
         ];
         this._rulesInPlay = [];
 
@@ -356,6 +357,7 @@ class Rules{
         this._maoRules = {played: false};
         this._skipRules = {played: false};
         this._reverseRules = {played: false};
+        this._playAgainRules = {played: false};
 
         if(numRules === false){
             this.normalRules();
@@ -400,6 +402,10 @@ class Rules{
         return this._skipRules;
     }
 
+    get playAgainRules(){
+        return this._playAgainRules;
+    }
+
     pickRules(num){
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
@@ -427,7 +433,7 @@ class Rules{
             {value:"D", function: this.noRule},
             {value:"C", function: this.noRule},
             {value:"A", function: this.skipPlayed},
-            {value:"2", function: this.noRule},
+            {value:"2", function: this.playAgainPlayed},
             {value:"3", function: this.noRule},
             {value:"4", function: this.noRule},
             {value:"5", function: this.noRule},
@@ -441,7 +447,7 @@ class Rules{
             {value:"K", function: this.chairmanPlayed}
         ];
         this._rulesInPlay = ['niceDay', 'wild',
-                'chairwoman', 'chairman', 'spade', 'skip', 'reverse'];
+                'chairwoman', 'chairman', 'spade', 'skip', 'reverse', 'playAgain'];
         this.niceDayRules.card = '7';
         this.wildRules.card = 'J';
         this.chairwomanRules.card = 'Q';
@@ -449,6 +455,7 @@ class Rules{
         this.spadeRules.card = 'S';
         this.skipRules.card = 'A';
         this.reverseRules.card = '8';
+        this.playAgainRules.card = '2';
     }
 
     storeCardRule(card, rule, name){
@@ -465,6 +472,7 @@ class Rules{
         this._maoRules.played = false;
         this._skipRules.played = false;
         this._reverseRules.played = false;
+        this._playAgainRules.played = false;
     }
 
     cardMatch(card, player){
@@ -558,6 +566,22 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>');
         } else {
             player.game.rules.chairwomanRules.played = true;
+        }
+    }
+
+    playAgainPlayed(player, state){
+        if(state !== ""){
+            player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE IN TURN -<br>');
+        } else {
+            let currentPlayer = player.game.getCurrentPlayer();
+            player.game.playerList[currentPlayer].turn = false;
+            let nextPlayer = currentPlayer - 1;
+            if(currentPlayer === 0){
+                nextPlayer = player.game.playerList.length - 1;
+            }
+            player.game.playerList[nextPlayer].turn = true;
+            player.game.rules.playAgainRules.played = true;
         }
     }
 
