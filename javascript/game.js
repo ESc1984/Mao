@@ -184,7 +184,7 @@ class Player {
             } else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+                    if(sent === false && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         this._game.rules[rule + 'Played'](this, selected);
                         sent = true;
 
@@ -192,6 +192,8 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
+                    let rule = `${selected}`.toUpperCase();
+                    document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
                 }
             }
         });
