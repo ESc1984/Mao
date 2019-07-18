@@ -574,8 +574,8 @@ class Rules{
     findWin(player){
         if (player.hand.length === 0){
             //document.getElementById('game').style.display = 'none';
-            for (let i = 0; i < document.getElementById('game').children.length; i++){
-                document.getElementById('game').children[i].style.display = 'none';
+            for (let i = 0; i < document.getElementById('gameBoard').children.length; i++){
+                document.getElementById('gameBoard').children[i].style.display = 'none';
             }
             document.getElementById('alert').style.fontSize = '80px';
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
