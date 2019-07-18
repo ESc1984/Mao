@@ -159,6 +159,8 @@ class Player {
     }
 
     passTurn() {
+        document.getElementById('played').innerHTML = '- ';
+        document.getElementById('played').style.color = '#b0210b';
         this._game.rules.passTurnCheckRules(this);
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
