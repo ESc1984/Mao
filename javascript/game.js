@@ -89,7 +89,7 @@ class DiscardPile {
     }
 
     addToDiscard(card){
-        if(card.value === '7'){
+        if(card.value === this._game.rules.niceDayRules.card){
             this._sevensCount++;
         } else {
             this._sevensCount = 0;
@@ -165,6 +165,7 @@ class Player {
             this._game.updateTurn();
         }
         this.updateNumCards();
+
     };
 
     playCard(cardIndex, selectedRules) {
@@ -200,7 +201,7 @@ class Player {
             } else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && rule != 'spade' && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+                    if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         if(this._game.rules[rule + 'Rules'].played === false){
                             this._game.rules[rule + 'Played'](this, selected);
                             sent = true;
