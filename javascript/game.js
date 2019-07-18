@@ -89,7 +89,7 @@ class DiscardPile {
     }
 
     addToDiscard(card){
-        if(card.value === '7'){
+        if(card.value === this._game.rules.niceDayRules.card){
             this._sevensCount++;
         } else {
             this._sevensCount = 0;
@@ -159,12 +159,15 @@ class Player {
     }
 
     passTurn() {
+        document.getElementById('played').innerHTML = '- ';
+        document.getElementById('played').style.color = '#b0210b';
         this._game.rules.passTurnCheckRules(this);
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
         }
         this.updateNumCards();
+
     };
 
     playCard(cardIndex, selectedRules) {
@@ -200,7 +203,7 @@ class Player {
             } else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && rule != 'spade' && selected != 'Spades' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
+                    if(sent === false && rule != 'spade' && (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         if(this._game.rules[rule + 'Rules'].played === false){
                             this._game.rules[rule + 'Played'](this, selected);
                             sent = true;
@@ -659,7 +662,8 @@ let ourGame;
 let game;
 let ruleNumber = false;
 let players;
-let selectedCard;
+let selectedCard = "";
+let oldCard = "";
 let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
@@ -965,17 +969,22 @@ function passTurn() {
 }
 
 function playTurn() {
-    let player = findPlayerIndexFromId();
-    let cardIndex = -1;
-    for(let i = 0; i < player.hand.length; i++){
-        if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) /*&& player.hand[i].num.toString() === selectedCard.charAt(2)*/){
-            cardIndex = i;
+    if(selectedCard != ""){
+        let player = findPlayerIndexFromId();
+        let cardIndex = -1;
+        for(let i = 0; i < player.hand.length; i++){
+            if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) && player.hand[i].num.toString() === selectedCard.substring(2)){
+                cardIndex = i;
+            }
         }
+        player.playCard(cardIndex, selectedRules);
+        selectedCard = "";
+        selectedRules = [];
+        niceDayCount = 0;
+        declaration = "- ";
+    } else {
+        document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
     }
-    player.playCard(cardIndex, selectedRules);
-    selectedRules = [];
-    niceDayCount = 0;
-    declaration = "- ";
 }
 
 function findPlayerIndexFromId(){
@@ -991,12 +1000,12 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
-    let oldcard = selectedCard;
+    oldCard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
     document.getElementById(this.id).classList.toggle('selectedCard');
-    if (oldcard !== undefined) {
-        document.getElementById(oldcard).classList.toggle('selectedCard');
+    if (oldCard !== "" && oldCard !== null) {
+        document.getElementById(oldCard).classList.toggle('selectedCard');
     }
     //document.getElementById(this.id).focus();
     //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
