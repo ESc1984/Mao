@@ -688,7 +688,7 @@ function namePrompt(parent){
     const numPlayersPrompt = document.createElement('label');
     numPlayersPrompt.id = 'numPlayersPrompt';
     numPlayersPrompt.setAttribute('for', 'numPlayers');
-    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6)";
+    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6) ";
 
     const numPlayersResponse = document.createElement('input');
     numPlayersResponse.name = 'numPlayersPrompt';
