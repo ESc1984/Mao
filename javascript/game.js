@@ -226,7 +226,7 @@ class Player {
         }
 
         if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
-             this._game.rules.gameRules[0].function(this, "");
+            this._game.rules.gameRules[0].function(this, "");
         }
 
         this._game.rules.gameRules.forEach(rule => {
@@ -750,7 +750,7 @@ function namePrompt(parent){
     const numPlayersPrompt = document.createElement('label');
     numPlayersPrompt.id = 'numPlayersPrompt';
     numPlayersPrompt.setAttribute('for', 'numPlayers');
-    numPlayersPrompt.innerHTML = "Enter Number of Players ";
+    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6) ";
 
     const numPlayersResponse = document.createElement('input');
     numPlayersResponse.name = 'numPlayersPrompt';
@@ -791,8 +791,8 @@ function standardGame(){
 }
 
 function numPlayersDecided(numPlayers) {
-    if (numPlayers > 8) {
-        players = 8;
+    if (numPlayers > 6) {
+        players = 6;
     } else if (numPlayers < 2 || numPlayers === null){
         players = 2;
     } else {
@@ -803,7 +803,7 @@ function numPlayersDecided(numPlayers) {
         let namePrompt = document.createElement('label');
         namePrompt.id = 'namePlayers';
         namePrompt.setAttribute('for', 'namePlayers' + i);
-        namePrompt.innerHTML = "Enter Player's Name: ";
+        namePrompt.innerHTML = `Enter Player ${i+1}'s Name: `;
         let nameHolder = document.createElement('input');
         nameHolder.name = 'namePlayersPrompt';
         nameHolder.id = 'namePlayers' + i;
@@ -826,13 +826,36 @@ function numPlayersDecided(numPlayers) {
 }
 
 function saveNames() {
-    let num = players;
-    players = [];
-    for (let i = 0; i < num; i++) {
-        players.push(document.getElementById('namePlayers' + i).value);
+    let num = parseInt(players);
+    let newPlayers = [];
+    let toCheck = [];
+    for (let h = 0; h < num; h++) {
+        toCheck.push(document.getElementById('namePlayers' + h).value.trim());
     }
+
+    for (let i = 0; i < (toCheck.length - 1); i++){
+        let diff = 2;
+        for (let j = (i + 1); j < toCheck.length; j++){
+            if (toCheck[i].toLowerCase() === toCheck[j].toLowerCase()){
+                toCheck[j] += (' '+diff.toString());
+                diff++;
+            }
+        }
+        newPlayers.push(toCheck[i]);
+        if (i+2 === toCheck.length){
+            newPlayers.push(toCheck[i+1]);
+        }
+    }
+
+    for (let k = 0; k < newPlayers.length; k++){
+        console.log(newPlayers[k]);
+    }
+
+    // for (let i = 0; i < num; i++) {
+    //     players.push(document.getElementById('namePlayers' + i).value);
+    // }
     overlay();
-    startGame(players);
+    startGame(newPlayers);
 }
 
 function numRulesDecided(numRules){
@@ -1009,6 +1032,8 @@ function passTurn() {
     selectedRules = [];
     niceDayCount = 0;
     declaration = "- ";
+    document.getElementById('played').innerHTML = '- ';
+    document.getElementById('played').style.color = '#b0210b';
 }
 
 function playTurn() {
@@ -1048,18 +1073,14 @@ function findPlayerIndexFromId(){
 
 
 function selectCard() {
-    oldCard = selectedCard;
+    document.getElementById("alert").innerHTML = '';
+    oldcard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
     document.getElementById(this.id).classList.toggle('selectedCard');
     if (oldCard !== "" && oldCard !== null) {
         document.getElementById(oldCard).classList.toggle('selectedCard');
     }
-    //document.getElementById(this.id).focus();
-    //document.getElementById(this.id).style.borderColor = 'palegoldenrod';
-    //selectedCard.style.border = '100px double gold';
-    document.getElementById("alert").innerHTML = '';
-    //document.getElementById("played").innerHTML = '';
 }
 
 
