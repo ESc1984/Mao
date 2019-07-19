@@ -519,8 +519,6 @@ class Rules{
     passTurnCheckRules(player){
         if(!player.turn) {
             player.game.drawCard(player);
-            document.getElementById(selectedCard).classList.toggle('selectedCard');
-            selectedCard = '';
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO TO PLAY IN TURN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
@@ -531,16 +529,12 @@ class Rules{
     playedCardCheckRules(card, player){
         if(!player.turn) {
             player.game.drawCard(player);
-            document.getElementById(selectedCard).classList.toggle('selectedCard');
-            selectedCard = '';
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY IN TURN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
         } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
-            document.getElementById(selectedCard).classList.toggle('selectedCard');
-            selectedCard = '';
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY WITHIN PROPER VALUES -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
