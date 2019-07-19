@@ -1025,7 +1025,6 @@ function addCardsToPlayer(card, grid){
 
 function passTurn() {
     document.getElementById("alert").innerHTML = '';
-    //document.getElementById("played").innerHTML = '';
     playerPlaying = this.parentElement.id;
     let player = findPlayerIndexFromId();
     player.passTurn();
@@ -1074,7 +1073,7 @@ function findPlayerIndexFromId(){
 
 function selectCard() {
     document.getElementById("alert").innerHTML = '';
-    oldcard = selectedCard;
+    oldCard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
     document.getElementById(this.id).classList.toggle('selectedCard');
