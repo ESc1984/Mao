@@ -167,7 +167,8 @@ class Player {
             this._game.updateTurn();
         }
         this.updateNumCards();
-
+        document.getElementById(selectedCard).classList.toggle('selectedCard');
+        selectedCard = '';
     };
 
     playCard(cardIndex, selectedRules) {
@@ -830,7 +831,12 @@ function saveNames() {
     let newPlayers = [];
     let toCheck = [];
     for (let h = 0; h < num; h++) {
-        toCheck.push(document.getElementById('namePlayers' + h).value.trim());
+        let name = document.getElementById('namePlayers' + h).value.trim();
+        if (name === '' || name === null){
+            toCheck.push('x');
+        } else {
+            toCheck.push(name);
+        }
     }
 
     for (let i = 0; i < (toCheck.length - 1); i++){
@@ -1074,7 +1080,7 @@ function findPlayerIndexFromId(){
 
 function selectCard() {
     document.getElementById("alert").innerHTML = '';
-    oldcard = selectedCard;
+    oldCard = selectedCard;
     playerPlaying = this.parentElement.parentElement.id;
     selectedCard = this.id;
     document.getElementById(this.id).classList.toggle('selectedCard');
