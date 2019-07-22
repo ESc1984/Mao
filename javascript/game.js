@@ -678,9 +678,16 @@ class Rules{
 
     mao(player, state){
         let cardsLeft = player.hand.length;
-        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')||(cardsLeft !== 2)&&(state.toLowerCase() === 'mao')) {
+        if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE MAO -<br>');
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';
+            }, 1600);
+        } else if ((cardsLeft !== 2)&&(state.toLowerCase() === 'mao')){
+            player.game.drawCard(player);
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
@@ -692,8 +699,9 @@ class Rules{
     findWin(player){
         if (player.hand.length === 0){
             document.getElementById('gameBoard').innerHTML = "";
-            document.getElementById('alert').style.fontSize = '120px';
-            document.getElementById('alert').style.top = '30%';
+            document.getElementById('alert').style.marginLeft = '0';
+            document.getElementById('alert').style.fontSize = '100px';
+            document.getElementById('alert').style.top = '10%';
             document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
             document.getElementById('redoButton').style.display = 'block';
         }
@@ -810,6 +818,7 @@ function numPlayersDecided(numPlayers) {
         nameHolder.name = 'namePlayersPrompt';
         nameHolder.id = 'namePlayers' + i;
         nameHolder.type = 'text';
+        nameHolder.maxLength = 10;
         let newLine = document.createElement('br');
 
         startGamePrompt.appendChild(namePrompt);
