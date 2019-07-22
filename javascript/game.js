@@ -96,7 +96,6 @@ class DiscardPile {
         }
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
-        let arr = this._game.rules.rulesInPlay;
         if(! ( (this._game.rules.wildRules.card === card.suit ||this._game.rules.wildRules.card === card.value) && this._game.rules.wildRules.played === true ) ){
             this._expectedSuit = card.suit;
         }
@@ -205,9 +204,6 @@ class Player {
                     this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue) {
                 this._game.rules['pairPlayed'](this, selected, card);
             }
-            // } else if(selected === 'Run' && this._game.rules.runRules.played === false && this._game.rules.rulesInPlay.includes('run')){
-            //     this._game.rules['runPlayed'](this, selected);
-            // }
             else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
@@ -246,7 +242,7 @@ class Player {
             let checkPlayedStatus = rule.function.toString();
             checkPlayedStatus = checkPlayedStatus.substring(0, checkPlayedStatus.indexOf("Played"));
             checkPlayedStatus = checkPlayedStatus + "Rules";
-            if(rule.function != this._game.rules.noRule){
+            if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
                     rule.function(this, "");
                 }
@@ -392,10 +388,10 @@ class Rules{
             {function: this.chairwomanPlayed, name: 'chairwoman'},
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
-            {function: this.skipPlayed, name: 'skip'},
+            {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
-            // {function: this.runPlayed, name: 'run'},
+            {function: this.skipChoosePlayed, name: 'skipChoose'},
             {function: this.pairPlayed, name: 'pair'}
         ];
         this._rulesInPlay = [];
@@ -406,10 +402,10 @@ class Rules{
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
         this._maoRules = {played: false};
-        this._skipRules = {played: false};
+        this._skipNextRules = {played: false};
         this._reverseRules = {played: false};
         this._playAgainRules = {played: false};
-        // this._runRules = {played: false};
+        this._skipChooseRules = {played: false};
         this._pairRules = {played: false};
 
         if(numRules === false){
@@ -451,18 +447,18 @@ class Rules{
         return this._reverseRules;
     }
 
-    get skipRules(){
-        return this._skipRules;
+    get skipNextRules(){
+        return this._skipNextRules;
     }
 
     get playAgainRules(){
         return this._playAgainRules;
     }
 
-    // get runRules(){
-    //     return this._runRules;
-    // }
-    //
+    get skipChooseRules(){
+        return this._skipChooseRules;
+    }
+
     get pairRules(){
         return this._pairRules;
     }
@@ -505,7 +501,7 @@ class Rules{
             {value:"H", function: this.noRule},
             {value:"D", function: this.noRule},
             {value:"C", function: this.noRule},
-            {value:"A", function: this.skipPlayed},
+            {value:"A", function: this.skipNextPlayed},
             {value:"2", function: this.playAgainPlayed},
             {value:"3", function: this.noRule},
             {value:"4", function: this.noRule},
@@ -520,13 +516,13 @@ class Rules{
             {value:"K", function: this.chairmanPlayed}
         ];
         this._rulesInPlay = ['niceDay', 'wild',
-            'chairwoman', 'chairman', 'spade', 'skip', 'reverse', 'playAgain'];
+            'chairwoman', 'chairman', 'spade', 'skipNext', 'reverse', 'playAgain'];
         this.niceDayRules.card = '7';
         this.wildRules.card = 'J';
         this.chairwomanRules.card = 'Q';
         this.chairmanRules.card = 'K';
         this.spadeRules.card = 'S';
-        this.skipRules.card = 'A';
+        this.skipNextRules.card = 'A';
         this.reverseRules.card = '8';
         this.playAgainRules.card = '2';
     }
@@ -548,10 +544,10 @@ class Rules{
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
         this._maoRules.played = false;
-        this._skipRules.played = false;
+        this._skipNextRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
-        // this._runRules.played = false;
+        this._skipChooseRules.played = false;
         this._pairRules.played = false;
     }
 
@@ -606,8 +602,7 @@ class Rules{
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE SPADES -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
@@ -616,7 +611,7 @@ class Rules{
         }
     }
 
-    skipPlayed(player, state){
+    skipNextPlayed(player, state){
         if(state != ""){
             let rule = `${state}`.toUpperCase();
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
@@ -626,14 +621,13 @@ class Rules{
             player.game.drawCard(player);
         }
         player.game.updateTurn();
-        player.game.rules.skipRules.played = true;
+        player.game.rules.skipNextRules.played = true;
     }
 
     niceDayPlayed(player, state){
         if (state !== 'Have a Nice Day') {
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE HAVE A NICE DAY -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
@@ -683,8 +677,7 @@ class Rules{
     chairmanPlayed(player, state){
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ALL HAIL THE CHAIRMAN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
@@ -696,8 +689,7 @@ class Rules{
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
@@ -726,9 +718,7 @@ class Rules{
         }
     }
 
-    runPlayed(player, state, card){
-        let value = card.value;
-        let run = false;
+    skipChoosePlayed(player, state){
 
     }
 
