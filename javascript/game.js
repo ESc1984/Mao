@@ -201,18 +201,17 @@ class Player {
                 this._game.rules.mao(this, selected);
             } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')) {
                 this._game.rules.gameRules[0].function(this, selected, card);
+            } else if(selected === 'Pair' && this._game.rules.pairRules.played === false &&
+                    this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue) {
+                this._game.rules['pairPlayed'](this, selected, card);
             }
-            // } else if(selected === 'Pair' && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
-            //     if(card.value === this._game.discardPile.expectedValue){
-            //         this._game.rules['pairPlayed'](this, selected, card);
-            //     }
             // } else if(selected === 'Run' && this._game.rules.runRules.played === false && this._game.rules.rulesInPlay.includes('run')){
             //     this._game.rules['runPlayed'](this, selected);
             // }
             else {
                 let sent = false;
                 this._game.rules.rulesInPlay.forEach(rule => {
-                    if(sent === false && rule != 'spade' && rule != 'pair' && rule != 'run' &&
+                    if(sent === false && rule !== 'spade' && rule !== 'pair' && rule !== 'run' &&
                         (this._game.rules[rule + 'Rules'].card === card.value || this._game.rules[rule + 'Rules'].card === card.suit) ){
                         if(this._game.rules[rule + 'Rules'].played === false){
                             this._game.rules[rule + 'Played'](this, selected);
@@ -239,9 +238,9 @@ class Player {
             this._game.rules.gameRules[0].function(this, "");
         }
 
-        // if(card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
-        //     this._game.rules.gameRules[2].function(this, "");
-        // }
+        if(card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
+            this._game.rules.gameRules[2].function(this, "", card);
+        }
 
         this._game.rules.gameRules.forEach(rule => {
             let checkPlayedStatus = rule.function.toString();
@@ -396,7 +395,7 @@ class Rules{
             {function: this.skipPlayed, name: 'skip'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
-            {function: this.runPlayed, name: 'run'},
+            // {function: this.runPlayed, name: 'run'},
             {function: this.pairPlayed, name: 'pair'}
         ];
         this._rulesInPlay = [];
@@ -410,7 +409,7 @@ class Rules{
         this._skipRules = {played: false};
         this._reverseRules = {played: false};
         this._playAgainRules = {played: false};
-        this._runRules = {played: false};
+        // this._runRules = {played: false};
         this._pairRules = {played: false};
 
         if(numRules === false){
@@ -460,10 +459,10 @@ class Rules{
         return this._playAgainRules;
     }
 
-    get runRules(){
-        return this._runRules;
-    }
-
+    // get runRules(){
+    //     return this._runRules;
+    // }
+    //
     get pairRules(){
         return this._pairRules;
     }
@@ -472,13 +471,13 @@ class Rules{
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
             let cardNum = Math.floor(Math.random() * 13 + 4);
-            if (this.allRules[ruleNum].name === 'run'){
-                this.gameRules[1].function = this.allRules[ruleNum].function;
-                let name = this.allRules[ruleNum].name + 'Rules';
-                this.storeCardRule("", this.allRules[ruleNum], name);
-                this.allRules.splice(ruleNum, 1);
-            }
-            else if (this.allRules[ruleNum].name === 'pair'){
+            // if (this.allRules[ruleNum].name === 'run'){
+            //     this.gameRules[1].function = this.allRules[ruleNum].function;
+            //     let name = this.allRules[ruleNum].name + 'Rules';
+            //     this.storeCardRule("", this.allRules[ruleNum], name);
+            //     this.allRules.splice(ruleNum, 1);
+            // }
+            if (this.allRules[ruleNum].name === 'pair'){
                 this.gameRules[2].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule("", this.allRules[ruleNum], name);
@@ -552,7 +551,7 @@ class Rules{
         this._skipRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
-        this._runRules.played = false;
+        // this._runRules.played = false;
         this._pairRules.played = false;
     }
 
@@ -735,21 +734,12 @@ class Rules{
 
     pairPlayed(player, state, card){
         if(state === 'Pair'){
-            player.game.rules.chairmanRules.played = true;
+            player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            if(card.value === player.game.discardPile.topDiscard){
-                document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE PAIR -<br>`);
-                setTimeout(function(){
-                    document.getElementById("alert").innerHTML = '';
-                }, 1600);
-            } else {
-                let rule = `${state}`.toUpperCase();
-                document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-                setTimeout(function () {
-                    document.getElementById("alert").innerHTML = '';
-                }, 1600);
-            }
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE PAIR -<br>`);
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';}, 1600);
         }
     }
 
@@ -845,7 +835,7 @@ function namePrompt(parent){
 }
 
 function randomGame(){
-    specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Run", "Pair"];
+    specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
     namePrompt(startGame);
@@ -872,8 +862,8 @@ function standardGame(){
 }
 
 function numPlayersDecided(numPlayers) {
-    if (numPlayers > 6) {
-        players = 6;
+    if (numPlayers > specialRules.length - 1) {
+        players = specialRules.length - 1;
     } else if (numPlayers < 2 || numPlayers === null){
         players = 2;
     } else {
