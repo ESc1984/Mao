@@ -244,7 +244,11 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    rule.function(this, "");
+                    if(card.suit === 'H' && checkPlayedStatus === 'skipNextRules'){
+                        this._game.rules.skipChoosePlayed(this, "");
+                    } else {
+                        rule.function(this, "");
+                    }
                 }
             }
         });
@@ -322,6 +326,11 @@ class Game {
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
         this.passCount();
+        if(this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
+            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+            this.rules.skippedPlayer.splice(i, 1);
+            this.updateTurn();
+        }
     }
 
     disableTurn(playerIndex){
@@ -391,10 +400,10 @@ class Rules{
             {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
-            {function: this.skipChoosePlayed, name: 'skipChoose'},
             {function: this.pairPlayed, name: 'pair'}
         ];
         this._rulesInPlay = [];
+        this._skippedPlayer = [];
 
         this._niceDayRules = {played: false};
         this._wildRules = {played: false};
@@ -417,6 +426,10 @@ class Rules{
 
     get rulesInPlay(){
         return this._rulesInPlay;
+    }
+
+    get skippedPlayer(){
+        return this._skippedPlayer;
     }
 
     get niceDayRules(){
@@ -719,7 +732,32 @@ class Rules{
     }
 
     skipChoosePlayed(player, state){
-
+        if(state != ""){
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';
+            }, 1600);
+            player.game.drawCard(player);
+        }
+        let prompt = document.createElement('p');
+        prompt.classList.add('alert');
+        prompt.innerHTML = 'Select the Player you Wish to Skip';
+        game.appendChild(prompt);
+        const grid = document.createElement('playerNameGrid');
+        grid.setAttribute('class', 'grid');
+        prompt.appendChild(grid);
+        ourGame.playerList.forEach(player => {
+           const gamePlayer = document.createElement('button');
+           gamePlayer.classList.add('ruleButton');
+           gamePlayer.innerHTML = player.name;
+           gamePlayer.onclick = (() => {
+               player.game.rules.skippedPlayer.push(player.name);
+               prompt.parentNode.removeChild(prompt);
+           });
+           grid.appendChild(gamePlayer);
+        });
+        player.game.rules.skipChoosePlayed.played = true;
     }
 
     pairPlayed(player, state, card){
@@ -898,7 +936,6 @@ function saveNames() {
             toCheck.push(name);
         }
     }
-
     for (let i = 0; i < (toCheck.length - 1); i++){
         let diff = 2;
         for (let j = (i + 1); j < toCheck.length; j++){
@@ -912,7 +949,6 @@ function saveNames() {
             newPlayers.push(toCheck[i+1]);
         }
     }
-
     for (let k = 0; k < newPlayers.length; k++){
         console.log(newPlayers[k]);
     }
