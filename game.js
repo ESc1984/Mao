@@ -638,13 +638,20 @@ class Rules{
     }
 
     niceDayPlayed(player, state){
-        if (state !== 'Have a Nice Day') {
+        if (state === "") {
             player.game.drawCard(player);
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE HAVE A NICE DAY -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
             }, 1600);
-        } else {
+        } else if(state !== 'Have a Nice Day'){
+            player.game.drawCard(player);
+            let rule = `${state}`.toUpperCase();
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';
+            }, 1600);
+        }  else{
             if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
                 player.game.drawCard(player);
                 let penalty = "HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount + 1) + "NICE DAY";
