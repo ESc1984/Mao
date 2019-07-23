@@ -1,14 +1,3 @@
-/*To-Do List
-* check game getCurrentPlayer - should it return the player or the index?
-* should makeCards be static?
-* create statement function(s) for speaking parts? (part of interface)
-* interface - determine declarations
-*/
-
-
-
-
-
 
 
 let suits = ['H', 'S', 'D', 'C'];
@@ -94,6 +83,11 @@ class DiscardPile {
         } else {
             this._sevensCount = 0;
         }
+        if(this.findValue(card.value) === (this.findValue(this.expectedValue)+1)){
+            runCount++;
+        } else {
+            runCount = 0;
+        }
         let disc = document.getElementById("discard");
         this._cards.unshift(card);
         if(! ( (this._game.rules.wildRules.card === card.suit ||this._game.rules.wildRules.card === card.value) && this._game.rules.wildRules.played === true ) ){
@@ -102,6 +96,22 @@ class DiscardPile {
         this._expectedValue = card.value;
         disc.removeChild(disc.children[0]);
         addCardsToPlayer(card, disc);
+    }
+
+    findValue(value){
+        const faces = ['A','X','J','Q','K'];
+        const trans = [1, 10, 11, 12, 13];
+        let val = value;
+        if (faces.includes(val)) {
+            for (let i = 0; i < faces.length; i++) {
+                if (val === faces[i]) {
+                    val = trans[i];
+                }
+            }
+        } else {
+            val = parseInt(val);
+        }
+        return val;
     }
 }
 
@@ -166,7 +176,9 @@ class Player {
             this._game.updateTurn();
         }
         this.updateNumCards();
-        document.getElementById(selectedCard).classList.toggle('selectedCard');
+        if (document.getElementById(selectedCard) !== null) {
+            document.getElementById(selectedCard).classList.toggle('selectedCard');
+        }
         selectedCard = '';
     };
 
@@ -203,6 +215,10 @@ class Player {
             } else if(selected === 'Pair' && this._game.rules.pairRules.played === false &&
                     this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue) {
                 this._game.rules['pairPlayed'](this, selected, card);
+            } else if(selected === 'Run' && this._game.rules.runRules.played === false &&
+                this._game.rules.rulesInPlay.includes('run') && (this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))){
+                //this._game.rules['runPlayed'](this, selected);
+                this._game.rules.gameRules[1].function(this, selected, card);
             }
             else {
                 let sent = false;
@@ -236,6 +252,11 @@ class Player {
 
         if(card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
             this._game.rules.gameRules[2].function(this, "", card);
+        }
+
+        if((this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))
+            && this._game.rules.runRules.played === false && this._game.rules.rulesInPlay.includes('run')){
+            this._game.rules.gameRules[1].function(this, "");
         }
 
         this._game.rules.gameRules.forEach(rule => {
@@ -357,9 +378,12 @@ class Game {
     }
 
     passCount(){
+        // let save = runCount;
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
+            //runCount = save;
+            runCount = 0;
         }
     }
 }
@@ -400,7 +424,8 @@ class Rules{
             {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
-            {function: this.pairPlayed, name: 'pair'}
+            {function: this.pairPlayed, name: 'pair'},
+            {function: this.runPlayed, name: 'run'}
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
@@ -416,6 +441,7 @@ class Rules{
         this._playAgainRules = {played: false};
         this._skipChooseRules = {played: false};
         this._pairRules = {played: false};
+        this._runRules = {played: false};
 
         if(numRules === false){
             this.normalRules();
@@ -476,6 +502,10 @@ class Rules{
         return this._pairRules;
     }
 
+    get runRules(){
+        return this._runRules;
+    }
+
     pickRules(num){
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
@@ -488,6 +518,12 @@ class Rules{
             // }
             if (this.allRules[ruleNum].name === 'pair'){
                 this.gameRules[2].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule("", this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            }
+            else if (this.allRules[ruleNum].name === 'run'){
+                this.gameRules[1].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
@@ -562,6 +598,7 @@ class Rules{
         this._playAgainRules.played = false;
         this._skipChooseRules.played = false;
         this._pairRules.played = false;
+        this._runRules.played = false;
     }
 
     cardMatch(card, player){
@@ -759,6 +796,25 @@ class Rules{
         player.game.rules.skipChoosePlayed.played = true;
     }
 
+    runPlayed(player, state){
+        //let value = card.value;
+        if(runCount >= 1 && state !== 'Run'){
+            player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE RUN -<br>');
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';
+            }, 1600);
+        } else if (runCount < 1 && state === 'Run'){
+            player.game.drawCard(player);
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
+            setTimeout(function(){
+                document.getElementById("alert").innerHTML = '';
+            }, 1600);
+        } else {
+            player.game.rules.runRules.played = true;
+        }
+    }
+
     pairPlayed(player, state, card){
         if(state === 'Pair'){
             player.game.rules.pairRules.played = true;
@@ -816,6 +872,7 @@ let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
 let niceDayCount = 0;
+let runCount = 0;
 let declaration = "- ";
 
 window.onload = function gameLoaded() {
@@ -870,7 +927,7 @@ function namePrompt(parent){
 }
 
 function randomGame(){
-    specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair"];
+    specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
     namePrompt(startGame);
@@ -944,9 +1001,17 @@ function saveNames() {
                 for (let i = 0; i < name.length; i++){
                     if (name.charAt(i) !== ' '){
                         squish += name.charAt(i);
+                    } else {
+                        squish += '-';
                     }
                 }
                 name = squish;
+            }
+            let nums = ['1','2','3','4','5','6','7','8','9','0'];
+            for (let n = 0; n < nums.length; n++){
+                if (name.charAt(0) === nums[n]){
+                    name = 'x' + name;
+                }
             }
              toCheck.push(name);
         } else if (name === '' || name === null){
