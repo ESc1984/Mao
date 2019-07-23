@@ -2,7 +2,11 @@
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
+const path = require('path');
+const log = console.log;
 
+const express = require('express'),app = express();
+app.use(express.static(path.join(__dirname)));
 const wss = new WebSocket.Server({
     noServer: true
 });
@@ -19,8 +23,8 @@ function accept(req, res) {
         req.headers.upgrade.toLowerCase() == 'websocket' &&
         req.headers.connection.match(/\bupgrade\b/i)) {
         wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
-    } else if (req.url == '/') { // index.html
-        fs.createReadStream('./mao.html').pipe(res);
+    } else if (req.url === '/') { // index.html
+        fs.createReadStream('mao.html').pipe(res);
     } else { // page not found
         res.writeHead(404);
         res.end();
@@ -90,9 +94,7 @@ function onSocketConnect(ws) {
     });
 }
 
-let log;
 if (!module.parent) {
-    log = console.log;
     http.createServer(function(request, response){
         accept(request, response);
     }).listen(8080);
