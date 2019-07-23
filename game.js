@@ -586,20 +586,20 @@ class Rules{
         }
     }
 
-    resetRules(){
-        this._niceDayRules.played = false;
-        this._wildRules.played = false;
-        this._chairwomanRules.played = false;
-        this._chairmanRules.played = false;
-        this._spadeRules.played = false;
-        this._maoRules.played = false;
-        this._skipNextRules.played = false;
-        this._reverseRules.played = false;
-        this._playAgainRules.played = false;
-        this._skipChooseRules.played = false;
-        this._pairRules.played = false;
-        this._runRules.played = false;
-    }
+    // resetRules(){
+    //     this._niceDayRules.played = false;
+    //     this._wildRules.played = false;
+    //     this._chairwomanRules.played = false;
+    //     this._chairmanRules.played = false;
+    //     this._spadeRules.played = false;
+    //     this._maoRules.played = false;
+    //     this._skipNextRules.played = false;
+    //     this._reverseRules.played = false;
+    //     this._playAgainRules.played = false;
+    //     this._skipChooseRules.played = false;
+    //     this._pairRules.played = false;
+    //     this._runRules.played = false;
+    // }
 
     cardMatch(card, player){
         return ( (card.suit === player.game.discardPile.expectedSuit) || (card.value === player.game.discardPile.expectedValue))
