@@ -147,7 +147,9 @@ input:focus {
     display: none;
     padding: 20px;
     font-size: 40px;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 550px;
 }
 
 #playCard {
@@ -213,15 +215,17 @@ input:focus {
 
 #alert {
     color: #780e0e;
-    top: 50%;
+    top: 40%;
     width: 100%;
     position: fixed;
     z-index: 1000;
-    background-color: #ffd700ab;
+    background-color: palegoldenrod;
+    /*background-color: #ffd700ab;*/
     font-family: Oriya MN;
-    font-size: 40px;
+    font-size: 80px;
     display: block;
     text-align: center;
+    margin: 20px 20px 20px 20px;
 }
 
 .alert {
