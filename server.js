@@ -2,6 +2,10 @@
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
+const path = require('path');
+const bodyParser = require("body-parser");
+const express = require('express')
+let app = express();
 
 const wss = new WebSocket.Server({
     noServer: true
@@ -19,8 +23,24 @@ function accept(req, res) {
         req.headers.upgrade.toLowerCase() == 'websocket' &&
         req.headers.connection.match(/\bupgrade\b/i)) {
         wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
-    } else if (req.url == '/') { // index.html
-        fs.createReadStream('./mao.html').pipe(res);
+    } else if (req.url === '/') { // index.html
+        fs.createReadStream('mao.html').pipe(res);
+        app.use(express.static('/public/'));
+    } else if(req.url.match("\.js")){
+        let jsPath = path.join(__dirname, 'public', req.url);
+        let fileStream = fs.createReadStream(jsPath, "UTF-8");
+        res.writeHead(200, {"Content-Type": "text/javascript"});
+        fileStream.pipe(res);
+    } else if(req.url.match("\.css$")){
+        let cssPath = path.join(__dirname, 'public', req.url);
+        let fileStream = fs.createReadStream(cssPath, "UTF-8");
+        res.writeHead(200, {"Content-Type": "text/css"});
+        fileStream.pipe(res);
+    } else if(req.url.match("\.png$")){
+        let imagePath = path.join(__dirname, 'public', req.url);
+        let fileStream = fs.createReadStream(imagePath);
+        res.writeHead(200, {"Content-Type": "image/png"});
+        fileStream.pipe(res);
     } else { // page not found
         res.writeHead(404);
         res.end();
@@ -90,15 +110,13 @@ function onSocketConnect(ws) {
     });
 }
 
-let log;
 if (!module.parent) {
-    log = console.log;
     http.createServer(function(request, response){
         accept(request, response);
     }).listen(8080);
 } else {
     // to embed into javascript.info
-    log = function () {};
+    let log = function () {};
     // log = console.log;
     exports.accept = accept;
 }
