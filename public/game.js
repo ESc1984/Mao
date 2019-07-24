@@ -510,12 +510,6 @@ class Rules{
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
             let cardNum = Math.floor(Math.random() * 13 + 4);
-            // if (this.allRules[ruleNum].name === 'run'){
-            //     this.gameRules[1].function = this.allRules[ruleNum].function;
-            //     let name = this.allRules[ruleNum].name + 'Rules';
-            //     this.storeCardRule("", this.allRules[ruleNum], name);
-            //     this.allRules.splice(ruleNum, 1);
-            // }
             if (this.allRules[ruleNum].name === 'pair'){
                 this.gameRules[2].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -552,10 +546,10 @@ class Rules{
             {value:"C", function: this.noRule},
             {value:"A", function: this.skipNextPlayed},
             {value:"2", function: this.playAgainPlayed},
-            // {value:"3", function: this.noRule},
-            // {value:"4", function: this.noRule},
-            // {value:"5", function: this.noRule},
-            // {value:"6", function: this.noRule},
+            {value:"3", function: this.noRule},
+            {value:"4", function: this.noRule},
+            {value:"5", function: this.noRule},
+            {value:"6", function: this.noRule},
             {value:"7", function: this.niceDayPlayed},
             {value:"8", function: this.reversePlayed},
             {value:"9", function: this.noRule},
@@ -804,7 +798,6 @@ class Rules{
     }
 
     runPlayed(player, state){
-        //let value = card.value;
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE RUN -<br>');
@@ -1041,14 +1034,6 @@ function saveNames() {
             newPlayers.push(toCheck[i+1]);
         }
     }
-
-    // for (let k = 0; k < newPlayers.length; k++){
-    //     console.log(newPlayers[k]);
-    // }
-
-    // for (let i = 0; i < num; i++) {
-    //     players.push(document.getElementById('namePlayers' + i).value);
-    // }
     overlay();
     startGame(newPlayers);
 }
