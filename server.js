@@ -25,7 +25,6 @@ function accept(req, res) {
         wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
     } else if (req.url === '/') { // index.html
         fs.createReadStream('mao.html').pipe(res);
-        app.use(express.static('/public/'));
     } else if(req.url.match("\.js")){
         let jsPath = path.join(__dirname, 'public', req.url);
         let fileStream = fs.createReadStream(jsPath, "UTF-8");
