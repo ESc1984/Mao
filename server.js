@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const bodyParser = require("body-parser");
-const express = require('express')
+const express = require('express');
 let app = express();
 
 const wss = new WebSocket.Server({
@@ -49,10 +49,10 @@ function accept(req, res) {
 
 function onSocketConnect(ws) {
     clients.add(ws);
-    log(`new connection`);
+    console.log(`new connection`);
 
     ws.on('message', function (message) {
-        log(`message received: ${message}`);
+        console.log(`message received: ${message}`);
 
         let msg = {};
 
@@ -84,7 +84,7 @@ function onSocketConnect(ws) {
             }
 
             if (!user || !user.id) {
-                console.log("New player has entered the game!");
+                console.console.log("New player has entered the game!");
                 user = {
                     id: msg.userId
                 };
@@ -105,7 +105,7 @@ function onSocketConnect(ws) {
     });
 
     ws.on('close', function () {
-        log(`connection closed`);
+        console.log(`connection closed`);
         clients.delete(ws);
     });
 }

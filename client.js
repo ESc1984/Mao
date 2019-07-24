@@ -1,8 +1,9 @@
 (function () {
     "use strict";
-
+    let gameCode;
     /* Assign this user an id */
-    document.querySelector("[name=\"userId\"]").value = generateId();
+    document.getElementById('numPlayersSubmit').onclick = () =>
+        {gameCode = generateId()};
 
     /* Do the websocket communication stuffs. */
     let socket = new WebSocket("ws://localhost:8080/ws");
@@ -34,23 +35,23 @@
     function updateView(data) {
 
         /* Print out the active users */
-        // let activeUsersElem = document.querySelector(".active-users");
-        // if (activeUsersElem) {
-        //     let HTML = "<table>";
-        //     HTML += "<tr><th>User Id</th><th>Name</th><th>Quest</th><th>Color</th></tr>";
-        //
-        //     data.users.forEach(function (user) {
-        //         HTML += "<tr>" +
-        //             "  <td>" + user.id + "</td>" +
-        //             "  <td>" + user.name + "</td>" +
-        //             "  <td>" + user.quest + "</td>" +
-        //             "  <td>" + user.color + "</td>" +
-        //             "</tr>";
-        //     });
-        //
-        //     HTML += "</table>";
-        //     activeUsersElem.innerHTML = HTML;
-        // }
+        let activeUsersElem = document.querySelector(".active-users");
+        if (activeUsersElem) {
+            let HTML = "<table>";
+            HTML += "<tr><th>User Id</th><th>Name</th><th>Quest</th><th>Color</th></tr>";
+
+            data.users.forEach(function (user) {
+                HTML += "<tr>" +
+                    "  <td>" + user.id + "</td>" +
+                    "  <td>" + user.name + "</td>" +
+                    "  <td>" + user.quest + "</td>" +
+                    "  <td>" + user.color + "</td>" +
+                    "</tr>";
+            });
+
+            HTML += "</table>";
+            activeUsersElem.innerHTML = HTML;
+        }
     }
 
     /* Wire up the click action for submit */
