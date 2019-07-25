@@ -96,7 +96,7 @@ function onSocketConnect(ws) {
         }
 
 
-        clients.forEach(client => {
+        clients.forEach(client => {     //probably change -- figure out what the client is
             return client.send(JSON.stringify({
                 users: users
             }));
