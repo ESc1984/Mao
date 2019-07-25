@@ -2,10 +2,10 @@
     "use strict";
 
     /* Assign this user an id */
-    //document.querySelector("[name=\"userId\"]").value = generateId();
+    document.querySelector("[name=\"userId\"]").value = generateId();
 
     /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://localhost:8080/");
+    let socket = new WebSocket("ws://139.126.184.10:8080/");
 
     socket.onopen = function (evt) {    //onopen prompt user for name
         socket.send(JSON.stringify({

@@ -1,13 +1,13 @@
 /*jshint node: true, esnext: true */
 const http = require('http');
-const WebSocket = require('ws');
+const ws = require('ws');
 const fs = require('fs');
 const path = require('path');
 const bodyParser = require("body-parser");
 const express = require('express');
 let app = express();
 
-const wss = new WebSocket.Server({
+const wss = new ws.Server({
     noServer: true
 });
 
