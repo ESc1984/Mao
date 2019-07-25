@@ -1,14 +1,13 @@
 (function () {
     "use strict";
-    let gameCode;
+
     /* Assign this user an id */
-    document.getElementById('numPlayersSubmit').onclick = () =>
-        {gameCode = generateId()};
+    //document.querySelector("[name=\"userId\"]").value = generateId();
 
     /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://localhost:8080/ws");
+    let socket = new WebSocket("ws://localhost:8080/");
 
-    socket.onopen = function (evt) {
+    socket.onopen = function (evt) {    //onopen prompt user for name
         socket.send(JSON.stringify({
             action: "getUsers"
         }));
@@ -32,7 +31,7 @@
     };
 
     /* Update the list of users */
-    function updateView(data) {
+    function updateView(data) { //change this or change it in onmessage?
 
         /* Print out the active users */
         let activeUsersElem = document.querySelector(".active-users");
@@ -59,7 +58,7 @@
     if (submitButton) {
         submitButton.addEventListener("click", function () {
             socket.send(JSON.stringify({
-                action: "playCard"
+                action: "playCard"      //add action to server.js
             }));
         });
     }
