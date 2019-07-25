@@ -238,7 +238,7 @@ class Player {
                     document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
                     setTimeout(function(){
                         document.getElementById("alert").innerHTML = '';
-                    }, 1600);
+                    }, 3000);
                 }
             }
         });
@@ -617,7 +617,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO TO PLAY IN TURN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         }
     }
 
@@ -630,7 +630,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY IN TURN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
@@ -639,7 +639,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY WITHIN PROPER VALUES -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         }
     }
 
@@ -650,7 +650,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         }
     }
 
@@ -661,7 +661,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE SPADES -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             player.game.rules.spadeRules.played = true;
         }
@@ -674,7 +674,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
             player.game.drawCard(player);
         }
         player.game.updateTurn();
@@ -688,7 +688,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE HAVE A NICE DAY -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else if(state !== 'Have a Nice Day'){
             player.game.drawCard(player);
             let rule = `${state}`.toUpperCase();
@@ -696,7 +696,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         }  else{
             if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
                 player.game.drawCard(player);
@@ -705,7 +705,7 @@ class Rules{
                 document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ${penalty} -<br>`);
                 setTimeout(function(){
                     document.getElementById("alert").innerHTML = '';
-                }, 1600);
+                }, 3000);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -717,7 +717,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
             player.game.drawCard(player);
         }
         player.game.playerList.reverse();
@@ -738,7 +738,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE A SUIT -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         }
     }
 
@@ -749,7 +749,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRMAN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             player.game.rules.chairmanRules.played = true;
         }
@@ -762,7 +762,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             player.game.rules.chairwomanRules.played = true;
         }
@@ -776,7 +776,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             let currentPlayer = player.game.getCurrentPlayer();
             player.game.playerList[currentPlayer].turn = false;
@@ -796,7 +796,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
             player.game.drawCard(player);
         }
         let prompt = document.createElement('p');
@@ -826,14 +826,14 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE RUN -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else if (runCount < 1 && state === 'Run'){
             player.game.drawCard(player);
             player.callout();
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             player.game.rules.runRules.played = true;
         }
@@ -847,7 +847,7 @@ class Rules{
             player.callout();
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE PAIR -<br>`);
             setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';}, 1600);
+                document.getElementById("alert").innerHTML = '';}, 3000);
         }
     }
 
@@ -860,7 +860,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE MAO -<br>');
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else if ((cardsLeft !== 2)&&(state.toLowerCase() === 'mao')){
             player.game.drawCard(player);
             player.callout();
@@ -868,7 +868,7 @@ class Rules{
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
             setTimeout(function(){
                 document.getElementById("alert").innerHTML = '';
-            }, 1600);
+            }, 3000);
         } else {
             player.game.rules.maoRules.played = true;
         }
@@ -1040,11 +1040,36 @@ function saveNames() {
                     name = 'x' + name;
                 }
             }
+            let prof = ['fxxx', 'sxxx', 'axx', 'cxxx', 'dxxx', 'bxxxx'];
+            let good = ['fork', 'shirt', 'ash', 'crab', 'ding', 'bench'];
+            let checker = name.toLowerCase();
+            for (let b = 0; b < prof.length; b++){
+                if (checker.includes(prof[b])){
+                    let censor = '';
+                    for (let i = 0; i < checker.length; i++){
+                        if (checker.charAt(i) === prof[b].charAt(0)){
+                            let start = i;
+                            let end = 0;
+                            let found = true;
+                            for (w = start; w < start + prof[b].length; w++){
+                                if (checker.charAt(w) !== prof[b].charAt(w-start)){
+                                    found = false;
+                                } else {
+                                    end = w + 1;
+                                }
+                            }
+                            if (found = true){
+                                censor = name.substring(0, start) + good[b] + name.substring(end, name.length+1);
+                            }
+                        }
+                    }
+                    name = censor;
+                }
+            }
+            name = name.charAt(0).toUpperCase() + name.substring(1, name.length);
              toCheck.push(name);
-        } else if (name === '' || name === null){
+        } else if (name === '' || name === null) {
             toCheck.push('x');
-        } else {
-            toCheck.push(name);
         }
     }
 
@@ -1261,7 +1286,7 @@ function playTurn() {
         document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
         setTimeout(function(){
             document.getElementById("alert").innerHTML = '';
-        }, 1600);
+        }, 3000);
     }
 }
 

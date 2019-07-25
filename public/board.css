@@ -220,13 +220,31 @@ input:focus {
     position: fixed;
     z-index: 1000;
     background-color: palegoldenrod;
+    opacity: 1;
     /*background-color: #ffd700ab;*/
     font-family: Oriya MN;
     font-size: 80px;
     display: block;
     text-align: center;
     margin: 20px 20px 20px 20px;
+    animation-name: hide;
+    animation-delay: 1.5s;
+    animation-duration: 1.5s;
 }
+
+/*@keyframes hide {*/
+/*    !*visibility: hidden;*!*/
+/*    0% {opacity: 1;}*/
+/*    100% {opacity: 0;}*/
+
+    /*opacity: 0;*/
+    /*transition: visibility 0s 2s, opacity 2s linear;*/
+/*}*/
+
+/*@-webkit-keyframes hide {*/
+/*    0% {opacity: 1;}*/
+/*    100% {opacity: 0;}*/
+/*}*/
 
 .alert {
     color: #780e0e;
