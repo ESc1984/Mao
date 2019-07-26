@@ -1,13 +1,14 @@
 /*jshint node: true, esnext: true */
 const http = require('http');
-const WebSocket = require('ws');
+const ws = require('ws');
 const fs = require('fs');
 const path = require('path');
 const bodyParser = require("body-parser");
 const express = require('express');
+const ip = require('ip');
 let app = express();
 
-const wss = new WebSocket.Server({
+const wss = new ws.Server({
     noServer: true
 });
 
@@ -16,7 +17,7 @@ const clients = new Set();
 /* Hold all the users in memory.
    Ideally this would be some kind of persitent storage object
 */
-let users = [];
+let mode;
 
 function accept(req, res) {
     if (req.url == '/ws' && req.headers.upgrade &&
@@ -25,8 +26,6 @@ function accept(req, res) {
         wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
     } else if (req.url === '/') { // index.html
         fs.createReadStream('mao.html').pipe(res);
-        // app.use(express.static('/public/'));
-        // wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
     } else if(req.url.match("\.js")){
         let jsPath = path.join(__dirname, 'public', req.url);
         let fileStream = fs.createReadStream(jsPath, "UTF-8");
@@ -77,6 +76,12 @@ function onSocketConnect(ws) {
             }));
         }
 
+        // if (msg.action === 'modeSelection'){
+        //     if(msg.mode){
+        //         mode = msg.mode;
+        //     }
+        // }
+
         if (msg.action === "setUser") {
             if (msg.userId) {
                 user = users.find(u => {
@@ -113,8 +118,9 @@ function onSocketConnect(ws) {
 
 if (!module.parent) {
     http.createServer(function(request, response){
-        accept(request, response);
-        console.log("••• Listening on port 8080 •••");
+        //accept(request, response);
+        http.createServer(accept).listen(8080);
+        console.log("••• Listening on: " + ip.address() + ":8080 •••");
     }).listen(8080);
 } else {
     // to embed into javascript.info
