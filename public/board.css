@@ -219,27 +219,47 @@ input:focus {
     width: 100%;
     position: fixed;
     z-index: 1000;
-    background-color: palegoldenrod;
     opacity: 1;
+    background-color: palegoldenrod;
     /*background-color: #ffd700ab;*/
     font-family: Oriya MN;
     font-size: 80px;
     display: block;
     text-align: center;
-    margin: 20px 20px 20px 20px;
-    animation-name: hide;
-    animation-delay: 1.5s;
-    animation-duration: 1.5s;
+    /*margin: 20px 20px 200px 20px;*/
+    margin: auto;
 }
 
-/*@keyframes hide {*/
-/*    !*visibility: hidden;*!*/
-/*    0% {opacity: 1;}*/
-/*    100% {opacity: 0;}*/
+.hide {
+    animation-name: fadeout;
+    animation-delay: 1.4s;
+    animation-duration: .2s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    -webkit-animation-name: fadeout;
+    -webkit-animation-delay: 1.4s;
+    -webkit-animation-duration: .2s;
+    -webkit-animation-fill-mode: forwards;
+    -webkit-animation-timing-function: ease-in;
+}
 
-    /*opacity: 0;*/
-    /*transition: visibility 0s 2s, opacity 2s linear;*/
-/*}*/
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
 
 /*@-webkit-keyframes hide {*/
 /*    0% {opacity: 1;}*/
@@ -253,7 +273,7 @@ input:focus {
     height: 100px;
     position: fixed;
     z-index: 1000;
-    background-color: #ffd700ab;
+    background-color: palegoldenrod;
     font-family: Oriya MN;
     font-size: 40px;
     display: block;

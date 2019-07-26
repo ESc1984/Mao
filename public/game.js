@@ -11,8 +11,8 @@ class Deck{
     makeCards(){
         let cards = [];
         for (let i = 0; i < 250; i++){
-            let su = Math.floor(Math.random()*4);
-            let val = Math.floor(Math.random()*13);
+            let su = Math.floor(Math.random()*suits.length);
+            let val = Math.floor(Math.random()*values.length);
             cards.push({suit: suits[su], value: values[val], num: i})
         }
         return cards;
@@ -233,12 +233,16 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
-                    let rule = `${selected}`.toUpperCase();
-                    this.callout();
-                    document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-                    setTimeout(function(){
-                        document.getElementById("alert").innerHTML = '';
-                    }, 3000);
+                    let message = 'declared ' + state + ' out of turn';
+                    card.parentElement.parentElement.showAlert(message);
+                    // let rule = `${selected}`.toUpperCase();
+                    // this.callout();
+                    // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
+                    // document.getElementById('alert').classList.toggle('hide');
+                    // setTimeout(function(){
+                    //     document.getElementById("alert").innerHTML = '';
+                    //     document.getElementById('alert').classList.toggle('hide');
+                    // }, 3000);
                 }
             }
         });
@@ -276,10 +280,22 @@ class Player {
         });
     }
 
-    callout(){
+    // callout(){
+    //     if (document.getElementById("alert").innerHTML === ''){
+    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
+    //     }
+    // }
+
+    showAlert(message){
         if (document.getElementById("alert").innerHTML === ''){
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
         }
+        document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
+        document.getElementById('alert').classList.toggle('hide');
+        setTimeout(function(){
+            document.getElementById("alert").innerHTML = '';
+            document.getElementById('alert').classList.toggle('hide');
+        }, 1600);
     }
 
     set turn(turn) {
@@ -613,11 +629,7 @@ class Rules{
                 document.getElementById(selectedCard).classList.toggle('selectedCard');
                 selectedCard = '';
             }
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO TO PLAY IN TURN -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to play in turn');
         }
     }
 
@@ -626,42 +638,35 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY IN TURN -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to play in turn');
         } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO PLAY WITHIN PROPER VALUES -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to play within proper values');
+            player.game.updateTurn();
         }
     }
 
     noRule(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
+            // player.callout();
+            // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
+            // document.getElementById('alert').classList.toggle('hide');
+            // setTimeout(function(){
+            //     document.getElementById("alert").innerHTML = '';
+            //     document.getElementById('alert').classList.toggle('hide');
+            // }, 3000);
         }
     }
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE SPADES -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare spades');
         } else {
             player.game.rules.spadeRules.played = true;
         }
@@ -669,12 +674,8 @@ class Rules{
 
     skipNextPlayed(player, state){
         if(state != ""){
-            let rule = `${state}`.toUpperCase();
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
             player.game.drawCard(player);
         }
         player.game.updateTurn();
@@ -684,28 +685,16 @@ class Rules{
     niceDayPlayed(player, state){
         if (state === "") {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE HAVE A NICE DAY -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare have a nice day');
         } else if(state !== 'Have a Nice Day'){
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
         }  else{
             if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
                 player.game.drawCard(player);
-                let penalty = "HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount + 1) + "NICE DAY";
-                player.callout();
-                document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ${penalty} -<br>`);
-                setTimeout(function(){
-                    document.getElementById("alert").innerHTML = '';
-                }, 3000);
+                let penalty = "failure to declare HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
+                player.showAlert(penalty);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -713,11 +702,8 @@ class Rules{
 
     reversePlayed(player, state){
         if(state != ""){
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
             player.game.drawCard(player);
         }
         player.game.playerList.reverse();
@@ -734,22 +720,14 @@ class Rules{
             player.game.rules.wildRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE A SUIT -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare a suit');
         }
     }
 
     chairmanPlayed(player, state){
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRMAN -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare all hail the chairman');
         } else {
             player.game.rules.chairmanRules.played = true;
         }
@@ -758,11 +736,7 @@ class Rules{
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE ALL HAIL THE CHAIRWOMAN -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare all hail the chairwoman');
         } else {
             player.game.rules.chairwomanRules.played = true;
         }
@@ -771,12 +745,8 @@ class Rules{
     playAgainPlayed(player, state){
         if(state !== ""){
             player.game.drawCard(player);
-            let rule = `${state}`.toUpperCase();
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
         } else {
             let currentPlayer = player.game.getCurrentPlayer();
             player.game.playerList[currentPlayer].turn = false;
@@ -791,12 +761,8 @@ class Rules{
 
     skipChoosePlayed(player, state){
         if(state != ""){
-            let rule = `${state}`.toUpperCase();
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
             player.game.drawCard(player);
         }
         let prompt = document.createElement('p');
@@ -822,18 +788,11 @@ class Rules{
     runPlayed(player, state){
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE RUN -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare run');
         } else if (runCount < 1 && state === 'Run'){
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
         } else {
             player.game.rules.runRules.played = true;
         }
@@ -844,10 +803,7 @@ class Rules{
             player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE PAIR -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';}, 3000);
+            player.showAlert('failur eto declare pair');
         }
     }
 
@@ -856,19 +812,11 @@ class Rules{
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
-            player.callout();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', '- FAILURE TO DECLARE MAO -<br>');
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            player.showAlert('failure to declare mao');
         } else if ((cardsLeft !== 2)&&(state.toLowerCase() === 'mao')){
             player.game.drawCard(player);
-            player.callout();
-            let rule = `${state}`.toUpperCase();
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-            setTimeout(function(){
-                document.getElementById("alert").innerHTML = '';
-            }, 3000);
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
         } else {
             player.game.rules.maoRules.played = true;
         }
@@ -981,8 +929,8 @@ function standardGame(){
 }
 
 function numPlayersDecided(numPlayers) {
-    if (numPlayers > specialRules.length - 1) {
-        players = specialRules.length - 1;
+    if (numPlayers > 6) {
+        players = 6;
     } else if (numPlayers < 2 || numPlayers === null){
         players = 2;
     } else {
@@ -1283,10 +1231,11 @@ function playTurn() {
         niceDayCount = 0;
         declaration = "- ";
     } else {
-        document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
-        setTimeout(function(){
-            document.getElementById("alert").innerHTML = '';
-        }, 3000);
+        findPlayerIndexFromId().showAlert('must select card to play turn');
+        // document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
+        // setTimeout(function(){
+        //     document.getElementById("alert").innerHTML = '';
+        // }, 3000);
     }
 }
 

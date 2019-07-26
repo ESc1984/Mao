@@ -114,6 +114,7 @@ function onSocketConnect(ws) {
 if (!module.parent) {
     http.createServer(function(request, response){
         accept(request, response);
+        console.log("••• Listening on port 8080 •••");
     }).listen(8080);
 } else {
     // to embed into javascript.info
