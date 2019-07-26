@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require("body-parser");
 const express = require('express');
+const ip = require('ip');
 let app = express();
 
 const wss = new ws.Server({
@@ -16,7 +17,7 @@ const clients = new Set();
 /* Hold all the users in memory.
    Ideally this would be some kind of persitent storage object
 */
-let users = [];
+let mode;
 
 function accept(req, res) {
     if (req.url == '/ws' && req.headers.upgrade &&
@@ -77,6 +78,12 @@ function onSocketConnect(ws) {
             }));
         }
 
+        // if (msg.action === 'modeSelection'){
+        //     if(msg.mode){
+        //         mode = msg.mode;
+        //     }
+        // }
+
         if (msg.action === "setUser") {
             if (msg.userId) {
                 user = users.find(u => {
@@ -113,7 +120,8 @@ function onSocketConnect(ws) {
 
 if (!module.parent) {
     http.createServer(function(request, response){
-        accept(request, response);
+        http.createServer(accept).listen(8080);
+        console.log("••• Listening on: " + ip.address() + ":8080 •••");
     }).listen(8080);
 } else {
     // to embed into javascript.info

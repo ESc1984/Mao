@@ -5,7 +5,7 @@
     document.querySelector("[name=\"userId\"]").value = generateId();
 
     /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://139.126.184.10:8080/");
+    let socket = new WebSocket("ws://139.126.184.47:8080/ws");
 
     socket.onopen = function (evt) {    //onopen prompt user for name
         socket.send(JSON.stringify({
@@ -33,25 +33,19 @@
     /* Update the list of users */
     function updateView(data) { //change this or change it in onmessage?
 
-        /* Print out the active users */
-        let activeUsersElem = document.querySelector(".active-users");
-        if (activeUsersElem) {
-            let HTML = "<table>";
-            HTML += "<tr><th>User Id</th><th>Name</th><th>Quest</th><th>Color</th></tr>";
-
-            data.users.forEach(function (user) {
-                HTML += "<tr>" +
-                    "  <td>" + user.id + "</td>" +
-                    "  <td>" + user.name + "</td>" +
-                    "  <td>" + user.quest + "</td>" +
-                    "  <td>" + user.color + "</td>" +
-                    "</tr>";
-            });
-
-            HTML += "</table>";
-            activeUsersElem.innerHTML = HTML;
-        }
     }
+
+    // let gameMode = document.querySelector("#standardGame") ?
+    //         document.querySelector("#standardGame") : document.querySelector("#randomGame");
+    // if(gameMode){
+    //     gameMode.addEventListener("click", function () {
+    //         socket.send(JSON.stringify({
+    //             action: "modeSelection",
+    //             mode: gameMode.value
+    //         }));
+    //     });
+    // }
+
 
     /* Wire up the click action for submit */
     let submitButton = document.querySelector("#playCard");
