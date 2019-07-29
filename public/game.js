@@ -810,7 +810,7 @@ class Rules{
             player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.showAlert('failur eto declare pair');
+            player.showAlert('failure to declare pair');
         }
     }
 
