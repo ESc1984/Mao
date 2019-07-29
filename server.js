@@ -118,8 +118,7 @@ function onSocketConnect(ws) {
 
 if (!module.parent) {
     http.createServer(function(request, response){
-        //accept(request, response);
-        http.createServer(accept).listen(8080);
+        accept(request, response);
         console.log("••• Listening on: " + ip.address() + ":8080 •••");
     }).listen(8080);
 } else {
