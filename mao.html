@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Mao</title>
     <link href="/board.css" rel="stylesheet" type="text/css"/>
-<!--    add public to get it running normally, load in images-->
-    <script src="/game.js" type="text/javascript"></script>
+    <script src="/client.js" type="module"></script>
+    <script src="/game.js" type="module"></script>
 </head>
 <body>
     <div id="overlay">
@@ -26,8 +26,10 @@
                 1. We do not disclose the rules of Mao
             </p>
             <br> <br>
-            <button id="standardGame" class="submit" onclick="removeElement(document.getElementById('startPage'));standardGame()">Standard Game</button>
-            <button id="randomGame" class="submit" onclick="removeElement(document.getElementById('startPage'));randomGame()">Chaos Mode</button>
+            <button id="standardGame" class="submit">Standard Game</button>
+            <button id="randomGame" class="submit">Chaos Mode</button>
+            <!-- onclick="removeElement(document.getElementById('startPage'));standardGame()"
+                 onclick="removeElement(document.getElementById('startPage'));randomGame()" -->
         </div>
         <div id="startGame"></div>
     </div>

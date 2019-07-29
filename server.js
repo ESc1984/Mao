@@ -76,17 +76,19 @@ function onSocketConnect(ws) {
 
         let user = {};
 
-        if (msg.action === "getUsers") {
+        if (msg.action === "getUsers") {    //send game info instead
             return ws.send(JSON.stringify({
                 users: users
             }));
         }
 
-        // if (msg.action === 'modeSelection'){
-        //     if(msg.mode){
-        //         mode = msg.mode;
-        //     }
-        // }
+        if (msg.action === 'modeSelected'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    mode: msg.mode,
+                }));
+            });
+        }
 
         if (msg.action === "setUser") {
             if (msg.userId) {

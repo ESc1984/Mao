@@ -1,5 +1,3 @@
-
-
 let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
@@ -270,7 +268,7 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(card.suit === 'H' && checkPlayedStatus === 'skipNextRules'){
+                    if(card.suit === 'H' && checkPlayedStatus === 'skipNextRules' && this._game.rules.rulesInPlay.includes('skipChoose')){
                         this._game.rules.skipChoosePlayed(this, "");
                     } else {
                         rule.function(this, "");
@@ -595,6 +593,9 @@ class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
+        if(rule.name === 'skipNext'){
+            this.rulesInPlay.push('skipChoose');
+        }
         if(card !== ""){
             this[name]['card'] = card.value;
         }
@@ -907,7 +908,7 @@ function namePrompt(parent){
     parent.appendChild(newLine);
 }
 
-function randomGame(){
+export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
@@ -927,7 +928,7 @@ function randomGame(){
     submitButton(startGame, true);
 }
 
-function standardGame(){
+export function standardGame(){
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
     namePrompt(startGame);
@@ -1054,7 +1055,7 @@ function numRulesDecided(numRules){
     }
 }
 
-function removeElement(element) {
+export function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
