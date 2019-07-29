@@ -108,14 +108,13 @@ function onSocketConnect(ws) {
             user.name = msg.name;
             user.quest = msg.quest;
             user.color = msg.color;
+
+            clients.forEach(client => {     //probably change -- figure out what the client is
+                return client.send(JSON.stringify({
+                    users: users
+                }));
+            });
         }
-
-
-        clients.forEach(client => {     //probably change -- figure out what the client is
-            return client.send(JSON.stringify({
-                users: users
-            }));
-        });
     });
 
     ws.on('close', function () {

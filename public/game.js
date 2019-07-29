@@ -1006,7 +1006,7 @@ function saveNames() {
                             let start = i;
                             let end = 0;
                             let found = true;
-                            for (w = start; w < start + prof[b].length; w++){
+                            for (let w = start; w < start + prof[b].length; w++){
                                 if (checker.charAt(w) !== prof[b].charAt(w-start)){
                                     found = false;
                                 } else {
