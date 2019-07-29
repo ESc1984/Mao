@@ -50,7 +50,8 @@
                     "  <td>" + user.color + "</td>" +
                     "</tr>";
             });
-
+        }
+    }
 
     /* Wire up the click action for submit */
     let submitButton = document.querySelector("#playCard");
