@@ -17,7 +17,6 @@ const clients = new Set();
 /* Hold all the users in memory.
    Ideally this would be some kind of persitent storage object
 */
-let mode;
 
 function accept(req, res) {
     try {
@@ -86,6 +85,22 @@ function onSocketConnect(ws) {
             clients.forEach(client => {
                 return client.send(JSON.stringify({
                     mode: msg.mode,
+                }));
+            });
+        }
+
+        if (msg.action === 'numPlayersDecided'){
+            clients.forEach(client => {
+               return client.send(JSON.stringify({
+                   numPlayers: msg.numPlayers
+               }));
+            });
+        }
+
+        if (msg.action === 'startGame'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    users: msg.users
                 }));
             });
         }

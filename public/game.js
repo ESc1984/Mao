@@ -844,13 +844,13 @@ class Rules{
 
 
 
-let ourGame;
+export let ourGame;
 let game;
 let ruleNumber = false;
 let players;
-let selectedCard = "";
+export let selectedCard = "";
 let oldCard = "";
-let playerPlaying;
+export let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
 let niceDayCount = 0;
@@ -876,17 +876,6 @@ function submitButton(parent, random){
     submitButton.id = 'numPlayersSubmit';
     submitButton.classList.add('submit');
     submitButton.innerHTML = 'Submit';
-    submitButton.onclick = () => {
-        removeElement(submitButton);
-        numPlayersDecided(document.getElementById('numPlayers').value);
-        removeElement(document.getElementById('numPlayersPrompt'));
-        removeElement(document.getElementById('numPlayers'));
-        if(random === true){
-            numRulesDecided(document.getElementById('numRules').value);
-            removeElement(document.getElementById('numRulesPrompt'));
-            removeElement(document.getElementById('numRules'));
-        }
-    };
     parent.appendChild(submitButton);
 }
 
@@ -935,7 +924,7 @@ export function standardGame(){
     submitButton(startGame, false);
 }
 
-function numPlayersDecided(numPlayers) {
+export function numPlayersDecided(numPlayers) {
     if (numPlayers > 6) {
         players = 6;
     } else if (numPlayers < 2 || numPlayers === null){
@@ -944,14 +933,13 @@ function numPlayersDecided(numPlayers) {
         players = numPlayers;
     }
     let startGamePrompt = document.getElementById('startGame');
-    for(let i = 0; i < players; i++){
         let namePrompt = document.createElement('label');
         namePrompt.id = 'namePlayers';
-        namePrompt.setAttribute('for', 'namePlayers' + i);
-        namePrompt.innerHTML = `Enter Player ${i+1}'s Name: `;
+        namePrompt.setAttribute('for', 'namePlayers');
+        namePrompt.innerHTML = `Enter Your Name: `;
         let nameHolder = document.createElement('input');
         nameHolder.name = 'namePlayersPrompt';
-        nameHolder.id = 'namePlayers' + i;
+        nameHolder.id = 'namePlayers';
         nameHolder.type = 'text';
         nameHolder.maxLength = 10;
         let newLine = document.createElement('br');
@@ -962,16 +950,14 @@ function numPlayersDecided(numPlayers) {
         startGamePrompt.appendChild(nameHolder);
         startGamePrompt.appendChild(newLine);
         startGamePrompt.appendChild(newLine);
-    }
     let startButton = document.createElement('button');
     startButton.class ='close';
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
-    startButton.onclick = saveNames;
     startGamePrompt.appendChild(startButton);
 }
 
-function saveNames() {
+export function saveNames() {
     let num = parseInt(players);
     let newPlayers = [];
     let toCheck = [];
@@ -1045,7 +1031,7 @@ function saveNames() {
     startGame(newPlayers);
 }
 
-function numRulesDecided(numRules){
+export function numRulesDecided(numRules){
     if(numRules > specialRules.length - 1){
         ruleNumber = specialRules.length -1;
     } else if (numRules < 2) {

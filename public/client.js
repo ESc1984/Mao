@@ -1,4 +1,5 @@
-import { removeElement, standardGame, randomGame } from "./game.js";
+import { removeElement, standardGame, randomGame, numRulesDecided, numPlayersDecided,
+    selectedCard, playerPlaying, saveNames, ourGame } from "./game.js";
 (function () {
     "use strict";
 
@@ -6,7 +7,7 @@ import { removeElement, standardGame, randomGame } from "./game.js";
     //document.querySelector("[name=\"userId\"]").value = generateId();
 
     /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://localhost:8080/ws");
+    let socket = new WebSocket("ws://139.126.184.73:8080/ws");
     /*Check IP*/
     /*ask it to run with certain parameters, grab ip, create code/id to join, ideal final product would have a web address*/
     /*grab the computer's ip, tell buds (create join code?*/
@@ -37,14 +38,41 @@ import { removeElement, standardGame, randomGame } from "./game.js";
     /* Update the list of users */
     function updateView(data) { //change this to update based on game info
         if(data.mode){
-                removeElement(document.getElementById('startPage'));
-                if(data.mode === 'standard'){
-                    standardGame();
-                } else {
-                    randomGame();
-                }
-        }
-        else{
+            removeElement(document.getElementById('startPage'));
+            if(data.mode === 'standard'){
+                standardGame();
+            } else {
+                randomGame();
+            }
+            let numPlayers = document.getElementById('numPlayersSubmit');
+            if(numPlayers){
+                numPlayers.addEventListener('click', function () {
+                    socket.send(JSON.stringify({
+                        action: "numPlayersDecided",
+                        numPlayers: document.getElementById('numPlayers').value,
+                    }));
+                });
+            }
+        } else if (data.numPlayers){
+            numPlayersDecided(data.numPlayers);
+            removeElement(document.getElementById('numPlayersSubmit'));
+            removeElement(document.getElementById('numPlayersPrompt'));
+            removeElement(document.getElementById('numPlayers'));
+            if(document.getElementById('numRules')){
+                numRulesDecided(document.getElementById('numRules').value);
+                removeElement(document.getElementById('numRulesPrompt'));
+                removeElement(document.getElementById('numRules'));
+            }
+            let startGame = document.getElementById('startButton');
+            if(startGame){
+                startGame.addEventListener('click', function() {
+                    socket.send(JSON.stringify({
+                        action: 'startGame',
+                        users: ourGame.playerList
+                    }));
+                });
+            }
+        } else{
             let activeUsersElem = document.querySelector(".active-users");
             if (activeUsersElem) {
                 let HTML = "<table>";
@@ -68,7 +96,7 @@ import { removeElement, standardGame, randomGame } from "./game.js";
             socket.send(JSON.stringify({
                 action: "modeSelected",
                 mode: "standard"
-            }))
+            }));
         });
     }
     let chaosMode = document.getElementById('randomGame');
@@ -77,11 +105,9 @@ import { removeElement, standardGame, randomGame } from "./game.js";
             socket.send(JSON.stringify({
                 action: "modeSelected",
                 mode: "chaos"
-            }))
+            }));
         });
     }
-
-
 
     /* Wire up the click action for submit */
     let submitButton = document.querySelector("#playCard");
