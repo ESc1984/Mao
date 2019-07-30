@@ -154,13 +154,13 @@ class Player {
     updateNumCards(){
         let player = game.querySelector(`#${this.name}`);
         let display = player.getElementsByClassName('hand')[0];
-        let element = display.parentElement.getElementsByClassName('playerhand');
+        let element = display.parentElement.getElementsByClassName('playerHand');
         if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-            let playerhand = player.querySelector('.playerhand');
-            if (playerhand.children.length === 1) {
-                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
+            let playerHand = player.querySelector('.playerHand');
+            if (playerHand.children.length === 1) {
+                playerHand.parentNode.children[0].children[0].innerHTML = (playerHand.children.length + ' card');
             } else {
-                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
+                playerHand.parentNode.children[0].children[0].innerHTML = (playerHand.children.length + ' cards');
             }
         }
     }
@@ -192,7 +192,7 @@ class Player {
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
                 let player = game.querySelector(`#${this.name}`);
-                let grid = player.querySelector(".playerhand");
+                let grid = player.querySelector(".playerHand");
                 let identifier = "#" + card.suit + card.value + card.num;
                 let element = grid.querySelector(identifier);
                 element.parentNode.removeChild(element);
@@ -316,7 +316,7 @@ class Game {
         this._rules = new Rules(this, numRules);
         this._playerList = [];
         for (let i = 0; i < playerList.length; i++){
-            this._playerList.push(new Player(this.dealHand(), playerList[i], this, numRules));
+            this._playerList.push(new Player(this.dealHand(), playerList[i], this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
@@ -871,98 +871,74 @@ function overlay() {
     }
 }
 
-function submitButton(parent, random){
-    const submitButton = document.createElement('button');
-    submitButton.id = 'numPlayersSubmit';
-    submitButton.classList.add('submit');
-    submitButton.innerHTML = 'Submit';
-    parent.appendChild(submitButton);
-}
-
-function namePrompt(parent){
-    const numPlayersPrompt = document.createElement('label');
-    numPlayersPrompt.id = 'numPlayersPrompt';
-    numPlayersPrompt.setAttribute('for', 'numPlayers');
-    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6) ";
-
-    const numPlayersResponse = document.createElement('input');
-    numPlayersResponse.name = 'numPlayersPrompt';
-    numPlayersResponse.id = 'numPlayers';
-    numPlayersResponse.type = 'number';
-    const newLine = document.createElement('br');
-
-    parent.appendChild(numPlayersPrompt);
-    parent.appendChild(numPlayersResponse);
-    parent.appendChild(newLine);
-    parent.appendChild(newLine);
-}
-
 export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
-    namePrompt(startGame);
-    const numRulesPrompt = document.createElement('label');
-    numRulesPrompt.id = 'numRulesPrompt';
-    numRulesPrompt.setAttribute('for', 'numRules');
-    numRulesPrompt.innerHTML = 'Enter Number of Rules ';
-    const numRulesResponse = document.createElement('input');
-    numRulesResponse.name = 'numRulesPrompt';
-    numRulesResponse.id = 'numRules';
-    numRulesResponse.type = 'number';
-    const newLine = document.createElement('br');
-    startGame.appendChild(numRulesPrompt);
-    startGame.appendChild(numRulesResponse);
-    startGame.appendChild(newLine);
-    submitButton(startGame, true);
+    // namePrompt(startGame);
+    // const numRulesPrompt = document.createElement('label');
+    // numRulesPrompt.id = 'numRulesPrompt';
+    // numRulesPrompt.setAttribute('for', 'numRules');
+    // numRulesPrompt.innerHTML = 'Enter Number of Rules ';
+    // const numRulesResponse = document.createElement('input');
+    // numRulesResponse.name = 'numRulesPrompt';
+    // numRulesResponse.id = 'numRules';
+    // numRulesResponse.type = 'number';
+    // const newLine = document.createElement('br');
+    // startGame.appendChild(numRulesPrompt);
+    // startGame.appendChild(numRulesResponse);
+    // startGame.appendChild(newLine);
+    // submitButton(startGame, true);
 }
 
 export function standardGame(){
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
-    namePrompt(startGame);
-    submitButton(startGame, false);
 }
 
-export function numPlayersDecided(numPlayers) {
-    if (numPlayers > 6) {
-        players = 6;
-    } else if (numPlayers < 2 || numPlayers === null){
-        players = 2;
-    } else {
-        players = numPlayers;
-    }
+export function modeDecided() {
     let startGamePrompt = document.getElementById('startGame');
-        let namePrompt = document.createElement('label');
-        namePrompt.id = 'namePlayers';
-        namePrompt.setAttribute('for', 'namePlayers');
-        namePrompt.innerHTML = `Enter Your Name: `;
-        let nameHolder = document.createElement('input');
-        nameHolder.name = 'namePlayersPrompt';
-        nameHolder.id = 'namePlayers';
-        nameHolder.type = 'text';
-        nameHolder.maxLength = 10;
-        let newLine = document.createElement('br');
+    let namePrompt = document.createElement('label');
+    namePrompt.id = 'namePlayers';
+    namePrompt.setAttribute('for', 'namePlayersPrompt');
+    namePrompt.innerHTML = `Enter Your Name: `;
+    let nameHolder = document.createElement('input');
+    nameHolder.name = 'namePlayersPrompt';
+    nameHolder.id = 'namePlayersPrompt';
+    nameHolder.type = 'text';
+    nameHolder.maxLength = 10;
+    let newLine = document.createElement('br');
 
-        startGamePrompt.appendChild(namePrompt);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(nameHolder);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(namePrompt);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(nameHolder);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(newLine);
+    let nameDone = document.createElement('button');
+    nameDone.class = 'close';
+    nameDone.id = 'choseName';
+    nameDone.innerHTML = 'OK';
+
+    let activePlayers = document.createElement("table");
+    activePlayers.id = 'activePlayers';
+    startGamePrompt.appendChild(activePlayers);
+
+    startGamePrompt.appendChild(nameDone);
     let startButton = document.createElement('button');
+    startButton.style.visibility = 'hidden';
     startButton.class ='close';
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
 }
 
-export function saveNames() {
-    let num = parseInt(players);
+export function saveNames(players) {
+    let num = Object.entries(players);
     let newPlayers = [];
     let toCheck = [];
-    for (let h = 0; h < num; h++) {
-        let name = document.getElementById('namePlayers' + h).value.trim();
+    for (let h = 0; h < num.length; h++) {
+        let name = num[h][1].name;
         if (name.length > 0){
             if (name.indexOf(' ') > -1){
                 let squish = '';
@@ -1027,8 +1003,8 @@ export function saveNames() {
             newPlayers.push(toCheck[i+1]);
         }
     }
-    overlay();
-    startGame(newPlayers);
+    ourGame = new Game(newPlayers, ruleNumber);
+    return newPlayers;
 }
 
 export function numRulesDecided(numRules){
@@ -1049,58 +1025,32 @@ function displayPlayerHand(playerIndex) {
     document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
 }
 
-function startGame(players) {
-    ourGame = new Game(players, ruleNumber);
-    createTopBar();
-    const speak = document.createElement('speak');
-    speak.setAttribute('id', 'played');
-    speak.innerHTML = '- ';
-    speak.style.color = '#b0210b';
-    game.appendChild(speak);
-    ourGame.playerList.forEach(player => {
-        const gamePlayer = document.createElement('div');
-        gamePlayer.classList.add('player');
-        gamePlayer.setAttribute("class", "player");
-        gamePlayer.setAttribute("id", player.name);
-        gamePlayer.dataset.name = player.name;
-        game.appendChild(gamePlayer);
-
-        const hand = document.createElement('button');
-        hand.setAttribute('class', 'hand');
-        hand.setAttribute('id', `${player.name}show`);
-        hand.innerHTML = player.name;
-        hand.onclick = openHand;
-        gamePlayer.appendChild(hand);
-
-        let numCards = document.createElement('h3');
-        numCards.classList.add('numCards');
-        numCards.setAttribute('class', 'numCards');
-        numCards.setAttribute('id', `${player.name}numCards`);
-        numCards.innerHTML = player.hand.length.toString() + ' cards';
-        hand.appendChild(numCards);
-    });
-}
-
-function createTopBar(){
+export function createTopBar(topDiscard){
+    removeElement(window.document.getElementById('startGame'));
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');
-    createDiscardFunctionality(topGrid);
+    createDiscardFunctionality(topGrid, topDiscard);
     const playCard = document.createElement('button');
     playCard.setAttribute('id', 'playCard');
     playCard.innerHTML = 'Play<br>Turn';
     playCard.onclick = playTurn;
     topGrid.appendChild(playCard);
     game.appendChild(topGrid);
+    const speak = document.createElement('speak');
+    speak.setAttribute('id', 'played');
+    speak.innerHTML = '- ';
+    speak.style.color = '#b0210b';
+    game.appendChild(speak);
 }
 
-function createDiscardFunctionality(grid){
+function createDiscardFunctionality(grid, topDiscard){
     const discard = document.createElement('section');
     discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
     discard.classList.add('discard');
     grid.appendChild(discard);
-    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
+    const disPile = addCardsToPlayer(topDiscard, discard);
     const ruleButtonGrid = document.createElement('section');
     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
     ruleButtonGrid.setAttribute('class', 'grid');
@@ -1136,8 +1086,8 @@ function selectedRule(){
     document.getElementById('played').style.color = 'gold';
 }
 
-function initializePlayerHand(player, grid){
-    let sortedHand = player.hand.sort((a,b) => {
+export function initializePlayerHand(hand, grid){
+    let sortedHand = hand.sort((a,b) => {
         let x = a.suit.toLowerCase();
         let y = b.suit.toLowerCase();
         if(x < y) {return -1;}
@@ -1164,30 +1114,29 @@ function initializePlayerHand(player, grid){
     });
 }
 
-function openHand() {
-    let element = this.parentElement.getElementsByClassName('playerhand');
+export function openHand(id, hand) {
+    let player = document.getElementById(id);
+    let element = player.getElementsByClassName('playerHand');
     if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-        let player = this.parentNode;
+        let player = player.parentNode;
         let pass = player.querySelector('.pass');
-        let playerhand = player.querySelector('.playerhand');
+        let playerHand = player.querySelector('.playerHand');
         pass.parentNode.removeChild(pass);
-        playerhand.parentNode.removeChild(playerhand);
+        playerHand.parentNode.removeChild(playerHand);
     } else {
-        playerPlaying = this.parentElement.id;
-        let player = findPlayerIndexFromId();
         const passBtn = document.createElement("button");
         passBtn.setAttribute('class', 'pass');
         passBtn.innerHTML = 'Pass Turn';
         passBtn.onclick = passTurn;
-        this.parentElement.appendChild(passBtn);
-        const playerhand = document.createElement('section');
-        playerhand.setAttribute('class', 'grid playerhand');
-        initializePlayerHand(player, playerhand);
-        this.parentElement.appendChild(playerhand);
+        player.parentElement.appendChild(passBtn);
+        const playerHand = document.createElement('section');
+        playerHand.setAttribute('class', 'grid playerHand');
+        initializePlayerHand(hand, playerHand);
+        player.appendChild(playerHand);
     }
 }
 
-function addCardsToPlayer(card, grid){
+export function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
     playCard.setAttribute("id", card.suit + card.value + card.num);
@@ -1196,10 +1145,10 @@ function addCardsToPlayer(card, grid){
     grid.appendChild(playCard);
 }
 
-function passTurn() {
+export function passTurn() {
     document.getElementById("alert").innerHTML = '';
     playerPlaying = this.parentElement.id;
-    let player = findPlayerIndexFromId();
+    let player = findPlayerIndexFromId(playerPlaying);
     player.passTurn();
     selectedRules = [];
     niceDayCount = 0;
@@ -1210,7 +1159,7 @@ function passTurn() {
 
 function playTurn() {
     if(selectedCard != ""){
-        let player = findPlayerIndexFromId();
+        let player = findPlayerIndexFromId(playerPlaying);
         let cardIndex = -1;
         for(let i = 0; i < player.hand.length; i++){
             if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) && player.hand[i].num.toString() === selectedCard.substring(2)){
@@ -1224,18 +1173,14 @@ function playTurn() {
         niceDayCount = 0;
         declaration = "- ";
     } else {
-        findPlayerIndexFromId().showAlert('must select card to play turn');
-        // document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
-        // setTimeout(function(){
-        //     document.getElementById("alert").innerHTML = '';
-        // }, 3000);
+        findPlayerIndexFromId(playerPlaying).showAlert('must select card to play turn');
     }
 }
 
-function findPlayerIndexFromId(){
+export function findPlayerIndexFromId(id){
     let playerIndex = -1;
     for (let i = 0; i < ourGame.playerList.length; i++) {
-        if (ourGame.playerList[i].name === playerPlaying) {
+        if (ourGame.playerList[i].name ===  id) {
             playerIndex = i;
             break;
         }

@@ -1,16 +1,13 @@
-import { removeElement, standardGame, randomGame, numRulesDecided, numPlayersDecided,
-    selectedCard, playerPlaying, saveNames, ourGame } from "./game.js";
+import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
+    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame } from "./game.js";
 (function () {
     "use strict";
 
     /* Assign this user an id */
-    //document.querySelector("[name=\"userId\"]").value = generateId();
+    document.querySelector("[name=\"userId\"]").value = generateId();
 
-    /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://139.126.184.73:8080/ws");
-    /*Check IP*/
-    /*ask it to run with certain parameters, grab ip, create code/id to join, ideal final product would have a web address*/
-    /*grab the computer's ip, tell buds (create join code?*/
+    let ip = window.location.hostname;
+    let socket = new WebSocket("ws://" + ip + ":8080/ws");
 
     // socket.onopen = function (evt) {    //onopen prompt user for name
     //     socket.send(JSON.stringify({
@@ -35,8 +32,9 @@ import { removeElement, standardGame, randomGame, numRulesDecided, numPlayersDec
         console.log("[error] " + error.message);
     };
 
-    /* Update the list of users */
-    function updateView(data) { //change this to update based on game info
+    let users = [];
+    let gamePlaying;
+    function updateView(data) {
         if(data.mode){
             removeElement(document.getElementById('startPage'));
             if(data.mode === 'standard'){
@@ -44,49 +42,95 @@ import { removeElement, standardGame, randomGame, numRulesDecided, numPlayersDec
             } else {
                 randomGame();
             }
-            let numPlayers = document.getElementById('numPlayersSubmit');
-            if(numPlayers){
-                numPlayers.addEventListener('click', function () {
+            modeDecided();
+            let choseName = document.getElementById('choseName');
+            if(choseName){
+                choseName.addEventListener('click', function() {
+                    let playerName = document.getElementById('namePlayersPrompt').value;
+                    removeElement(window.document.getElementById('choseName'));
                     socket.send(JSON.stringify({
-                        action: "numPlayersDecided",
-                        numPlayers: document.getElementById('numPlayers').value,
+                        action: 'choseName',
+                        name: playerName,
+                        userId: document.querySelector("[name=\"userId\"]").value
                     }));
                 });
             }
-        } else if (data.numPlayers){
-            numPlayersDecided(data.numPlayers);
-            removeElement(document.getElementById('numPlayersSubmit'));
-            removeElement(document.getElementById('numPlayersPrompt'));
-            removeElement(document.getElementById('numPlayers'));
-            if(document.getElementById('numRules')){
-                numRulesDecided(document.getElementById('numRules').value);
-                removeElement(document.getElementById('numRulesPrompt'));
-                removeElement(document.getElementById('numRules'));
-            }
-            let startGame = document.getElementById('startButton');
-            if(startGame){
+        } else if(data.namePlayer){
+            users.push({name: data.namePlayer, id: data.userId});
+            let HTML = "<table>";
+            let counter = 1;
+            HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+            users.forEach(user => {
+                HTML += "<tr>" +
+                    "  <td>" + counter + "</td>" +
+                    "  <td>" + user.name + "</td>" +
+                    "</tr>";
+                counter++;
+            });
+            document.getElementById("activePlayers").innerHTML = HTML;
+            if(counter > 2){
+                let startGame = document.getElementById('startButton');
+                startGame.style.visibility = 'visible';
                 startGame.addEventListener('click', function() {
+                    let players = saveNames(users);
+                    let playingHands = getHands();
                     socket.send(JSON.stringify({
                         action: 'startGame',
-                        users: ourGame.playerList
+                        names: players,
+                        playerId: users,
+                        playingHands: playingHands,
+                        topDiscard: ourGame.discardPile.topDiscard()
                     }));
                 });
             }
-        } else{
-            let activeUsersElem = document.querySelector(".active-users");
-            if (activeUsersElem) {
-                let HTML = "<table>";
-                HTML += "<tr><th>User Id</th><th>Name</th><th>Quest</th><th>Color</th></tr>";
+        } else {
+            createTopBar(data.topDiscard);
+            let counter = 0;
+            let game = document.getElementById("gameBoard");
+            const gamePlayer = document.createElement('div');
+            gamePlayer.classList.add('player');
+            gamePlayer.setAttribute("class", "player");
+            game.appendChild(gamePlayer);
+            let otherPlayers = document.createElement('section');
+            otherPlayers.setAttribute('class', 'grid');
+            otherPlayers.id = 'otherPlayersGrid';
+            data.names.forEach(player => {
+                if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
+                    gamePlayer.setAttribute("id", player);
+                    gamePlayer.dataset.name = player;
+                    const playerHand = document.createElement('section');
+                    playerHand.setAttribute('class', 'grid playerHand');
+                    initializePlayerHand(data.hands[counter], playerHand);
+                    document.getElementById(player).appendChild(playerHand);
+                    const passBtn = document.createElement("button");
+                    passBtn.setAttribute('class', 'pass');
+                    passBtn.innerHTML = 'Pass Turn';
+                    passBtn.onclick = passTurn;
+                    document.getElementById(player).appendChild(passBtn);
+                    document.getElementById(player).appendChild(otherPlayers);
+                } else {
+                    const gamePlayer = document.createElement('div');
+                    gamePlayer.classList.add('player');
+                    gamePlayer.setAttribute("class", "player");
+                    gamePlayer.setAttribute("id", player);
+                    gamePlayer.dataset.name = player;
+                    otherPlayers.appendChild(gamePlayer);
 
-                data.users.forEach(function (user) {
-                    HTML += "<tr>" +
-                        "  <td>" + user.id + "</td>" +
-                        "  <td>" + user.name + "</td>" +
-                        "  <td>" + user.quest + "</td>" +
-                        "  <td>" + user.color + "</td>" +
-                        "</tr>";
-                });
-            }
+                    const hand = document.createElement('button');
+                    hand.setAttribute('class', 'hand');
+                    hand.setAttribute('id', `${player}show`);
+                    hand.innerHTML = player;
+                    gamePlayer.appendChild(hand);
+
+                    let numCards = document.createElement('h3');
+                    numCards.classList.add('numCards');
+                    numCards.setAttribute('class', 'numCards');
+                    numCards.setAttribute('id', `${player}numCards`);
+                    numCards.innerHTML = data.hands[counter].length.toString() + ' cards';
+                    hand.appendChild(numCards);
+                }
+                counter++;
+            });
         }
     }
 
@@ -109,14 +153,16 @@ import { removeElement, standardGame, randomGame, numRulesDecided, numPlayersDec
         });
     }
 
-    /* Wire up the click action for submit */
-    let submitButton = document.querySelector("#playCard");
-    if (submitButton) {
-        submitButton.addEventListener("click", function () {
-            socket.send(JSON.stringify({
-                action: "playCard"      //add action to server.js, send card, send player
-            }));
-        });
+    function getHands(){
+        let hands = {};
+        for(let i = 0; i < ourGame.playerList.length; i++){
+            hands[i] = ourGame.playerList[i].hand;
+        }
+        return hands;
+    }
+
+    function displayThisPlayer(){
+
     }
 
     function generateId(len) {

@@ -97,36 +97,22 @@ function onSocketConnect(ws) {
             });
         }
 
-        if (msg.action === 'startGame'){
+        if (msg.action === 'choseName'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    users: msg.users
+                    namePlayer: msg.name,
+                    userId: msg.userId
                 }));
             });
         }
 
-        if (msg.action === "setUser") {
-            if (msg.userId) {
-                user = users.find(u => {
-                    return u.id === msg.userId;
-                });
-            }
-
-            if (!user || !user.id) {
-                console.console.log("New player has entered the game!");
-                user = {
-                    id: msg.userId
-                };
-                users.push(user);
-            }
-
-            user.name = msg.name;
-            user.quest = msg.quest;
-            user.color = msg.color;
-
-            clients.forEach(client => {     //probably change -- figure out what the client is
+        if (msg.action === 'startGame'){
+            clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    users: users
+                    playerId: msg.playerId,
+                    names: msg.names,
+                    hands: msg.playingHands,
+                    topDiscard: msg.topDiscard
                 }));
             });
         }
