@@ -5,7 +5,8 @@
     document.querySelector("[name=\"userId\"]").value = generateId();
 
     /* Do the websocket communication stuffs. */
-    let socket = new WebSocket("ws://139.126.184.10:8080/");
+    // let socket = new WebSocket("ws://139.126.184.10:8080/");
+    let socket = new WebSocket("ws://localhost:8080/");
     /*Check IP*/
     /*ask it to run with certain parameters, grab ip, create code/id to join, ideal final product would have a web address*/
     /*grab the computer's ip, tell buds (create join code?*/

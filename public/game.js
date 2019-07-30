@@ -1,7 +1,7 @@
 
 
-let suits = ['S', 'H', 'D', 'C'];
-let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+let suits = ['S', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'D', 'C'];
+let values = ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
     constructor(){
@@ -157,7 +157,7 @@ class Player {
         let player = game.querySelector(`#${this.name}`);
         let display = player.getElementsByClassName('hand')[0];
         let element = display.parentElement.getElementsByClassName('playerhand');
-        if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+        if (element.length !== 0 && typeof (element) != "undefined") {
             let playerhand = player.querySelector('.playerhand');
             if (playerhand.children.length === 1) {
                 playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
@@ -217,7 +217,6 @@ class Player {
                 this._game.rules['pairPlayed'](this, selected, card);
             } else if(selected === 'Run' && this._game.rules.runRules.played === false &&
                 this._game.rules.rulesInPlay.includes('run') && (this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))){
-                //this._game.rules['runPlayed'](this, selected);
                 this._game.rules.gameRules[1].function(this, selected, card);
             }
             else {
@@ -235,34 +234,33 @@ class Player {
                     this._game.drawCard(this);
                     let message = 'declared ' + state + ' out of turn';
                     card.parentElement.parentElement.showAlert(message);
-                    // let rule = `${selected}`.toUpperCase();
-                    // this.callout();
-                    // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-                    // document.getElementById('alert').classList.toggle('hide');
-                    // setTimeout(function(){
-                    //     document.getElementById("alert").innerHTML = '';
-                    //     document.getElementById('alert').classList.toggle('hide');
-                    // }, 3000);
                 }
             }
         });
 
-        if(this.hand.length === 2 && !this._game.rules.maoRules.played){
+        if(this._game.rules.rulesInPlay.includes('mao') && this.hand.length === 2 && !this._game.rules.maoRules.played){
             this._game.rules.mao(this, "");
         }
 
-        if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
+        if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
             this._game.rules.gameRules[0].function(this, "");
         }
 
-        if(card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
+        if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
             this._game.rules.gameRules[2].function(this, "", card);
         }
 
-        if((this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))
-            && this._game.rules.runRules.played === false && this._game.rules.rulesInPlay.includes('run')){
-            this._game.rules.gameRules[1].function(this, "");
+        if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
+            && this._game.rules.runRules.played === false){
+            this._game.rules.gameRules[3].function(this, "");
         }
+
+        if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
+            this._game.rules.skipChoosePlayed(this, "");
+            //this._game.rules.gameRules[1].function(this, "");
+            //this._game.updateTurn();
+        }
+
 
         this._game.rules.gameRules.forEach(rule => {
             let checkPlayedStatus = rule.function.toString();
@@ -270,8 +268,9 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(card.suit === 'H' && checkPlayedStatus === 'skipNextRules'){
+                    if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
                         this._game.rules.skipChoosePlayed(this, "");
+                        this._game.updateTurn();
                     } else {
                         rule.function(this, "");
                     }
@@ -279,12 +278,6 @@ class Player {
             }
         });
     }
-
-    // callout(){
-    //     if (document.getElementById("alert").innerHTML === ''){
-    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-    //     }
-    // }
 
     showAlert(message){
         if (document.getElementById("alert").innerHTML === ''){
@@ -296,6 +289,8 @@ class Player {
             document.getElementById("alert").innerHTML = '';
             document.getElementById('alert').classList.toggle('hide');
         }, 1600);
+        // document.getElementById("alert").innerHTML = '';
+        // document.getElementById('alert').classList.toggle('hide');
     }
 
     set turn(turn) {
@@ -361,20 +356,42 @@ class Game {
         let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
         addCardsToPlayer(card, grid);
         player.receiveCard(card);
-        //grid.parentElement.getElementsByClassName('hand').getElementsByClassName('numCards').innerHTML = player.hand.length;
     }
 
     updateTurn(){
+        //solve ace of hearts
         let currentPlayer = this.getCurrentPlayer();
+        console.log('current player: ' + currentPlayer);
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
+        console.log('next player: ' + nextPlayer);
+        this.checkNext(currentPlayer, nextPlayer);
+        if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
+            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+            this.rules.skippedPlayer.splice(i, 1);
+            this.disableTurn(nextPlayer);
+            nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
+            console.log('new next player: ' + nextPlayer);
+        }
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
         this.passCount();
-        if(this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
-            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+        // if(this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
+        //     let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+        //     this.rules.skippedPlayer.splice(i, 1);
+        //     this.updateTurn();
+        // }
+    }
+
+    checkNext(current, next){
+        let newnext = next;
+        if (this.rules.skippedPlayer.includes(next.name)){
+            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(next).name);
             this.rules.skippedPlayer.splice(i, 1);
-            this.updateTurn();
+            this.disableTurn(next);
+            newnext = current + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
+            console.log('new next player: ' + nextPlayer);
         }
+        return newnext;
     }
 
     disableTurn(playerIndex){
@@ -401,12 +418,10 @@ class Game {
     }
 
     passCount(){
-        // let save = runCount;
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            //runCount = save;
-            runCount = 0;
+            //runCount = 0;
         }
     }
 }
@@ -444,6 +459,7 @@ class Rules{
             {function: this.chairwomanPlayed, name: 'chairwoman'},
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
+            {function: this.skipChoosePlayed, name: 'skipChoose'},
             {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
@@ -459,10 +475,10 @@ class Rules{
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
         this._maoRules = {played: false};
+        this._skipChooseRules = {played: false};
         this._skipNextRules = {played: false};
         this._reverseRules = {played: false};
         this._playAgainRules = {played: false};
-        this._skipChooseRules = {played: false};
         this._pairRules = {played: false};
         this._runRules = {played: false};
 
@@ -471,6 +487,8 @@ class Rules{
         } else {
             this.pickRules(numRules);
         }
+
+        this.nextSkip = false;
     }
 
     get rulesInPlay(){
@@ -540,7 +558,7 @@ class Rules{
                 this.allRules.splice(ruleNum, 1);
             }
             else if (this.allRules[ruleNum].name === 'run'){
-                this.gameRules[1].function = this.allRules[ruleNum].function;
+                this.gameRules[3].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
@@ -550,7 +568,14 @@ class Rules{
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule(this.gameRules[0], this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
-            } else if(this.gameRules[cardNum].function === this.noRule){
+            }
+            else if (this.allRules[ruleNum].name === 'skipChoose'){
+                this.gameRules[1].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule(this.gameRules[1], this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            }
+            else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule(this.gameRules[cardNum], this.allRules[ruleNum], name);
@@ -595,6 +620,10 @@ class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
+        // if(rule.name === 'skipNext'){
+        //     //include randomization
+        //     this.rulesInPlay.push('skipChoose');
+        // }
         if(card !== ""){
             this[name]['card'] = card.value;
         }
@@ -610,10 +639,10 @@ class Rules{
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
         this._maoRules.played = false;
+        this._skipChooseRules.played = false;
         this._skipNextRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
-        this._skipChooseRules.played = false;
         this._pairRules.played = false;
         this._runRules.played = false;
     }
@@ -653,13 +682,6 @@ class Rules{
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
             player.showAlert(message);
-            // player.callout();
-            // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
-            // document.getElementById('alert').classList.toggle('hide');
-            // setTimeout(function(){
-            //     document.getElementById("alert").innerHTML = '';
-            //     document.getElementById('alert').classList.toggle('hide');
-            // }, 3000);
         }
     }
 
@@ -672,15 +694,99 @@ class Rules{
         }
     }
 
+    skipChoosePlayed(player, state){
+        if(state != ""){
+            let message = 'declared ' + state + ' out of turn';
+            player.showAlert(message);
+            player.game.drawCard(player);
+        }
+        let prompt = document.createElement('p');
+        prompt.classList.add('alert');
+        prompt.innerHTML = 'Select the Player you Wish to Skip';
+        game.appendChild(prompt);
+        const grid = document.createElement('playerNameGrid');
+        grid.setAttribute('class', 'grid');
+        prompt.appendChild(grid);
+        ourGame.playerList.forEach(player => {
+            if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
+                const gamePlayer = document.createElement('button');
+                gamePlayer.classList.add('ruleButton');
+                gamePlayer.innerHTML = player.name;
+                gamePlayer.onclick = (() => {
+                    // let checker = ourGame._playerList.indexOf(player);
+                    // let checkee = ourGame.getCurrentPlayer();
+                    //fremulon
+                    let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
+                    //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                    //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
+                    if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
+                        player.game.rules.skippedPlayer.push(player.name);
+                        this.nextSkip = false;
+                    } else {
+                        this.nextSkip = true;
+                        ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                        let nowplay = ourGame._playerList.indexOf(player) + 1;
+                        if (nowplay >= ourGame._playerList.length){
+                            nowplay = 0;
+                        }
+                        ourGame.getPlayer(nowplay)._turn = true;
+                    }
+                    prompt.parentNode.removeChild(prompt);
+                });
+                grid.appendChild(gamePlayer);
+            }
+        });
+        player.game.rules.skipChoosePlayed.played = true;
+    }
+
     skipNextPlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
             player.showAlert(message);
             player.game.drawCard(player);
         }
-        player.game.updateTurn();
-        player.game.rules.skipNextRules.played = true;
+        if(player.game.rules.rulesInPlay.includes('skipChoose')){
+            if(this.skipChooseRules.played === false || this.nextSkip === true) {
+                player.game.updateTurn();
+                player.game.rules.skipNextRules.played = true;
+            }
+        } else {
+            player.game.updateTurn();
+            player.game.rules.skipNextRules.played = true;
+        }
     }
+
+    // skipChoosePlayed(player, state){
+    //     if(state != ""){
+    //         let message = 'declared ' + state + ' out of turn';
+    //         player.showAlert(message);
+    //         player.game.drawCard(player);
+    //     }
+    //     let prompt = document.createElement('p');
+    //     prompt.classList.add('alert');
+    //     prompt.innerHTML = 'Select the Player you Wish to Skip';
+    //     game.appendChild(prompt);
+    //     const grid = document.createElement('playerNameGrid');
+    //     grid.setAttribute('class', 'grid');
+    //     prompt.appendChild(grid);
+    //     ourGame.playerList.forEach(player => {
+    //         if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
+    //             const gamePlayer = document.createElement('button');
+    //             gamePlayer.classList.add('ruleButton');
+    //             gamePlayer.innerHTML = player.name;
+    //             gamePlayer.onclick = (() => {
+    //                 let checker = ourGame._playerList.indexOf(player);
+    //                 let checkee = ourGame.getCurrentPlayer() - 1;
+    //                 if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
+    //                     player.game.rules.skippedPlayer.push(player.name);
+    //                 }
+    //                 prompt.parentNode.removeChild(prompt);
+    //             });
+    //             grid.appendChild(gamePlayer);
+    //         }
+    //     });
+    //     player.game.rules.skipChoosePlayed.played = true;
+    // }
 
     niceDayPlayed(player, state){
         if (state === "") {
@@ -695,12 +801,6 @@ class Rules{
                 player.game.drawCard(player);
                 let penalty = "failure to declare HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
                 player.showAlert(penalty);
-                // let penalty = "HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
-                // player.callout();
-                // document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ${penalty} -<br>`);
-                // setTimeout(function(){
-                //     document.getElementById("alert").innerHTML = '';
-                // }, 3000);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -765,32 +865,6 @@ class Rules{
         }
     }
 
-    skipChoosePlayed(player, state){
-        if(state != ""){
-            let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
-            player.game.drawCard(player);
-        }
-        let prompt = document.createElement('p');
-        prompt.classList.add('alert');
-        prompt.innerHTML = 'Select the Player you Wish to Skip';
-        game.appendChild(prompt);
-        const grid = document.createElement('playerNameGrid');
-        grid.setAttribute('class', 'grid');
-        prompt.appendChild(grid);
-        ourGame.playerList.forEach(player => {
-           const gamePlayer = document.createElement('button');
-           gamePlayer.classList.add('ruleButton');
-           gamePlayer.innerHTML = player.name;
-           gamePlayer.onclick = (() => {
-               player.game.rules.skippedPlayer.push(player.name);
-               prompt.parentNode.removeChild(prompt);
-           });
-           grid.appendChild(gamePlayer);
-        });
-        player.game.rules.skipChoosePlayed.played = true;
-    }
-
     runPlayed(player, state){
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
@@ -809,7 +883,7 @@ class Rules{
             player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.showAlert('failur eto declare pair');
+            player.showAlert('failure to declare pair');
         }
     }
 
@@ -1179,7 +1253,7 @@ function initializePlayerHand(player, grid){
 
 function openHand() {
     let element = this.parentElement.getElementsByClassName('playerhand');
-    if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
+    if (element.length !== 0 && typeof (element) != "undefined") {
         let player = this.parentNode;
         let pass = player.querySelector('.pass');
         let playerhand = player.querySelector('.playerhand');
@@ -1216,6 +1290,7 @@ function passTurn() {
     player.passTurn();
     selectedRules = [];
     niceDayCount = 0;
+    //change?
     declaration = "- ";
     document.getElementById('played').innerHTML = '- ';
     document.getElementById('played').style.color = '#b0210b';
@@ -1238,10 +1313,6 @@ function playTurn() {
         declaration = "- ";
     } else {
         findPlayerIndexFromId().showAlert('must select card to play turn');
-        // document.getElementById("alert").innerHTML = 'MUST SELECT CARD TO PLAY TURN';
-        // setTimeout(function(){
-        //     document.getElementById("alert").innerHTML = '';
-        // }, 3000);
     }
 }
 
