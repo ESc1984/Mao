@@ -180,6 +180,7 @@ class Player {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
+        console.log(this._game.rules.skippedPlayer);
     };
 
     playCard(cardIndex, selectedRules) {
@@ -204,6 +205,7 @@ class Player {
             }
         }
         this.updateNumCards();
+        console.log(this._game.rules.skippedPlayer);
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -364,10 +366,11 @@ class Game {
         console.log('current player: ' + currentPlayer);
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
         console.log('next player: ' + nextPlayer);
-        this.checkNext(currentPlayer, nextPlayer);
+        //this.checkNext(currentPlayer, nextPlayer);
         if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
             let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
-            this.rules.skippedPlayer.splice(i, 1);
+            //this.rules.skippedPlayer.splice(i, 1);
+            //relocation
             this.disableTurn(nextPlayer);
             nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
             console.log('new next player: ' + nextPlayer);
@@ -382,17 +385,17 @@ class Game {
         // }
     }
 
-    checkNext(current, next){
-        let newnext = next;
-        if (this.rules.skippedPlayer.includes(next.name)){
-            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(next).name);
-            this.rules.skippedPlayer.splice(i, 1);
-            this.disableTurn(next);
-            newnext = current + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
-            console.log('new next player: ' + nextPlayer);
-        }
-        return newnext;
-    }
+    // checkNext(current, next){
+    //     let newnext = next;
+    //     if (this.rules.skippedPlayer.includes(next.name)){
+    //         let i = this.rules.skippedPlayer.indexOf(this.getPlayer(next).name);
+    //         this.rules.skippedPlayer.splice(i, 1);
+    //         this.disableTurn(next);
+    //         newnext = current + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
+    //         console.log('new next player: ' + nextPlayer);
+    //     }
+    //     return newnext;
+    // }
 
     disableTurn(playerIndex){
         this.getPlayer(playerIndex).turn = false;
@@ -488,7 +491,7 @@ class Rules{
             this.pickRules(numRules);
         }
 
-        this.nextSkip = false;
+        //this.nextSkip = false;
     }
 
     get rulesInPlay(){
@@ -572,7 +575,7 @@ class Rules{
             else if (this.allRules[ruleNum].name === 'skipChoose'){
                 this.gameRules[1].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
-                this.storeCardRule(this.gameRules[1], this.allRules[ruleNum], name);
+                this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
             else if(this.gameRules[cardNum].function === this.noRule){
@@ -721,9 +724,9 @@ class Rules{
                     //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
                     if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
                         player.game.rules.skippedPlayer.push(player.name);
-                        this.nextSkip = false;
+                        // this.nextSkip = false;
                     } else {
-                        this.nextSkip = true;
+                        // this.nextSkip = true;
                         ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
                         let nowplay = ourGame._playerList.indexOf(player) + 1;
                         if (nowplay >= ourGame._playerList.length){
@@ -745,8 +748,9 @@ class Rules{
             player.showAlert(message);
             player.game.drawCard(player);
         }
-        if(player.game.rules.rulesInPlay.includes('skipChoose')){
-            if(this.skipChooseRules.played === false || this.nextSkip === true) {
+        if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
+            if(this.skipChooseRules.played === false){
+                //|| this.nextSkip === true) {
                 player.game.updateTurn();
                 player.game.rules.skipNextRules.played = true;
             }
