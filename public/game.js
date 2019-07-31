@@ -147,6 +147,7 @@ class Player {
 
     receiveCard(card) {
         this._hand.push(card);
+        //this.hilite(document.getElementById(this.name + 'show'));
     }
 
     handSize(){
@@ -180,6 +181,7 @@ class Player {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
+        this.hilite(document.getElementById(this.name + 'show'));
     };
 
     playCard(cardIndex, selectedRules) {
@@ -204,6 +206,14 @@ class Player {
             }
         }
         this.updateNumCards();
+        this.hilite(document.getElementById(this.name + 'show'));
+    }
+
+    hilite(boop){
+        boop.classList.toggle('highlight');
+        setTimeout(function(){
+            boop.classList.toggle('highlight');
+        }, 1200)
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -968,7 +978,7 @@ export function randomGame(){
     const numRulesResponse = document.createElement('select');
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
-    numRulesResponse.type = 'option';
+    //numRulesResponse.type = 'option';
     const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
     for (let i = 0; i < levels.length; i++) {
         let option = document.createElement("option");
@@ -1150,6 +1160,8 @@ function startGame(players) {
     });
 }
 
+
+
 function createTopBar(){
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
@@ -1276,6 +1288,7 @@ function passTurn() {
     declaration = "- ";
     document.getElementById('played').innerHTML = '- ';
     document.getElementById('played').style.color = '#b0210b';
+    //player.hilite(document.getElementById(player.name+'show'));
 }
 
 function playTurn() {
@@ -1293,6 +1306,7 @@ function playTurn() {
         selectedRules = [];
         niceDayCount = 0;
         declaration = "- ";
+        //player.hilite(document.getElementById(player.name + 'show'));
     } else {
         findPlayerIndexFromId().showAlert('must select card to play turn');
     }
