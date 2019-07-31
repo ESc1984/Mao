@@ -2,16 +2,20 @@ let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
-    constructor(){
-        this._cards = this.makeCards();
+    constructor(deck){
+        this._cards = this.makeCards(deck);
     }
 
-    makeCards(){
+    makeCards(deck){
         let cards = [];
-        for (let i = 0; i < 250; i++){
-            let su = Math.floor(Math.random()*suits.length);
-            let val = Math.floor(Math.random()*values.length);
-            cards.push({suit: suits[su], value: values[val], num: i})
+        if(deck !== undefined){
+            cards = deck._cards;
+        } else {
+            for (let i = 0; i < 250; i++){
+                let su = Math.floor(Math.random()*suits.length);
+                let val = Math.floor(Math.random()*values.length);
+                cards.push({suit: suits[su], value: values[val], num: i})
+            }
         }
         return cards;
     }
@@ -309,10 +313,10 @@ class Player {
 
 export default class Game {
     constructor(players, rules, hands, deck, topDiscard){
-        (deck !== undefined) ? this._playDeck = deck : this._playDeck = new Deck();
+        this._playDeck = new Deck(deck);
         let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        this._rules = (typeof rules === 'number' || rules === false) ? new Rules(rules) : rules;
+        this._rules = new Rules(rules);
         this._playerList = [];
         for (let i = 0; i < players.length; i++){
             let hand = (hands !== undefined) ? hands[i] : this.dealHand();
@@ -382,7 +386,7 @@ export default class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
+        let grid = document.getElementById('playerHand');
         addCardsToPlayer(card, grid);
         player.receiveCard(card);
     }
@@ -440,7 +444,7 @@ export default class Game {
 
 
 
-class Rules{
+export class Rules{
     constructor(numRules){
         this.gameRules = [
             {value:"S", function: this.noRule},
@@ -491,8 +495,10 @@ class Rules{
 
         if(numRules === false){
             this.normalRules();
-        } else {
+        } else if(typeof numRules === 'number') {
             this.pickRules(numRules);
+        } else{
+            this.givenRules(numRules);
         }
     }
 
@@ -614,6 +620,28 @@ class Rules{
         this.skipNextRules.card = 'A';
         this.reverseRules.card = '8';
         this.playAgainRules.card = '2';
+    }
+
+    givenRules(rules){
+        this.allRules.forEach(rule => {
+            let name = "_" + rule.name + 'Rules';
+            if(rules._rulesInPlay.includes(rule.name)){
+                this.addCardRule(rules[name].card, rule.name, rule.function);
+            }
+        })
+    }
+
+    addCardRule(card, ruleName, action){
+        this.rulesInPlay.push(ruleName);
+        if(ruleName === 'skipNext'){
+            this.rulesInPlay.push('skipChoose');
+        }
+        this[ruleName + 'Rules'].function = action;
+        this.gameRules.forEach(gameRule => {
+            if(gameRule.value === card){
+                gameRule.function = action;
+            }
+        });
     }
 
     storeCardRule(card, rule, name){
@@ -1169,10 +1197,10 @@ export function addCardsToPlayer(card, grid){
     grid.appendChild(playCard);
 }
 
-export function passTurn() {
+export function passTurn(game) {
     document.getElementById("alert").innerHTML = '';
     playerPlaying = this.parentElement.id;
-    let player = findPlayerIndexFromId(playerPlaying);
+    let player = findPlayerIndexFromId(playerPlaying, game);
     player.passTurn();
     selectedRules = [];
     niceDayCount = 0;
@@ -1181,9 +1209,9 @@ export function passTurn() {
     document.getElementById('played').style.color = '#b0210b';
 }
 
-function playTurn() {
+export function playTurn(game) {
     if(selectedCard != ""){
-        let player = findPlayerIndexFromId(playerPlaying);
+        let player = findPlayerIndexFromId(playerPlaying, game);
         let cardIndex = -1;
         for(let i = 0; i < player.hand.length; i++){
             if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) && player.hand[i].num.toString() === selectedCard.substring(2)){
@@ -1197,19 +1225,19 @@ function playTurn() {
         niceDayCount = 0;
         declaration = "- ";
     } else {
-        findPlayerIndexFromId(playerPlaying).showAlert('must select card to play turn');
+        findPlayerIndexFromId(playerPlaying, game).showAlert('must select card to play turn');
     }
 }
 
-export function findPlayerIndexFromId(id){
+export function findPlayerIndexFromId(id, game){
     let playerIndex = -1;
-    for (let i = 0; i < ourGame.playerList.length; i++) {
-        if (ourGame.playerList[i].name ===  id) {
+    for (let i = 0; i < game.playerList.length; i++) {
+        if (game.playerList[i].name ===  id) {
             playerIndex = i;
             break;
         }
     }
-    let player = ourGame.playerList[playerIndex];
+    let player = game.playerList[playerIndex];
     return player;
 }
 

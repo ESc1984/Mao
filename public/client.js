@@ -1,5 +1,5 @@
-import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
-    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame } from "./game.js";
+import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided, playTurn,
+    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame, Rules } from "./game.js";
 import Game from "./game.js";
 (function () {
     "use strict";
@@ -90,6 +90,7 @@ import Game from "./game.js";
             }
         } else {
             createTopBar(data.topDiscard);
+            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
             rules = data.rules;
             let counter = 0;
             let game = document.getElementById("gameBoard");
@@ -108,6 +109,7 @@ import Game from "./game.js";
                     gamePlayer.dataset.name = player;
                     const playerHand = document.createElement('section');
                     playerHand.setAttribute('class', 'grid playerHand');
+                    playerHand.id = 'playerHand';
                     initializePlayerHand(playingHand, playerHand);
                     document.getElementById(player).appendChild(playerHand);
                     const passBtn = document.createElement("button");
@@ -139,7 +141,13 @@ import Game from "./game.js";
                 }
                 counter++;
             });
-            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
+            let playButton = document.getElementById('playCard');
+            if(playButton){
+                playButton.addEventListener('click', function () {
+                    playTurn(thisGame);
+
+                })
+            }
         }
     }
 
