@@ -1,7 +1,7 @@
 
 
-let suits = ['S', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'D', 'C'];
-let values = ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+let suits = ['S', 'H', 'D', 'C'];
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
     constructor(){
@@ -999,18 +999,37 @@ function randomGame(){
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
     namePrompt(startGame);
+    // const numRulesPrompt = document.createElement('label');
+    // numRulesPrompt.id = 'numRulesPrompt';
+    // numRulesPrompt.setAttribute('for', 'numRules');
+    // numRulesPrompt.innerHTML = 'Enter Number of Rules ';
+    // const numRulesResponse = document.createElement('input');
+    // numRulesResponse.name = 'numRulesPrompt';
+    // numRulesResponse.id = 'numRules';
+    // numRulesResponse.type = 'number';
     const numRulesPrompt = document.createElement('label');
     numRulesPrompt.id = 'numRulesPrompt';
     numRulesPrompt.setAttribute('for', 'numRules');
-    numRulesPrompt.innerHTML = 'Enter Number of Rules ';
-    const numRulesResponse = document.createElement('input');
+    numRulesPrompt.innerHTML = 'Choose Difficulty Level ';
+    const numRulesResponse = document.createElement('select');
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
-    numRulesResponse.type = 'number';
+    numRulesResponse.type = 'option';
+    const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
+    for (let i = 0; i < levels.length; i++) {
+        let option = document.createElement("option");
+        option.value = ((i+1) * 3).toString();
+        option.text = levels[i];
+        numRulesResponse.add(option);
+    }
     const newLine = document.createElement('br');
     startGame.appendChild(numRulesPrompt);
     startGame.appendChild(numRulesResponse);
     startGame.appendChild(newLine);
+    startGame.appendChild(newLine);
+    // startGame.appendChild(diffPrompt);
+    // startGame.appendChild(diffResponse);
+    // startGame.appendChild(newLine);
     submitButton(startGame, true);
 }
 
