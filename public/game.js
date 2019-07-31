@@ -180,7 +180,6 @@ class Player {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
-        console.log(this._game.rules.skippedPlayer);
     };
 
     playCard(cardIndex, selectedRules) {
@@ -205,7 +204,6 @@ class Player {
             }
         }
         this.updateNumCards();
-        console.log(this._game.rules.skippedPlayer);
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -281,6 +279,12 @@ class Player {
         });
     }
 
+    // callout(){
+    //     if (document.getElementById("alert").innerHTML === ''){
+    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
+    //     }
+    // }
+
     showAlert(message){
         if (document.getElementById("alert").innerHTML === ''){
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
@@ -291,8 +295,6 @@ class Player {
             document.getElementById("alert").innerHTML = '';
             document.getElementById('alert').classList.toggle('hide');
         }, 1600);
-        // document.getElementById("alert").innerHTML = '';
-        // document.getElementById('alert').classList.toggle('hide');
     }
 
     set turn(turn) {
@@ -361,11 +363,8 @@ class Game {
     }
 
     updateTurn(){
-        //solve ace of hearts
         let currentPlayer = this.getCurrentPlayer();
-        console.log('current player: ' + currentPlayer);
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
-        console.log('next player: ' + nextPlayer);
         //this.checkNext(currentPlayer, nextPlayer);
         if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
             let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
@@ -394,18 +393,6 @@ class Game {
         // }
     }
 
-    // checkNext(current, next){
-    //     let newnext = next;
-    //     if (this.rules.skippedPlayer.includes(next.name)){
-    //         let i = this.rules.skippedPlayer.indexOf(this.getPlayer(next).name);
-    //         this.rules.skippedPlayer.splice(i, 1);
-    //         this.disableTurn(next);
-    //         newnext = current + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
-    //         console.log('new next player: ' + nextPlayer);
-    //     }
-    //     return newnext;
-    // }
-
     disableTurn(playerIndex){
         this.getPlayer(playerIndex).turn = false;
     }
@@ -433,7 +420,9 @@ class Game {
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            //runCount = 0;
+            //runCount = save;
+            runCount = 0;
+            //is this right?
         }
     }
 }
@@ -500,8 +489,6 @@ class Rules{
         } else {
             this.pickRules(numRules);
         }
-
-        //this.nextSkip = false;
     }
 
     get rulesInPlay(){
@@ -776,38 +763,6 @@ class Rules{
         }
     }
 
-    // skipChoosePlayed(player, state){
-    //     if(state != ""){
-    //         let message = 'declared ' + state + ' out of turn';
-    //         player.showAlert(message);
-    //         player.game.drawCard(player);
-    //     }
-    //     let prompt = document.createElement('p');
-    //     prompt.classList.add('alert');
-    //     prompt.innerHTML = 'Select the Player you Wish to Skip';
-    //     game.appendChild(prompt);
-    //     const grid = document.createElement('playerNameGrid');
-    //     grid.setAttribute('class', 'grid');
-    //     prompt.appendChild(grid);
-    //     ourGame.playerList.forEach(player => {
-    //         if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
-    //             const gamePlayer = document.createElement('button');
-    //             gamePlayer.classList.add('ruleButton');
-    //             gamePlayer.innerHTML = player.name;
-    //             gamePlayer.onclick = (() => {
-    //                 let checker = ourGame._playerList.indexOf(player);
-    //                 let checkee = ourGame.getCurrentPlayer() - 1;
-    //                 if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
-    //                     player.game.rules.skippedPlayer.push(player.name);
-    //                 }
-    //                 prompt.parentNode.removeChild(prompt);
-    //             });
-    //             grid.appendChild(gamePlayer);
-    //         }
-    //     });
-    //     player.game.rules.skipChoosePlayed.played = true;
-    // }
-
     niceDayPlayed(player, state){
         if (state === "") {
             player.game.drawCard(player);
@@ -1001,7 +956,7 @@ function namePrompt(parent){
     parent.appendChild(newLine);
 }
 
-function randomGame(){
+export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
@@ -1009,11 +964,18 @@ function randomGame(){
     const numRulesPrompt = document.createElement('label');
     numRulesPrompt.id = 'numRulesPrompt';
     numRulesPrompt.setAttribute('for', 'numRules');
-    numRulesPrompt.innerHTML = 'Enter Number of Rules ';
-    const numRulesResponse = document.createElement('input');
+    numRulesPrompt.innerHTML = 'Choose Difficulty Level ';
+    const numRulesResponse = document.createElement('select');
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
-    numRulesResponse.type = 'number';
+    numRulesResponse.type = 'option';
+    const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
+    for (let i = 0; i < levels.length; i++) {
+        let option = document.createElement("option");
+        option.value = ((i+1) * 3).toString();
+        option.text = levels[i];
+        numRulesResponse.add(option);
+    }
     const newLine = document.createElement('br');
     startGame.appendChild(numRulesPrompt);
     startGame.appendChild(numRulesResponse);
@@ -1021,7 +983,7 @@ function randomGame(){
     submitButton(startGame, true);
 }
 
-function standardGame(){
+export function standardGame(){
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
     namePrompt(startGame);
@@ -1099,7 +1061,7 @@ function saveNames() {
                             let start = i;
                             let end = 0;
                             let found = true;
-                            for (w = start; w < start + prof[b].length; w++){
+                            for (let w = start; w < start + prof[b].length; w++){
                                 if (checker.charAt(w) !== prof[b].charAt(w-start)){
                                     found = false;
                                 } else {
@@ -1148,7 +1110,7 @@ function numRulesDecided(numRules){
     }
 }
 
-function removeElement(element) {
+export function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
