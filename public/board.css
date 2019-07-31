@@ -69,11 +69,25 @@
 #discard .card {
     width: 130px;
     height: 190px;
+    border-color: #b0210b !important;
+    pointer-events: none !important;
 }
 
 .numCards{
     margin: 0;
     font-size: 25px;
+}
+
+#numRules{
+    font-family: Oriya MN;
+    font-size: 18px;
+    background-color: gold;
+    color: #b0210b;
+    vertical-align: center;
+}
+
+#numRules:focus {
+    outline-color: goldenrod;
 }
 
 /*.playerhand {*/
@@ -102,7 +116,9 @@ body {
 label {
     color: gold;
     font-family: Oriya MN;
-    font-size: 30px;
+    font-size: 25px;
+    line-height: 40px;
+    vertical-align: center;
 }
 
 p {
@@ -137,6 +153,14 @@ button:focus {
 
 button:active {
     background-color: #c21515;
+}
+
+input {
+    font-family: Oriya MN;
+    font-size: 16px;
+    /*background-color: gold;*/
+    color: #b0210b;
+    vertical-align: center;
 }
 
 input:focus {
