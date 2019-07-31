@@ -69,6 +69,8 @@
 #discard .card {
     width: 130px;
     height: 190px;
+    border-color: #b0210b !important;
+    pointer-events: none !important;
 }
 
 .numCards{

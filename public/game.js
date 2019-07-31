@@ -372,8 +372,17 @@ class Game {
             //this.rules.skippedPlayer.splice(i, 1);
             //relocation
             this.disableTurn(nextPlayer);
-            nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
+            if (nextPlayer === this._playerList.length-1){
+                nextPlayer = 0;
+                console.log(nextPlayer);
+            } else {
+                nextPlayer++;
+                console.log(nextPlayer);
+            }
+            //nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
             console.log('new next player: ' + nextPlayer);
+            this.rules.skippedPlayer.splice(i, 1);
+            console.log(this.rules.skippedPlayer);
         }
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
@@ -719,7 +728,7 @@ class Rules{
                     // let checker = ourGame._playerList.indexOf(player);
                     // let checkee = ourGame.getCurrentPlayer();
                     //fremulon
-                    let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
+                    //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
                     //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
                     //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
                     if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
@@ -912,7 +921,7 @@ class Rules{
             document.getElementById('alert').style.marginLeft = '0';
             document.getElementById('alert').style.fontSize = '100px';
             document.getElementById('alert').style.top = '10%';
-            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + '<br> YOU HAVE WON THIS ROUND OF MAO';
             document.getElementById('redoButton').style.display = 'block';
         }
     }
