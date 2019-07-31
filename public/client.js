@@ -182,10 +182,7 @@ import Game from "./game.js";
         } else {
             let otherPlayers = document.getElementById('otherPlayersGrid');
             otherPlayers.innerHTML = "";
-            if(data.player !== playerName){
-                thisGame.updateGame(data.hand, data.deck, data.player,
-                    data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
-            }
+            thisGame.updateGame(data.hand, data.deck, data.player, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
             thisGame.playerList.forEach(player => {
                 if(player.name === playerName){
                     let playerHand = document.getElementById("playerHand");

@@ -305,9 +305,10 @@ export default class Game {
          this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
         if(suit !== undefined){
-            this._passes = numPasses;
+            this._discardPile.expectedSuit = suit;
         }
-        this._discardPile.expectedSuit = suit;
+        this._passes = numPasses;
+        this.passCount();
     }
 
     get game(){
