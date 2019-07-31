@@ -76,17 +76,19 @@ function onSocketConnect(ws) {
 
         let user = {};
 
-        if (msg.action === "getUsers") {
+        if (msg.action === "getUsers") {    //send game info instead
             return ws.send(JSON.stringify({
                 users: users
             }));
         }
 
-        // if (msg.action === 'modeSelection'){
-        //     if(msg.mode){
-        //         mode = msg.mode;
-        //     }
-        // }
+        if (msg.action === 'modeSelected'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    mode: msg.mode,
+                }));
+            });
+        }
 
         if (msg.action === "setUser") {
             if (msg.userId) {
@@ -106,14 +108,13 @@ function onSocketConnect(ws) {
             user.name = msg.name;
             user.quest = msg.quest;
             user.color = msg.color;
+
+            clients.forEach(client => {     //probably change -- figure out what the client is
+                return client.send(JSON.stringify({
+                    users: users
+                }));
+            });
         }
-
-
-        clients.forEach(client => {     //probably change -- figure out what the client is
-            return client.send(JSON.stringify({
-                users: users
-            }));
-        });
     });
 
     ws.on('close', function () {
@@ -130,10 +131,6 @@ if (!module.parent) {
     http.createServer(function(request, response){
         accept(request, response);
     }).listen(8080);
-    // http.createServer(function(request, response){
-    //     //accept(request, response);
-    //     http.createServer(accept).listen(8080);
-    // }).listen(8080);
     console.log("••• Listening on: " + ip.address() + ":8080 •••");
 } else {
     // to embed into javascript.info
