@@ -1014,14 +1014,6 @@ function randomGame(){
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
     numRulesResponse.type = 'number';
-    const diffPrompt = document.createElement('label');
-    diffPrompt.id = 'diffPrompt';
-    diffPrompt.setAttribute('for', 'numRules');
-    diffPrompt.innerHTML = 'Choose Difficulty Level ';
-    const diffResponse = document.createElement('input');
-    diffResponse.name = 'diffPrompt';
-    diffResponse.id = 'difficulty';
-    diffResponse.type = 'number';
     const newLine = document.createElement('br');
     startGame.appendChild(numRulesPrompt);
     startGame.appendChild(numRulesResponse);
