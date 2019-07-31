@@ -208,8 +208,8 @@ class Player {
 
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(selected => {
-            if(selected === 'Mao' && this._game.rules.maoRules.played === false){
-                this._game.rules.mao(this, selected);
+            if(selected === 'Mao' && this._game.rules.maoRules.played === false && this._game.rules.rulesInPlay.includes('mao')){
+                this._game.rules.maoPlayed(this, selected);
             } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')) {
                 this._game.rules.gameRules[0].function(this, selected, card);
             } else if(selected === 'Pair' && this._game.rules.pairRules.played === false &&
@@ -232,14 +232,14 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
-                    let message = 'declared ' + state + ' out of turn';
-                    card.parentElement.parentElement.showAlert(message);
+                    let message = 'declared ' + selected.toUpperCase() + ' out of turn';
+                    this.showAlert(message);
                 }
             }
         });
 
         if(this._game.rules.rulesInPlay.includes('mao') && this.hand.length === 2 && !this._game.rules.maoRules.played){
-            this._game.rules.mao(this, "");
+            this._game.rules.maoPlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
@@ -465,7 +465,8 @@ class Rules{
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
             {function: this.pairPlayed, name: 'pair'},
-            {function: this.runPlayed, name: 'run'}
+            {function: this.runPlayed, name: 'run'},
+            {function: this.maoPlayed, name: 'mao'}
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
@@ -574,6 +575,12 @@ class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
+            else if(this.gameRules[cardNum].name === 'mao'){
+                this.gameRules[2].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule('', this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -606,7 +613,7 @@ class Rules{
             {value:"K", function: this.chairmanPlayed}
         ];
         this._rulesInPlay = ['niceDay', 'wild',
-            'chairwoman', 'chairman', 'spade', 'skipNext', 'reverse', 'playAgain'];
+            'chairwoman', 'chairman', 'spade', 'skipNext', 'reverse', 'playAgain', 'mao'];
         this.niceDayRules.card = '7';
         this.wildRules.card = 'J';
         this.chairwomanRules.card = 'Q';
@@ -856,7 +863,7 @@ class Rules{
     }
 
 
-    mao(player, state){
+    maoPlayed(player, state){
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
@@ -876,7 +883,7 @@ class Rules{
             document.getElementById('alert').style.marginLeft = '0';
             document.getElementById('alert').style.fontSize = '100px';
             document.getElementById('alert').style.top = '10%';
-            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + '<br> YOU HAVE WON THIS ROUND OF MAO';
+            document.getElementById("alert").innerHTML = '- CONGRATULATIONS, ' + player.name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
             document.getElementById('redoButton').style.display = 'block';
         }
     }
