@@ -128,7 +128,7 @@ function onSocketConnect(ws) {
                    deck: msg.deck,
                    player: msg.playerName,
                    playerId: msg. playerId,
-                   hand: msg.playerHand,
+                   hands: msg.playerHands,
                    penalties: msg.penalties,
                    passes: msg.numPasses,
                    turnOrder: msg.turnOrder

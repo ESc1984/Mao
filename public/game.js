@@ -295,12 +295,10 @@ export default class Game {
         this._passes = 0;
     }
 
-     updateGame(hand, deck, player, penalties, turnOrder, numPasses, topDiscard, suit){
+     updateGame(hands, deck, player, penalties, turnOrder, numPasses, topDiscard, suit){
         for(let i = 0; i < this._playerList.length; i++){
-            this._playerList[i].turn = turnOrder[i];
-            if(this._playerList[i].name === player){
-                this._playerList[i].hand = hand;
-            }
+            this._playerList[i].turn = turnOrder[this._playerList[i].name];
+            this._playerList[i].hand = hands[this._playerList[i].name];
         }
          this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
@@ -319,6 +317,14 @@ export default class Game {
         return this._playDeck;
     }
 
+    get hands(){
+        let hands = {};
+        this.playerList.forEach(player => {
+            hands[player.name] = player.hand;
+        });
+        return hands;
+    }
+
     get rules(){
         return this._rules;
     }
@@ -332,9 +338,9 @@ export default class Game {
     }
 
     get turnOrder(){
-        let turns = [];
+        let turns = {};
         this._playerList.forEach(player => {
-            turns.push(player.turn);
+            turns[player.name] = player.turn;
         });
         return turns;
     }

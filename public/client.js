@@ -155,7 +155,7 @@ import Game from "./game.js";
                         deck: thisGame.playDeck,
                         playerName: playerName,
                         playerId: playerId,
-                        playerHand: thisGame.playerList[index].hand,
+                        playerHands: thisGame.hands,
                         penalties: "test",
                         numPasses: thisGame.numPasses,
                         turnOrder: thisGame.turnOrder
@@ -172,7 +172,7 @@ import Game from "./game.js";
                        deck: thisGame.playDeck,
                        playerName: playerName,
                        playerId: playerId,
-                       playerHand: thisGame.playerList[index].hand,
+                       playerHands: thisGame.hands,
                        penalties: "test",
                        numPasses: thisGame.numPasses,
                        turnOrder: thisGame.turnOrder
@@ -182,12 +182,12 @@ import Game from "./game.js";
         } else {
             let otherPlayers = document.getElementById('otherPlayersGrid');
             otherPlayers.innerHTML = "";
-            thisGame.updateGame(data.hand, data.deck, data.player, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
+            thisGame.updateGame(data.hands, data.deck, data.player, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
             thisGame.playerList.forEach(player => {
                 if(player.name === playerName){
                     let playerHand = document.getElementById("playerHand");
                     playerHand.innerHTML = "";
-                    initializePlayerHand(player.hand, playerHand);
+                    initializePlayerHand(data.hands[player.name], playerHand);
                 } else {
                     const gamePlayer = document.createElement('div');
                     gamePlayer.classList.add('player');
@@ -206,7 +206,7 @@ import Game from "./game.js";
                     numCards.classList.add('numCards');
                     numCards.setAttribute('class', 'numCards');
                     numCards.setAttribute('id', `${player.name}numCards`);
-                    numCards.innerHTML = player.hand.length.toString() + ' cards';
+                    numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
                     hand.appendChild(numCards);
                 }
             });
