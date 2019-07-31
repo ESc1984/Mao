@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const express = require('express');
 const ip = require('ip');
 let app = express();
+const util = require('util');
 
 const wss = new ws.Server({
     noServer: true
@@ -109,10 +110,15 @@ function onSocketConnect(ws) {
         if (msg.action === 'startGame'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    playerId: msg.playerId,
                     names: msg.names,
+                    playerId: msg.playerId,
                     hands: msg.playingHands,
-                    topDiscard: msg.topDiscard
+                    deck: msg.playDeck,
+                    topDiscard: msg.topDiscard,
+                    rules: msg.rules,
+                    turnOrder: msg.turnOrder,
+                    numPasses: msg.numPasses,
+                    sevens: msg.numSevens
                 }));
             });
         }

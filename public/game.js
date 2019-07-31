@@ -120,11 +120,11 @@ class DiscardPile {
 
 
 class Player {
-    constructor(hand, name, game) {
+    constructor(hand, name, turn, game) {
         this._hand = hand;
         this._name = name;
+        this._turn = turn;
         this._game = game;
-        this._turn = false;
     }
 
     get game() {
@@ -135,12 +135,22 @@ class Player {
         return this._hand;
     }
 
+    set hand(hand) {
+        this._hand = hand;
+        let grid = document.getElementById(this._name).querySelector('.playerHand');
+        initializePlayerHand(hand, grid);
+    }
+
     get name() {
         return this._name;
     }
 
     get turn() {
         return this._turn;
+    }
+
+    set turn(turn) {
+        this._turn = turn;
     }
 
     receiveCard(card) {
@@ -278,12 +288,6 @@ class Player {
         });
     }
 
-    // callout(){
-    //     if (document.getElementById("alert").innerHTML === ''){
-    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-    //     }
-    // }
-
     showAlert(message){
         if (document.getElementById("alert").innerHTML === ''){
             document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
@@ -295,11 +299,6 @@ class Player {
             document.getElementById('alert').classList.toggle('hide');
         }, 1600);
     }
-
-    set turn(turn) {
-        this._turn = turn;
-    }
-
 }
 
 
@@ -308,18 +307,37 @@ class Player {
 
 
 
-class Game {
-    constructor(playerList, numRules){
-        this._playDeck = new Deck();
-        let card = this._playDeck.deal();
+export default class Game {
+    constructor(players, rules, hands, deck, topDiscard){
+        (deck !== undefined) ? this._playDeck = deck : this._playDeck = new Deck();
+        let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        this._rules = new Rules(this, numRules);
+        this._rules = (typeof rules === 'number' || rules === false) ? new Rules(rules) : rules;
         this._playerList = [];
-        for (let i = 0; i < playerList.length; i++){
-            this._playerList.push(new Player(this.dealHand(), playerList[i], this));
+        for (let i = 0; i < players.length; i++){
+            let hand = (hands !== undefined) ? hands[i] : this.dealHand();
+            this._playerList.push(new Player(hand, players[i],false, this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
+    }
+
+    updateGame(hands, deck, topDiscard, turnOrder, numPasses){
+        for(let i = 0; i < this._playerList.length; i++){
+            this._playerList[i].hand = hands[i];
+            this._playerList[i].turn = turnOrder[i];
+        }
+        this._playDeck = deck;
+        this._discardPile.add(topDiscard);
+        this._passes = numPasses;
+    }
+
+    get game(){
+        return this;
+    }
+
+    get playDeck(){
+        return this._playDeck;
     }
 
     get rules(){
@@ -332,6 +350,14 @@ class Game {
 
     get playerList(){
         return this._playerList;
+    }
+
+    get turnOrder(){
+        let turns = [];
+        this._playerList.forEach(player => {
+            turns.push(player.turn);
+        });
+        return turns;
     }
 
     get discardPile(){
@@ -359,7 +385,6 @@ class Game {
         let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
         addCardsToPlayer(card, grid);
         player.receiveCard(card);
-        //grid.parentElement.getElementsByClassName('hand').getElementsByClassName('numCards').innerHTML = player.hand.length;
     }
 
     updateTurn(){
@@ -416,7 +441,7 @@ class Game {
 
 
 class Rules{
-    constructor(player, numRules){
+    constructor(numRules){
         this.gameRules = [
             {value:"S", function: this.noRule},
             {value:"H", function: this.noRule},
@@ -1034,7 +1059,6 @@ export function createTopBar(topDiscard){
     const playCard = document.createElement('button');
     playCard.setAttribute('id', 'playCard');
     playCard.innerHTML = 'Play<br>Turn';
-    playCard.onclick = playTurn;
     topGrid.appendChild(playCard);
     game.appendChild(topGrid);
     const speak = document.createElement('speak');

@@ -1,9 +1,10 @@
 import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
     initializePlayerHand, saveNames, passTurn, createTopBar, ourGame } from "./game.js";
+import Game from "./game.js";
 (function () {
     "use strict";
+    let thisGame;
 
-    /* Assign this user an id */
     document.querySelector("[name=\"userId\"]").value = generateId();
 
     let ip = window.location.hostname;
@@ -33,7 +34,7 @@ import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
     };
 
     let users = [];
-    let gamePlaying;
+    let playingHand, playerName, topDiscard, rules, deck;
     function updateView(data) {
         if(data.mode){
             removeElement(document.getElementById('startPage'));
@@ -74,17 +75,22 @@ import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
                 startGame.addEventListener('click', function() {
                     let players = saveNames(users);
                     let playingHands = getHands();
+                    thisGame = ourGame.game;
+                    let topDiscard = thisGame.discardPile.topDiscard();
                     socket.send(JSON.stringify({
                         action: 'startGame',
                         names: players,
                         playerId: users,
                         playingHands: playingHands,
-                        topDiscard: ourGame.discardPile.topDiscard()
+                        playDeck: thisGame.playDeck,
+                        topDiscard: topDiscard,
+                        rules: thisGame.rules,
                     }));
                 });
             }
         } else {
             createTopBar(data.topDiscard);
+            rules = data.rules;
             let counter = 0;
             let game = document.getElementById("gameBoard");
             const gamePlayer = document.createElement('div');
@@ -96,16 +102,18 @@ import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
             otherPlayers.id = 'otherPlayersGrid';
             data.names.forEach(player => {
                 if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
+                    playingHand = data.hands[counter];
+                    playerName = player;
                     gamePlayer.setAttribute("id", player);
                     gamePlayer.dataset.name = player;
                     const playerHand = document.createElement('section');
                     playerHand.setAttribute('class', 'grid playerHand');
-                    initializePlayerHand(data.hands[counter], playerHand);
+                    initializePlayerHand(playingHand, playerHand);
                     document.getElementById(player).appendChild(playerHand);
                     const passBtn = document.createElement("button");
+                    passBtn.id = 'passTurn';
                     passBtn.setAttribute('class', 'pass');
                     passBtn.innerHTML = 'Pass Turn';
-                    passBtn.onclick = passTurn;
                     document.getElementById(player).appendChild(passBtn);
                     document.getElementById(player).appendChild(otherPlayers);
                 } else {
@@ -131,6 +139,7 @@ import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
                 }
                 counter++;
             });
+            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
         }
     }
 
@@ -159,10 +168,6 @@ import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided,
             hands[i] = ourGame.playerList[i].hand;
         }
         return hands;
-    }
-
-    function displayThisPlayer(){
-
     }
 
     function generateId(len) {
