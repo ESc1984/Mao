@@ -141,8 +141,6 @@ class Player {
 
     set hand(hand) {
         this._hand = hand;
-        let grid = document.getElementById(this._name).querySelector('.playerHand');
-        initializePlayerHand(hand, grid);
     }
 
     get name() {
@@ -165,20 +163,6 @@ class Player {
         return this._hand.length;
     }
 
-    updateNumCards(){
-        let player = game.querySelector(`#${this.name}`);
-        let display = player.getElementsByClassName('hand')[0];
-        let element = display.parentElement.getElementsByClassName('playerHand');
-        if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-            let playerHand = player.querySelector('.playerHand');
-            if (playerHand.children.length === 1) {
-                playerHand.parentNode.children[0].children[0].innerHTML = (playerHand.children.length + ' card');
-            } else {
-                playerHand.parentNode.children[0].children[0].innerHTML = (playerHand.children.length + ' cards');
-            }
-        }
-    }
-
     passTurn() {
         document.getElementById('played').innerHTML = '- ';
         document.getElementById('played').style.color = '#b0210b';
@@ -187,7 +171,6 @@ class Player {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
         }
-        this.updateNumCards();
         if (document.getElementById(selectedCard) !== null) {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
@@ -205,17 +188,11 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-                let player = game.querySelector(`#${this.name}`);
-                let grid = player.querySelector(".playerHand");
-                let identifier = "#" + card.suit + card.value + card.num;
-                let element = grid.querySelector(identifier);
-                element.parentNode.removeChild(element);
 
-                this._game.rules.findWin(this);
+                this._game.rules.findWin(this);     //win screen somehow connect
                 this._game.updateTurn();
             }
         }
-        this.updateNumCards();
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -245,16 +222,8 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
-                    let message = 'declared ' + state + ' out of turn';
-                    card.parentElement.parentElement.showAlert(message);
-                    // let rule = `${selected}`.toUpperCase();
-                    // this.callout();
-                    // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${rule} OUT OF TURN -<br>`);
-                    // document.getElementById('alert').classList.toggle('hide');
-                    // setTimeout(function(){
-                    //     document.getElementById("alert").innerHTML = '';
-                    //     document.getElementById('alert').classList.toggle('hide');
-                    // }, 3000);
+                    let message = 'declared ' + selected + ' out of turn';
+                    this.showAlert(message);
                 }
             }
         });
@@ -326,14 +295,19 @@ export default class Game {
         this._passes = 0;
     }
 
-    updateGame(hands, deck, topDiscard, turnOrder, numPasses){
+     updateGame(hand, deck, player, penalties, turnOrder, numPasses, topDiscard, suit){
         for(let i = 0; i < this._playerList.length; i++){
-            this._playerList[i].hand = hands[i];
             this._playerList[i].turn = turnOrder[i];
+            if(this._playerList[i].name === player){
+                this._playerList[i].hand = hand;
+            }
         }
-        this._playDeck = deck;
-        this._discardPile.add(topDiscard);
-        this._passes = numPasses;
+         this._playDeck = new Deck(deck);
+        this._discardPile.addToDiscard(topDiscard);
+        if(suit !== undefined){
+            this._passes = numPasses;
+        }
+        this._discardPile.expectedSuit = suit;
     }
 
     get game(){
@@ -386,8 +360,6 @@ export default class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        let grid = document.getElementById('playerHand');
-        addCardsToPlayer(card, grid);
         player.receiveCard(card);
     }
 
@@ -428,11 +400,9 @@ export default class Game {
     }
 
     passCount(){
-        // let save = runCount;
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            //runCount = save;
             runCount = 0;
         }
     }
@@ -479,6 +449,7 @@ export class Rules{
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
+        this._random = false;
 
         this._niceDayRules = {played: false};
         this._wildRules = {played: false};
@@ -500,6 +471,14 @@ export class Rules{
         } else{
             this.givenRules(numRules);
         }
+    }
+
+    get random(){
+        return this._random;
+    }
+
+    set random(val){
+        this._random = val;
     }
 
     get rulesInPlay(){
@@ -559,6 +538,7 @@ export class Rules{
     }
 
     pickRules(num){
+        this.random = true;
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
             let cardNum = Math.floor(Math.random() * 13 + 4);
@@ -626,17 +606,18 @@ export class Rules{
         this.allRules.forEach(rule => {
             let name = "_" + rule.name + 'Rules';
             if(rules._rulesInPlay.includes(rule.name)){
-                this.addCardRule(rules[name].card, rule.name, rule.function);
+                this.addCardRule(rules[name].card, rule.name, rule.function, rules.random);
             }
         })
     }
 
-    addCardRule(card, ruleName, action){
+    addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        if(ruleName === 'skipNext'){
+        if(ruleName === 'skipNext' && random === true){
             this.rulesInPlay.push('skipChoose');
         }
         this[ruleName + 'Rules'].function = action;
+        this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
             if(gameRule.value === card){
                 gameRule.function = action;
@@ -646,7 +627,7 @@ export class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
-        if(rule.name === 'skipNext'){
+        if(rule.name === 'skipNext' && this.random === true){
             this.rulesInPlay.push('skipChoose');
         }
         if(card !== ""){
@@ -707,13 +688,6 @@ export class Rules{
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
             player.showAlert(message);
-            // player.callout();
-            // document.getElementById("alert").insertAdjacentHTML('beforeend', `- DECLARED ${state.toUpperCase()} OUT OF TURN -<br>`);
-            // document.getElementById('alert').classList.toggle('hide');
-            // setTimeout(function(){
-            //     document.getElementById("alert").innerHTML = '';
-            //     document.getElementById('alert').classList.toggle('hide');
-            // }, 3000);
         }
     }
 
@@ -749,12 +723,6 @@ export class Rules{
                 player.game.drawCard(player);
                 let penalty = "failure to declare HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
                 player.showAlert(penalty);
-                // let penalty = "HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
-                // player.callout();
-                // document.getElementById("alert").insertAdjacentHTML('beforeend', `- FAILURE TO DECLARE ${penalty} -<br>`);
-                // setTimeout(function(){
-                //     document.getElementById("alert").innerHTML = '';
-                // }, 3000);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -1166,28 +1134,6 @@ export function initializePlayerHand(hand, grid){
     });
 }
 
-export function openHand(id, hand) {
-    let player = document.getElementById(id);
-    let element = player.getElementsByClassName('playerHand');
-    if (element.length !== 0 && typeof (element) != "undefined") { //giving me warnings i'm concerned about
-        let player = player.parentNode;
-        let pass = player.querySelector('.pass');
-        let playerHand = player.querySelector('.playerHand');
-        pass.parentNode.removeChild(pass);
-        playerHand.parentNode.removeChild(playerHand);
-    } else {
-        const passBtn = document.createElement("button");
-        passBtn.setAttribute('class', 'pass');
-        passBtn.innerHTML = 'Pass Turn';
-        passBtn.onclick = passTurn;
-        player.parentElement.appendChild(passBtn);
-        const playerHand = document.createElement('section');
-        playerHand.setAttribute('class', 'grid playerHand');
-        initializePlayerHand(hand, playerHand);
-        player.appendChild(playerHand);
-    }
-}
-
 export function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
@@ -1197,16 +1143,17 @@ export function addCardsToPlayer(card, grid){
     grid.appendChild(playCard);
 }
 
-export function passTurn(game) {
+export function passTurn(name, game) {
     document.getElementById("alert").innerHTML = '';
-    playerPlaying = this.parentElement.id;
-    let player = findPlayerIndexFromId(playerPlaying, game);
-    player.passTurn();
+    game.playerList.forEach(player => {
+       if(player.name === name){
+           playerPlaying = player;
+       }
+    });
+    playerPlaying.passTurn();
     selectedRules = [];
     niceDayCount = 0;
     declaration = "- ";
-    document.getElementById('played').innerHTML = '- ';
-    document.getElementById('played').style.color = '#b0210b';
 }
 
 export function playTurn(game) {

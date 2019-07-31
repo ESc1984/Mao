@@ -1,5 +1,5 @@
-import { removeElement, standardGame, randomGame, numRulesDecided, modeDecided, playTurn,
-    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame, Rules } from "./game.js";
+import { removeElement, standardGame, randomGame, modeDecided, playTurn,
+    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame } from "./game.js";
 import Game from "./game.js";
 (function () {
     "use strict";
@@ -34,7 +34,7 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, topDiscard, rules, deck;
+    let playingHand, playerName, rules;
     function updateView(data) {
         if(data.mode){
             removeElement(document.getElementById('startPage'));
@@ -88,11 +88,12 @@ import Game from "./game.js";
                     }));
                 });
             }
-        } else {
+        } else if(data.rules){
             createTopBar(data.topDiscard);
             thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
             rules = data.rules;
             let counter = 0;
+            let index, playerId;
             let game = document.getElementById("gameBoard");
             const gamePlayer = document.createElement('div');
             gamePlayer.classList.add('player');
@@ -103,6 +104,8 @@ import Game from "./game.js";
             otherPlayers.id = 'otherPlayersGrid';
             data.names.forEach(player => {
                 if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
+                    index = counter;
+                    playerId = users[index].id;
                     playingHand = data.hands[counter];
                     playerName = player;
                     gamePlayer.setAttribute("id", player);
@@ -145,9 +148,71 @@ import Game from "./game.js";
             if(playButton){
                 playButton.addEventListener('click', function () {
                     playTurn(thisGame);
-
-                })
+                    socket.send(JSON.stringify({
+                        action: "playTurn",
+                        topDiscard: thisGame.discardPile.topDiscard(),
+                        suit: thisGame.discardPile.expectedSuit,
+                        deck: thisGame.playDeck,
+                        playerName: playerName,
+                        playerId: playerId,
+                        playerHand: thisGame.playerList[index].hand,
+                        penalties: "test",
+                        numPasses: thisGame.numPasses,
+                        turnOrder: thisGame.turnOrder
+                    }));
+                });
             }
+            let passButton = document.getElementById('passTurn');
+            if(passButton){
+                passButton.addEventListener('click', function () {
+                   passTurn(playerName, thisGame);
+                   socket.send(JSON.stringify({
+                       action: "playTurn",
+                       topDiscard: thisGame.discardPile.topDiscard(),
+                       deck: thisGame.playDeck,
+                       playerName: playerName,
+                       playerId: playerId,
+                       playerHand: thisGame.playerList[index].hand,
+                       penalties: "test",
+                       numPasses: thisGame.numPasses,
+                       turnOrder: thisGame.turnOrder
+                   }));
+                });
+            }
+        } else {
+            let otherPlayers = document.getElementById('otherPlayersGrid');
+            otherPlayers.innerHTML = "";
+            if(data.player !== playerName){
+                thisGame.updateGame(data.hand, data.deck, data.player,
+                    data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
+            }
+            thisGame.playerList.forEach(player => {
+                if(player.name === playerName){
+                    let playerHand = document.getElementById("playerHand");
+                    playerHand.innerHTML = "";
+                    initializePlayerHand(player.hand, playerHand);
+                } else {
+                    const gamePlayer = document.createElement('div');
+                    gamePlayer.classList.add('player');
+                    gamePlayer.setAttribute("class", "player");
+                    gamePlayer.setAttribute("id", player.name);
+                    gamePlayer.dataset.name = player.name;
+                    otherPlayers.appendChild(gamePlayer);
+
+                    const hand = document.createElement('button');
+                    hand.setAttribute('class', 'hand');
+                    hand.setAttribute('id', `${player.name}show`);
+                    hand.innerHTML = player.name;
+                    gamePlayer.appendChild(hand);
+
+                    let numCards = document.createElement('h3');
+                    numCards.classList.add('numCards');
+                    numCards.setAttribute('class', 'numCards');
+                    numCards.setAttribute('id', `${player.name}numCards`);
+                    numCards.innerHTML = player.hand.length.toString() + ' cards';
+                    hand.appendChild(numCards);
+                }
+            });
         }
     }
 

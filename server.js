@@ -115,11 +115,24 @@ function onSocketConnect(ws) {
                     hands: msg.playingHands,
                     deck: msg.playDeck,
                     topDiscard: msg.topDiscard,
-                    rules: msg.rules,
-                    turnOrder: msg.turnOrder,
-                    numPasses: msg.numPasses,
-                    sevens: msg.numSevens
+                    rules: msg.rules
                 }));
+            });
+        }
+
+        if (msg.action === 'playTurn'){
+            clients.forEach(client => {
+               return client.send(JSON.stringify({
+                   topDiscard: msg.topDiscard,
+                   suit: msg.suit,
+                   deck: msg.deck,
+                   player: msg.playerName,
+                   playerId: msg. playerId,
+                   hand: msg.playerHand,
+                   penalties: msg.penalties,
+                   passes: msg.numPasses,
+                   turnOrder: msg.turnOrder
+               }));
             });
         }
     });
