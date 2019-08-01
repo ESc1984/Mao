@@ -1015,7 +1015,7 @@ export function randomGame(){
     // const numRulesPrompt = document.createElement('label');
     // numRulesPrompt.id = 'numRulesPrompt';
     // numRulesPrompt.setAttribute('for', 'numRules');
-    // numRulesPrompt.innerHTML = 'Choose Difficulty Level ';
+    // numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
     // const numRulesResponse = document.createElement('select');
     // numRulesResponse.name = 'numRulesPrompt';
     // numRulesResponse.id = 'numRules';
