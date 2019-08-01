@@ -183,6 +183,7 @@ class Player {
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
+            this.alerts.push('passed turn');
         }
         if (document.getElementById(selectedCard) !== null) {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
