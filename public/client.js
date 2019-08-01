@@ -37,9 +37,7 @@ import Game from "./game.js";
     let playingHand, playerName, rules;
     function updateView(data) {
         if(data.stage){
-            if(data.stage === 'start'){
-                socket = new WebSocket("ws://" + ip + ":8080/ws");
-            } else {
+            if(data.stage === 'name'){
                 socket.send(JSON.stringify({
                     action: 'loadNameScreen',
                     mode: data.mode
@@ -53,19 +51,22 @@ import Game from "./game.js";
                 randomGame();
             }
             modeDecided();
-            // if(data.users){
-            //     users.push({name: data.users['name'], id: data.users['id']});
-            //     let HTML = "<table>";
-            //     let counter = 1;
-            //     HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
-            //     users.forEach(user => {
-            //         HTML += "<tr>" +
-            //             "  <td>" + counter + "</td>" +
-            //             "  <td>" + user.name + "</td>" +
-            //             "</tr>";
-            //         counter++;
-            //     });
-            // }
+            if(data.users !== [] && data.users !== undefined){
+                data.users.forEach(user => {
+                    users.push({name: user['name'], id: user['id']});
+                });
+                let HTML = "<table>";
+                let counter = 1;
+                HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+                users.forEach(user => {
+                    HTML += "<tr>" +
+                        "  <td>" + counter + "</td>" +
+                        "  <td>" + user.name + "</td>" +
+                        "</tr>";
+                    counter++;
+                });
+                document.getElementById("activePlayers").innerHTML = HTML;
+            }
             let choseName = document.getElementById('choseName');
             if(choseName){
                 choseName.addEventListener('click', function() {
