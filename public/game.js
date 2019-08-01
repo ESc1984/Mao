@@ -129,6 +129,7 @@ class Player {
         this._name = name;
         this._turn = turn;
         this._game = game;
+        this._alerts = [];
     }
 
     get game() {
@@ -157,6 +158,14 @@ class Player {
 
     set turn(turn) {
         this._turn = turn;
+    }
+
+    get alerts(){
+        return this._alerts;
+    }
+
+    set alerts(alerts){
+        this._alerts = alerts;
     }
 
     receiveCard(card) {
@@ -210,7 +219,6 @@ class Player {
                 this._game.rules['pairPlayed'](this, selected, card);
             } else if(selected === 'Run' && this._game.rules.runRules.played === false &&
                 this._game.rules.rulesInPlay.includes('run') && (this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))){
-                //this._game.rules['runPlayed'](this, selected);
                 this._game.rules.gameRules[1].function(this, selected, card);
             }
             else {
@@ -227,7 +235,7 @@ class Player {
                 if(sent === false){
                     this._game.drawCard(this);
                     let message = 'declared ' + selected + ' out of turn';
-                    this.showAlert(message);
+                    this.alerts.push(message);
                 }
             }
         });
@@ -265,17 +273,17 @@ class Player {
         });
     }
 
-    showAlert(message){
-        if (document.getElementById("alert").innerHTML === ''){
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-        }
-        document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
-        document.getElementById('alert').classList.toggle('hide');
-        setTimeout(function(){
-            document.getElementById("alert").innerHTML = '';
-            document.getElementById('alert').classList.toggle('hide');
-        }, 1600);
-    }
+    // showAlert(message, name){
+    //     if (document.getElementById("alert").innerHTML === ''){
+    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
+    //     }
+    //     document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
+    //     document.getElementById('alert').classList.toggle('hide');
+    //     setTimeout(function(){
+    //         document.getElementById("alert").innerHTML = '';
+    //         document.getElementById('alert').classList.toggle('hide');
+    //     }, 1600);
+    // }
 }
 
 
@@ -304,12 +312,18 @@ export default class Game {
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
             this._playerList[i].hand = hands[players[i]];
+            this._playerList[i].alerts = [];
         }
         this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
         this._discardPile.expectedSuit = suit;
         this._passes = numPasses;
         this.passCount();
+        if(penalties !== undefined){
+            penalties.forEach(penalty => {
+                this.showAlert(penalty, player);
+            });
+        }
     }
 
     get game(){
@@ -392,6 +406,18 @@ export default class Game {
             this.rules.skippedPlayer.splice(i, 1);
             this.updateTurn();
         }
+    }
+
+    showAlert(message, name){
+        if (document.getElementById("alert").innerHTML === ''){
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${name.toUpperCase()} -<br>`);
+        }
+        document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
+        document.getElementById('alert').classList.toggle('hide');
+        setTimeout(function(){
+            document.getElementById("alert").innerHTML = '';
+            document.getElementById('alert').classList.toggle('hide');
+        }, 1600);
     }
 
     disableTurn(playerIndex){
@@ -682,7 +708,7 @@ export class Rules{
                 document.getElementById(selectedCard).classList.toggle('selectedCard');
                 selectedCard = '';
             }
-            player.showAlert('failure to play in turn');
+            player.alerts.push('failure to play in turn');
         }
     }
 
@@ -691,12 +717,12 @@ export class Rules{
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.showAlert('failure to play in turn');
+            player.alerts.push('failure to play in turn');
         } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.showAlert('failure to play within proper values');
+            player.alerts.push('failure to play within proper values');
             player.game.updateTurn();
         }
     }
@@ -705,14 +731,14 @@ export class Rules{
         if(state !== ""){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         }
     }
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            player.showAlert('failure to declare spades');
+            player.alerts.push('failure to declare spades');
         } else {
             player.game.rules.spadeRules.played = true;
         }
@@ -721,7 +747,7 @@ export class Rules{
     skipNextPlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
             player.game.drawCard(player);
         }
         player.game.updateTurn();
@@ -731,16 +757,16 @@ export class Rules{
     niceDayPlayed(player, state){
         if (state === "") {
             player.game.drawCard(player);
-            player.showAlert('failure to declare have a nice day');
+            player.alerts.push('failure to declare have a nice day');
         } else if(state !== 'Have a Nice Day'){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         }  else{
             if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
                 player.game.drawCard(player);
                 let penalty = "failure to declare HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
-                player.showAlert(penalty);
+                player.alerts.push(penalty);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -749,7 +775,7 @@ export class Rules{
     reversePlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
             player.game.drawCard(player);
         }
         player.game.playerList.reverse();
@@ -766,14 +792,14 @@ export class Rules{
             player.game.rules.wildRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.showAlert('failure to declare a suit');
+            player.alerts.push('failure to declare a suit');
         }
     }
 
     chairmanPlayed(player, state){
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            player.showAlert('failure to declare all hail the chairman');
+            player.alerts.push('failure to declare all hail the chairman');
         } else {
             player.game.rules.chairmanRules.played = true;
         }
@@ -782,7 +808,7 @@ export class Rules{
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            player.showAlert('failure to declare all hail the chairwoman');
+            player.alerts.push('failure to declare all hail the chairwoman');
         } else {
             player.game.rules.chairwomanRules.played = true;
         }
@@ -792,7 +818,7 @@ export class Rules{
         if(state !== ""){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             let currentPlayer = player.game.getCurrentPlayer();
             player.game.playerList[currentPlayer].turn = false;
@@ -808,7 +834,7 @@ export class Rules{
     skipChoosePlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
             player.game.drawCard(player);
         }
         let prompt = document.createElement('p');
@@ -834,11 +860,11 @@ export class Rules{
     runPlayed(player, state){
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
-            player.showAlert('failure to declare run');
+            player.alerts.push('failure to declare run');
         } else if (runCount < 1 && state === 'Run'){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             player.game.rules.runRules.played = true;
         }
@@ -849,7 +875,7 @@ export class Rules{
             player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.showAlert('failure to declare pair');
+            player.alerts.push('failure to declare pair');
         }
     }
 
@@ -858,11 +884,11 @@ export class Rules{
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
-            player.showAlert('failure to declare mao');
+            player.alerts.push('failure to declare mao');
         } else if ((cardsLeft !== 2)&&(state.toLowerCase() === 'mao')){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             player.game.rules.maoRules.played = true;
         }
@@ -1203,7 +1229,7 @@ export function playTurn(game) {
         niceDayCount = 0;
         declaration = "- ";
     } else {
-        findPlayerIndexFromId(playerPlaying, game).showAlert('must select card to play turn');
+        findPlayerIndexFromId(playerPlaying, game).alerts.push('must select card to play turn');
     }
 }
 

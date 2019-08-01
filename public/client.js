@@ -170,7 +170,7 @@ import Game from "./game.js";
                         playerId: playerId,
                         allPlayers: thisGame.playerNames,
                         playerHands: thisGame.hands,
-                        penalties: "test",
+                        penalties: thisGame.playerList[index].alerts,
                         numPasses: thisGame.numPasses,
                         turnOrder: thisGame.turnOrder
                     }));
@@ -189,7 +189,7 @@ import Game from "./game.js";
                        playerId: playerId,
                        allPlayers: thisGame.playerNames,
                        playerHands: thisGame.hands,
-                       penalties: "test",
+                       penalties: thisGame.playerList[index].alerts,
                        numPasses: thisGame.numPasses,
                        turnOrder: thisGame.turnOrder
                    }));
