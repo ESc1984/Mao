@@ -15,9 +15,9 @@ const wss = new ws.Server({
 
 const clients = new Set();
 
-/* Hold all the users in memory.
-   Ideally this would be some kind of persitent storage object
-*/
+let users = [];
+let stage = 'start';
+let mode = undefined;
 
 function accept(req, res) {
     try {
@@ -53,9 +53,6 @@ function accept(req, res) {
     }
 }
 
-let users = [];
-let stage = 'start';
-let mode = undefined;
 function onSocketConnect(ws) {
     clients.add(ws);
     console.log(`new connection`);
