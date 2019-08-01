@@ -117,6 +117,16 @@ function onSocketConnect(ws) {
             stage = 'name';
         }
 
+        if(msg.action === 'gameFull'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    full: true,
+                    users: users
+                }));
+            });
+            stage = 'start';
+        }
+
         if (msg.action === 'startGame'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({

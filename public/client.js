@@ -9,6 +9,7 @@ import Game from "./game.js";
     let socket = new WebSocket("ws://" + ip + ":8080/ws");
 
     document.querySelector("[name=\"userId\"]").value = generateId();
+    let id = document.querySelector("[name=\"userId\"]").value;
 
     socket.onopen = function (evt) {    //onopen prompt user for name
         socket.send(JSON.stringify({
@@ -43,6 +44,10 @@ import Game from "./game.js";
                     mode: data.mode
                 }));
             }
+        } else if(data.full) {
+            let fullMessage = document.createElement('pre');
+            fullMessage.innerHTML = 'Game is Full';
+            document.getElementById('overlay').appendChild(fullMessage);
         } else if(data.mode){
             removeElement(document.getElementById('startPage'));
             if(data.mode === 'standard'){
@@ -286,6 +291,9 @@ import Game from "./game.js";
             let nameSubmit = document.getElementById('choseName');
             if(nameSubmit){
                 removeElement(nameSubmit);
+                socket.send(JSON.stringify({
+                    action: "gameFull"
+                }));
             }
         }
     }
