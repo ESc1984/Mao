@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const express = require('express');
 const ip = require('ip');
 let app = express();
+const util = require('util');
 
 const wss = new ws.Server({
     noServer: true
@@ -17,7 +18,6 @@ const clients = new Set();
 /* Hold all the users in memory.
    Ideally this would be some kind of persitent storage object
 */
-let mode;
 
 function accept(req, res) {
     try {
@@ -53,6 +53,9 @@ function accept(req, res) {
     }
 }
 
+let users = [];
+let stage = 'start';
+let mode = undefined;
 function onSocketConnect(ws) {
     clients.add(ws);
     console.log(`new connection`);
@@ -74,44 +77,79 @@ function onSocketConnect(ws) {
             return ws.send("You need to tell me what you want from me! ERROR: No action defined.");
         }
 
-        let user = {};
-
-        if (msg.action === "getUsers") {    //send game info instead
+        if(msg.action === 'loadStartScreen'){
             return ws.send(JSON.stringify({
-                users: users
+                stage: stage,
+                mode: mode
             }));
+        }
+
+        if(msg.action === 'loadNameScreen'){
+            return ws.send(JSON.stringify({
+                mode: msg.mode,
+                //users: users
+            }));
+            mode = msg.mode;
+            stage = 'name';
         }
 
         if (msg.action === 'modeSelected'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    mode: msg.mode,
+                    mode: msg.mode
                 }));
+            });
+            mode = msg.mode;
+            stage = 'name';
+        }
+
+        if (msg.action === 'choseName'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    namePlayer: msg.name,
+                    userId: msg.userId,
+                }));
+            });
+            //users.push({name: msg.name, id: msg.userId});
+            stage = 'name';
+        }
+
+        if (msg.action === 'startGame'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    names: msg.names,
+                    playerId: msg.playerId,
+                    hands: msg.playingHands,
+                    deck: msg.playDeck,
+                    topDiscard: msg.topDiscard,
+                    rules: msg.rules
+                }));
+            });
+            stage = 'start';
+        }
+
+        if (msg.action === 'playTurn'){
+            clients.forEach(client => {
+               return client.send(JSON.stringify({
+                   topDiscard: msg.topDiscard,
+                   suit: msg.suit,
+                   deck: msg.deck,
+                   player: msg.playerName,
+                   playerId: msg. playerId,
+                   allPlayers: msg.allPlayers,
+                   hands: msg.playerHands,
+                   penalties: msg.penalties,
+                   passes: msg.numPasses,
+                   turnOrder: msg.turnOrder
+               }));
             });
         }
 
-        if (msg.action === "setUser") {
-            if (msg.userId) {
-                user = users.find(u => {
-                    return u.id === msg.userId;
-                });
-            }
-
-            if (!user || !user.id) {
-                console.console.log("New player has entered the game!");
-                user = {
-                    id: msg.userId
-                };
-                users.push(user);
-            }
-
-            user.name = msg.name;
-            user.quest = msg.quest;
-            user.color = msg.color;
-
-            clients.forEach(client => {     //probably change -- figure out what the client is
+        if (msg.action === 'gameWon'){
+            clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    users: users
+                    winner: msg.name,
+                    win: msg.name
                 }));
             });
         }

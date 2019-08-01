@@ -4,16 +4,20 @@ let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
-    constructor(){
-        this._cards = this.makeCards();
+    constructor(deck){
+        this._cards = this.makeCards(deck);
     }
 
-    makeCards(){
+    makeCards(deck){
         let cards = [];
-        for (let i = 0; i < 250; i++){
-            let su = Math.floor(Math.random()*suits.length);
-            let val = Math.floor(Math.random()*values.length);
-            cards.push({suit: suits[su], value: values[val], num: i})
+        if(deck !== undefined){
+            cards = deck._cards;
+        } else {
+            for (let i = 0; i < 250; i++){
+                let su = Math.floor(Math.random()*suits.length);
+                let val = Math.floor(Math.random()*values.length);
+                cards.push({suit: suits[su], value: values[val], num: i})
+            }
         }
         return cards;
     }
@@ -122,11 +126,12 @@ class DiscardPile {
 
 
 class Player {
-    constructor(hand, name, game) {
+    constructor(hand, name, turn, game) {
         this._hand = hand;
         this._name = name;
+        this._turn = turn;
         this._game = game;
-        this._turn = false;
+        this._alerts = [];
     }
 
     get game() {
@@ -137,35 +142,40 @@ class Player {
         return this._hand;
     }
 
+    set hand(hand) {
+        this._hand = hand;
+    }
+
     get name() {
         return this._name;
+    }
+
+    set name(name){
+        this._name = name;
     }
 
     get turn() {
         return this._turn;
     }
 
+    set turn(turn) {
+        this._turn = turn;
+    }
+
+    get alerts(){
+        return this._alerts;
+    }
+
+    set alerts(alerts){
+        this._alerts = alerts;
+    }
+
     receiveCard(card) {
         this._hand.push(card);
-        //this.hilite(document.getElementById(this.name + 'show'));
     }
 
     handSize(){
         return this._hand.length;
-    }
-
-    updateNumCards(){
-        let player = game.querySelector(`#${this.name}`);
-        let display = player.getElementsByClassName('hand')[0];
-        let element = display.parentElement.getElementsByClassName('playerhand');
-        if (element.length !== 0 && typeof (element) != "undefined") {
-            let playerhand = player.querySelector('.playerhand');
-            if (playerhand.children.length === 1) {
-                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' card');
-            } else {
-                playerhand.parentNode.children[0].children[0].innerHTML = (playerhand.children.length + ' cards');
-            }
-        }
     }
 
     passTurn() {
@@ -175,13 +185,13 @@ class Player {
         if (this._turn) {
             this._game.passes = this._game.numPasses + 1;
             this._game.updateTurn();
+            this.alerts.push('passed turn');
         }
-        this.updateNumCards();
         if (document.getElementById(selectedCard) !== null) {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
-        this.hilite(document.getElementById(this.name + 'show'));
+        //this.hilite(document.getElementById(this.name + 'show'));
     };
 
     playCard(cardIndex, selectedRules) {
@@ -195,26 +205,19 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-                let player = game.querySelector(`#${this.name}`);
-                let grid = player.querySelector(".playerhand");
-                let identifier = "#" + card.suit + card.value + card.num;
-                let element = grid.querySelector(identifier);
-                element.parentNode.removeChild(element);
-
                 this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
         }
-        this.updateNumCards();
-        this.hilite(document.getElementById(this.name + 'show'));
+        //this.hilite(document.getElementById(this.name + 'show'));
     }
 
-    hilite(boop){
-        boop.classList.toggle('highlight');
-        setTimeout(function(){
-            boop.classList.toggle('highlight');
-        }, 1200)
-    }
+    // hilite(boop){
+    //     boop.classList.toggle('highlight');
+    //     setTimeout(function(){
+    //         boop.classList.toggle('highlight');
+    //     }, 1200)
+    // }
 
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(selected => {
@@ -242,8 +245,8 @@ class Player {
                 });
                 if(sent === false){
                     this._game.drawCard(this);
-                    let message = 'declared ' + selected.toUpperCase() + ' out of turn';
-                    this.showAlert(message);
+                    let message = 'declared ' + selected + ' out of turn';
+                    this.alerts.push(message);
                 }
             }
         });
@@ -267,10 +270,7 @@ class Player {
 
         if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
             this._game.rules.skipChoosePlayed(this, "");
-            //this._game.rules.gameRules[1].function(this, "");
-            //this._game.updateTurn();
         }
-
 
         this._game.rules.gameRules.forEach(rule => {
             let checkPlayedStatus = rule.function.toString();
@@ -289,28 +289,6 @@ class Player {
         });
     }
 
-    // callout(){
-    //     if (document.getElementById("alert").innerHTML === ''){
-    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-    //     }
-    // }
-
-    showAlert(message){
-        if (document.getElementById("alert").innerHTML === ''){
-            document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-        }
-        document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
-        document.getElementById('alert').classList.toggle('hide');
-        setTimeout(function(){
-            document.getElementById("alert").innerHTML = '';
-            document.getElementById('alert').classList.toggle('hide');
-        }, 1600);
-    }
-
-    set turn(turn) {
-        this._turn = turn;
-    }
-
 }
 
 
@@ -319,18 +297,62 @@ class Player {
 
 
 
-class Game {
-    constructor(playerList, numRules){
-        this._playDeck = new Deck();
-        let card = this._playDeck.deal();
+export default class Game {
+    constructor(players, rules, hands, deck, topDiscard){
+        this._playDeck = new Deck(deck);
+        let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
-        this._rules = new Rules(this, numRules);
+        this._rules = new Rules(rules);
         this._playerList = [];
-        for (let i = 0; i < playerList.length; i++){
-            this._playerList.push(new Player(this.dealHand(), playerList[i], this, numRules));
+        for (let i = 0; i < players.length; i++){
+            let hand = (hands !== undefined) ? hands[i] : this.dealHand();
+            this._playerList.push(new Player(hand, players[i],false, this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
+    }
+
+     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit){
+        for(let i = 0; i < players.length; i++){
+            this._playerList[i].name = players[i];
+            this._playerList[i].turn = turnOrder[players[i]];
+            this._playerList[i].hand = hands[players[i]];
+            this._playerList[i].alerts = [];
+        }
+        this._playDeck = new Deck(deck);
+        this._discardPile.addToDiscard(topDiscard);
+        this._discardPile.expectedSuit = suit;
+        this._passes = numPasses;
+        this.passCount();
+        if(penalties !== undefined){
+            penalties.forEach(penalty => {
+                this.showAlert(penalty, player);
+            });
+        }
+    }
+
+    get game(){
+        return this;
+    }
+
+    get playDeck(){
+        return this._playDeck;
+    }
+
+    get hands(){
+        let hands = {};
+        this.playerList.forEach(player => {
+            hands[player.name] = player.hand;
+        });
+        return hands;
+    }
+
+    get playerNames(){
+        let names = [];
+        this.playerList.forEach(player => {
+            names.push(player.name);
+        });
+        return names;
     }
 
     get rules(){
@@ -343,6 +365,14 @@ class Game {
 
     get playerList(){
         return this._playerList;
+    }
+
+    get turnOrder(){
+        let turns = {};
+        this._playerList.forEach(player => {
+            turns[player.name] = player.turn;
+        });
+        return turns;
     }
 
     get discardPile(){
@@ -367,8 +397,6 @@ class Game {
 
     drawCard(player){
         let card = this._playDeck.deal();
-        let grid = document.getElementById(player.name).children[(document.getElementById(player.name).children.length)-1];
-        addCardsToPlayer(card, grid);
         player.receiveCard(card);
     }
 
@@ -396,11 +424,18 @@ class Game {
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
         this.passCount();
-        // if(this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
-        //     let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
-        //     this.rules.skippedPlayer.splice(i, 1);
-        //     this.updateTurn();
-        // }
+    }
+
+    showAlert(message, name){
+        if (document.getElementById("alert").innerHTML === ''){
+            document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${name.toUpperCase()} -<br>`);
+        }
+        document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
+        document.getElementById('alert').classList.toggle('hide');
+        setTimeout(function(){
+            document.getElementById("alert").innerHTML = '';
+            document.getElementById('alert').classList.toggle('hide');
+        }, 1600);
     }
 
     disableTurn(playerIndex){
@@ -430,9 +465,7 @@ class Game {
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            //runCount = save;
             runCount = 0;
-            //is this right?
         }
     }
 }
@@ -443,8 +476,8 @@ class Game {
 
 
 
-class Rules{
-    constructor(player, numRules){
+export class Rules{
+    constructor(numRules){
         this.gameRules = [
             {value:"S", function: this.noRule},
             {value:"H", function: this.noRule},
@@ -480,6 +513,7 @@ class Rules{
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
+        this._random = false;
 
         this._niceDayRules = {played: false};
         this._wildRules = {played: false};
@@ -496,9 +530,19 @@ class Rules{
 
         if(numRules === false){
             this.normalRules();
-        } else {
+        } else if(typeof numRules === 'number') {
             this.pickRules(numRules);
+        } else{
+            this.givenRules(numRules);
         }
+    }
+
+    get random(){
+        return this._random;
+    }
+
+    set random(val){
+        this._random = val;
     }
 
     get rulesInPlay(){
@@ -558,6 +602,7 @@ class Rules{
     }
 
     pickRules(num){
+        this.random = true;
         for(let i = 0; i < num; i++){
             let ruleNum = Math.floor(Math.random() * this.allRules.length);
             let cardNum = Math.floor(Math.random() * 13 + 4);
@@ -600,7 +645,6 @@ class Rules{
                 i--;
             }
         }
-        console.log(this.rulesInPlay);
     }
 
     normalRules(){
@@ -635,10 +679,36 @@ class Rules{
         this.playAgainRules.card = '2';
     }
 
+    givenRules(rules){
+        this.allRules.forEach(rule => {
+            let name = "_" + rule.name + 'Rules';
+            if(rules._rulesInPlay.includes(rule.name)){
+                this.addCardRule(rules[name].card, rule.name, rule.function, rules.random);
+            }
+        })
+    }
+
+    addCardRule(card, ruleName, action, random){
+        this.rulesInPlay.push(ruleName);
+        if(ruleName === 'skipNext' && random === true){
+            this.rulesInPlay.push('skipChoose');
+        }
+        this[ruleName + 'Rules'].function = action;
+        this[ruleName + 'Rules'].card = card;
+        this.gameRules.forEach(gameRule => {
+            if(gameRule.value === card){
+                gameRule.function = action;
+            }
+        });
+    }
+
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
-        // if(rule.name === 'skipNext'){
-        //     //include randomization
+        // // if(rule.name === 'skipNext'){
+        // //     //include randomization
+        // //     this.rulesInPlay.push('skipChoose');
+        // // }
+        // if(rule.name === 'skipNext' && this.random === true){
         //     this.rulesInPlay.push('skipChoose');
         // }
         if(card !== ""){
@@ -675,7 +745,7 @@ class Rules{
                 document.getElementById(selectedCard).classList.toggle('selectedCard');
                 selectedCard = '';
             }
-            player.showAlert('failure to play in turn');
+            player.alerts.push('failure to play in turn');
         }
     }
 
@@ -684,12 +754,12 @@ class Rules{
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.showAlert('failure to play in turn');
+            player.alerts.push('failure to play in turn');
         } else if (!this.cardMatch(card, player)) {
             player.game.drawCard(player);
             document.getElementById(selectedCard).classList.toggle('selectedCard');
             selectedCard = '';
-            player.showAlert('failure to play within proper values');
+            player.alerts.push('failure to play within proper values');
             player.game.updateTurn();
         }
     }
@@ -698,14 +768,14 @@ class Rules{
         if(state !== ""){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         }
     }
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
             player.game.drawCard(player);
-            player.showAlert('failure to declare spades');
+            player.alerts.push('failure to declare spades');
         } else {
             player.game.rules.spadeRules.played = true;
         }
@@ -715,7 +785,7 @@ class Rules{
         if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
             if (state !== "") {
                 let message = 'declared ' + state + ' out of turn';
-                player.showAlert(message);
+                player.alerts.push(message);
                 player.game.drawCard(player);
             }
             let prompt = document.createElement('p');
@@ -761,7 +831,7 @@ class Rules{
     skipNextPlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
             player.game.drawCard(player);
         }
         if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
@@ -779,16 +849,16 @@ class Rules{
     niceDayPlayed(player, state){
         if (state === "") {
             player.game.drawCard(player);
-            player.showAlert('failure to declare have a nice day');
+            player.alerts.push('failure to declare have a nice day');
         } else if(state !== 'Have a Nice Day'){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         }  else{
             if(niceDayCount - 1 !== player.game.discardPile.sevensCount){
                 player.game.drawCard(player);
                 let penalty = "failure to declare HAVE A " + "VERY ".repeat(player.game.discardPile.sevensCount) + "NICE DAY";
-                player.showAlert(penalty);
+                player.alerts.push(penalty);
             }
             player.game.rules.niceDayRules.played = true;
         }
@@ -797,7 +867,7 @@ class Rules{
     reversePlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
             player.game.drawCard(player);
         }
         player.game.playerList.reverse();
@@ -812,17 +882,17 @@ class Rules{
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
             player.game.rules.wildRules.played = true;
-            player.showAlert('* wild ' + suit + ' *');
+            player.alerts.push('* wild ' + suit + ' *');
         } else {
             player.game.drawCard(player);
-            player.showAlert('failure to declare a suit');
+            player.alerts.push('failure to declare a suit');
         }
     }
 
     chairmanPlayed(player, state){
         if (state !== 'All Hail the Chairman') {
             player.game.drawCard(player);
-            player.showAlert('failure to declare all hail the chairman');
+            player.alerts.push('failure to declare all hail the chairman');
         } else {
             player.game.rules.chairmanRules.played = true;
         }
@@ -831,7 +901,7 @@ class Rules{
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
-            player.showAlert('failure to declare all hail the chairwoman');
+            player.alerts.push('failure to declare all hail the chairwoman');
         } else {
             player.game.rules.chairwomanRules.played = true;
         }
@@ -841,7 +911,7 @@ class Rules{
         if(state !== ""){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             let currentPlayer = player.game.getCurrentPlayer();
             player.game.playerList[currentPlayer].turn = false;
@@ -857,11 +927,11 @@ class Rules{
     runPlayed(player, state){
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
-            player.showAlert('failure to declare run');
+            player.alerts.push('failure to declare run');
         } else if (runCount < 1 && state === 'Run'){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             player.game.rules.runRules.played = true;
         }
@@ -872,7 +942,7 @@ class Rules{
             player.game.rules.pairRules.played = true;
         } else {
             player.game.drawCard(player);
-            player.showAlert('failure to declare pair');
+            player.alerts.push('failure to declare pair');
         }
     }
 
@@ -881,11 +951,11 @@ class Rules{
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
-            player.showAlert('failure to declare mao');
+            player.alerts.push('failure to declare mao');
         } else if ((cardsLeft !== 2)&&(state.toLowerCase() === 'mao')){
             player.game.drawCard(player);
             let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
+            player.alerts.push(message);
         } else {
             player.game.rules.maoRules.played = true;
         }
@@ -893,26 +963,39 @@ class Rules{
 
     findWin(player){
         if (player.hand.length === 0){
-            document.getElementById('gameBoard').innerHTML = "";
-            document.getElementById('alert').style.marginLeft = '0';
-            document.getElementById('alert').style.fontSize = '100px';
-            document.getElementById('alert').style.top = '10%';
-            document.getElementById("alert").innerHTML = '- CONGRATULATIONS, ' + player.name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
-            document.getElementById('redoButton').style.display = 'block';
+            this.winMessage(name);
         }
+    }
+
+    winMessage(name){
+        document.getElementById('gameBoard').innerHTML = "";
+        document.getElementById('alert').style.marginLeft = '0';
+        document.getElementById('alert').style.fontSize = '100px';
+        document.getElementById('alert').style.top = '10%';
+        document.getElementById("alert").innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
+        document.getElementById('redoButton').style.display = 'block';
+    }
+
+    loseMessage(name, winner){
+        document.getElementById('gameBoard').innerHTML = "";
+        document.getElementById('alert').style.marginLeft = '0';
+        document.getElementById('alert').style.fontSize = '100px';
+        document.getElementById('alert').style.top = '10%';
+        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
+        document.getElementById('redoButton').style.display = 'block';
     }
 }
 
 
 
 
-let ourGame;
+export let ourGame;
 let game;
 let ruleNumber = false;
 let players;
-let selectedCard = "";
+export let selectedCard = "";
 let oldCard = "";
-let playerPlaying;
+export let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
 let selectedRules = [];
 let niceDayCount = 0;
@@ -933,121 +1016,105 @@ function overlay() {
     }
 }
 
-function submitButton(parent, random){
-    const submitButton = document.createElement('button');
-    submitButton.id = 'numPlayersSubmit';
-    submitButton.classList.add('submit');
-    submitButton.innerHTML = 'Submit';
-    submitButton.onclick = () => {
-        removeElement(submitButton);
-        numPlayersDecided(document.getElementById('numPlayers').value);
-        removeElement(document.getElementById('numPlayersPrompt'));
-        removeElement(document.getElementById('numPlayers'));
-        if(random === true){
-            numRulesDecided(document.getElementById('numRules').value);
-            removeElement(document.getElementById('numRulesPrompt'));
-            removeElement(document.getElementById('numRules'));
-        }
-    };
-    parent.appendChild(submitButton);
-}
-
-function namePrompt(parent){
-    const numPlayersPrompt = document.createElement('label');
-    numPlayersPrompt.id = 'numPlayersPrompt';
-    numPlayersPrompt.setAttribute('for', 'numPlayers');
-    numPlayersPrompt.innerHTML = "Enter Number of Players (2-6) ";
-
-    const numPlayersResponse = document.createElement('input');
-    numPlayersResponse.name = 'numPlayersPrompt';
-    numPlayersResponse.id = 'numPlayers';
-    numPlayersResponse.type = 'number';
-    const newLine = document.createElement('br');
-
-    parent.appendChild(numPlayersPrompt);
-    parent.appendChild(numPlayersResponse);
-    parent.appendChild(newLine);
-    parent.appendChild(newLine);
-}
-
 export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
-    namePrompt(startGame);
-    const numRulesPrompt = document.createElement('label');
-    numRulesPrompt.id = 'numRulesPrompt';
-    numRulesPrompt.setAttribute('for', 'numRules');
-    numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
-    const numRulesResponse = document.createElement('select');
-    numRulesResponse.classList.add('select');
-    numRulesResponse.name = 'numRulesPrompt';
-    numRulesResponse.id = 'numRules';
-    //numRulesResponse.type = 'option';
-    const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
-    for (let i = 0; i < levels.length; i++) {
-        let option = document.createElement("option");
-        option.classList.add('option');
-        option.value = ((i+1) * 3).toString();
-        option.text = levels[i];
-        numRulesResponse.add(option);
-    }
-    const newLine = document.createElement('br');
-    startGame.appendChild(numRulesPrompt);
-    startGame.appendChild(numRulesResponse);
-    startGame.appendChild(newLine);
-    submitButton(startGame, true);
+    // namePrompt(startGame);
+    // const numRulesPrompt = document.createElement('label');
+    // numRulesPrompt.id = 'numRulesPrompt';
+    // numRulesPrompt.setAttribute('for', 'numRules');
+    // numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
+    // const numRulesResponse = document.createElement('select');
+    // numRulesResponse.name = 'numRulesPrompt';
+    // numRulesResponse.id = 'numRules';
+    // //numRulesResponse.type = 'option';
+    // const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
+    // for (let i = 0; i < levels.length; i++) {
+    //     let option = document.createElement("option");
+    //     option.value = ((i+1) * 3).toString();
+    //     option.text = levels[i];
+    //     numRulesResponse.add(option);
+    // }
+    // const newLine = document.createElement('br');
+    // startGame.appendChild(numRulesPrompt);
+    // startGame.appendChild(numRulesResponse);
+    // startGame.appendChild(newLine);
+    // submitButton(startGame, true);
+
+    // namePrompt(startGame);
+    // const numRulesPrompt = document.createElement('label');
+    // numRulesPrompt.id = 'numRulesPrompt';
+    // numRulesPrompt.setAttribute('for', 'numRules');
+    // numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
+    // const numRulesResponse = document.createElement('select');
+    // numRulesResponse.classList.add('select');
+    // numRulesResponse.name = 'numRulesPrompt';
+    // numRulesResponse.id = 'numRules';
+    // //numRulesResponse.type = 'option';
+    // const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
+    // for (let i = 0; i < levels.length; i++) {
+    //     let option = document.createElement("option");
+    //     option.classList.add('option');
+    //     option.value = ((i+1) * 3).toString();
+    //     option.text = levels[i];
+    //     numRulesResponse.add(option);
+    // }
+    // const newLine = document.createElement('br');
+    // startGame.appendChild(numRulesPrompt);
+    // startGame.appendChild(numRulesResponse);
+    // startGame.appendChild(newLine);
+    // submitButton(startGame, true);
 }
 
 export function standardGame(){
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
-    namePrompt(startGame);
-    submitButton(startGame, false);
 }
 
-function numPlayersDecided(numPlayers) {
-    if (numPlayers > 6) {
-        players = 6;
-    } else if (numPlayers < 2 || numPlayers === null){
-        players = 2;
-    } else {
-        players = numPlayers;
-    }
+export function modeDecided() {
     let startGamePrompt = document.getElementById('startGame');
-    for(let i = 0; i < players; i++){
-        let namePrompt = document.createElement('label');
-        namePrompt.id = 'namePlayers';
-        namePrompt.setAttribute('for', 'namePlayers' + i);
-        namePrompt.innerHTML = `Enter Player ${i+1}'s Name: `;
-        let nameHolder = document.createElement('input');
-        nameHolder.name = 'namePlayersPrompt';
-        nameHolder.id = 'namePlayers' + i;
-        nameHolder.type = 'text';
-        nameHolder.maxLength = 10;
-        let newLine = document.createElement('br');
+    let namePrompt = document.createElement('label');
+    namePrompt.id = 'namePlayers';
+    namePrompt.setAttribute('for', 'namePlayersPrompt');
+    namePrompt.innerHTML = `Enter Your Name: `;
+    let nameHolder = document.createElement('input');
+    nameHolder.name = 'namePlayersPrompt';
+    nameHolder.id = 'namePlayersPrompt';
+    nameHolder.type = 'text';
+    nameHolder.maxLength = 10;
+    let newLine = document.createElement('br');
 
-        startGamePrompt.appendChild(namePrompt);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(nameHolder);
-        startGamePrompt.appendChild(newLine);
-        startGamePrompt.appendChild(newLine);
-    }
+    startGamePrompt.appendChild(namePrompt);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(nameHolder);
+    startGamePrompt.appendChild(newLine);
+    startGamePrompt.appendChild(newLine);
+    let nameDone = document.createElement('button');
+    nameDone.class = 'close';
+    nameDone.id = 'choseName';
+    nameDone.innerHTML = 'OK';
+
+    let activePlayers = document.createElement("table");
+    activePlayers.id = 'activePlayers';
+    startGamePrompt.appendChild(activePlayers);
+
+    startGamePrompt.appendChild(nameDone);
     let startButton = document.createElement('button');
+    startButton.style.visibility = 'hidden';
     startButton.class ='close';
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
-    startButton.onclick = saveNames;
     startGamePrompt.appendChild(startButton);
 }
 
-function saveNames() {
-    let num = parseInt(players);
+export function saveNames(players) {
+    let num = Object.entries(players);
     let newPlayers = [];
     let toCheck = [];
-    for (let h = 0; h < num; h++) {
-        let name = document.getElementById('namePlayers' + h).value.trim();
+    for (let h = 0; h < num.length; h++) {
+        let name = num[h][1].name;
         if (name.length > 0){
             if (name.indexOf(' ') > -1){
                 let squish = '';
@@ -1112,11 +1179,11 @@ function saveNames() {
             newPlayers.push(toCheck[i+1]);
         }
     }
-    overlay();
-    startGame(newPlayers);
+    ourGame = new Game(newPlayers, ruleNumber);
+    return newPlayers;
 }
 
-function numRulesDecided(numRules){
+export function numRulesDecided(numRules){
     if(numRules > specialRules.length - 1){
         ruleNumber = specialRules.length -1;
     } else if (numRules < 2) {
@@ -1130,64 +1197,40 @@ export function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
-function displayPlayerHand(playerIndex) {
-    document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
-}
+// export function hilite(boop){
+//     if(boop){
+//         boop.classList.toggle('highlight');
+//         setTimeout(function(){
+//             boop.classList.toggle('highlight');
+//         }, 1200)
+//     }
+// }
 
-function startGame(players) {
-    ourGame = new Game(players, ruleNumber);
-    createTopBar();
+export function createTopBar(topDiscard){
+    removeElement(window.document.getElementById('startGame'));
+    const topGrid = document.createElement('section');
+    topGrid.setAttribute('id', 'topGrid');
+    topGrid.setAttribute('class', 'grid');
+    createDiscardFunctionality(topGrid, topDiscard);
+    const playCard = document.createElement('button');
+    playCard.setAttribute('id', 'playCard');
+    playCard.innerHTML = 'Play<br>Turn';
+    topGrid.appendChild(playCard);
+    game.appendChild(topGrid);
     const speak = document.createElement('speak');
     speak.setAttribute('id', 'played');
     speak.innerHTML = '- ';
     speak.style.color = '#b0210b';
     game.appendChild(speak);
-    ourGame.playerList.forEach(player => {
-        const gamePlayer = document.createElement('div');
-        gamePlayer.classList.add('player');
-        gamePlayer.setAttribute("class", "player");
-        gamePlayer.setAttribute("id", player.name);
-        gamePlayer.dataset.name = player.name;
-        game.appendChild(gamePlayer);
-
-        const hand = document.createElement('button');
-        hand.setAttribute('class', 'hand');
-        hand.setAttribute('id', `${player.name}show`);
-        hand.innerHTML = player.name;
-        hand.onclick = openHand;
-        gamePlayer.appendChild(hand);
-
-        let numCards = document.createElement('h3');
-        numCards.classList.add('numCards');
-        numCards.setAttribute('class', 'numCards');
-        numCards.setAttribute('id', `${player.name}numCards`);
-        numCards.innerHTML = player.hand.length.toString() + ' cards';
-        hand.appendChild(numCards);
-    });
 }
 
-
-
-function createTopBar(){
-    const topGrid = document.createElement('section');
-    topGrid.setAttribute('id', 'topGrid');
-    topGrid.setAttribute('class', 'grid');
-    createDiscardFunctionality(topGrid);
-    const playCard = document.createElement('button');
-    playCard.setAttribute('id', 'playCard');
-    playCard.innerHTML = 'Play<br>Turn';
-    playCard.onclick = playTurn;
-    topGrid.appendChild(playCard);
-    game.appendChild(topGrid);
-}
-
-function createDiscardFunctionality(grid){
+function createDiscardFunctionality(grid, topDiscard){
     const discard = document.createElement('section');
     discard.setAttribute('id', 'discard');
     discard.setAttribute('class', 'grid');
     discard.classList.add('discard');
     grid.appendChild(discard);
-    const disPile = addCardsToPlayer(ourGame.discardPile.topDiscard(), discard);
+    const disPile = addCardsToPlayer(topDiscard, discard);
     const ruleButtonGrid = document.createElement('section');
     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
     ruleButtonGrid.setAttribute('class', 'grid');
@@ -1223,8 +1266,8 @@ function selectedRule(){
     document.getElementById('played').style.color = 'gold';
 }
 
-function initializePlayerHand(player, grid){
-    let sortedHand = player.hand.sort((a,b) => {
+export function initializePlayerHand(hand, grid){
+    let sortedHand = hand.sort((a,b) => {
         let x = a.suit.toLowerCase();
         let y = b.suit.toLowerCase();
         if(x < y) {return -1;}
@@ -1251,30 +1294,7 @@ function initializePlayerHand(player, grid){
     });
 }
 
-function openHand() {
-    let element = this.parentElement.getElementsByClassName('playerhand');
-    if (element.length !== 0 && typeof (element) != "undefined") {
-        let player = this.parentNode;
-        let pass = player.querySelector('.pass');
-        let playerhand = player.querySelector('.playerhand');
-        pass.parentNode.removeChild(pass);
-        playerhand.parentNode.removeChild(playerhand);
-    } else {
-        playerPlaying = this.parentElement.id;
-        let player = findPlayerIndexFromId();
-        const passBtn = document.createElement("button");
-        passBtn.setAttribute('class', 'pass');
-        passBtn.innerHTML = 'Pass Turn';
-        passBtn.onclick = passTurn;
-        this.parentElement.appendChild(passBtn);
-        const playerhand = document.createElement('section');
-        playerhand.setAttribute('class', 'grid playerhand');
-        initializePlayerHand(player, playerhand);
-        this.parentElement.appendChild(playerhand);
-    }
-}
-
-function addCardsToPlayer(card, grid){
+export function addCardsToPlayer(card, grid){
     const playCard = document.createElement('div');
     playCard.classList.add('card');
     playCard.setAttribute("id", card.suit + card.value + card.num);
@@ -1283,23 +1303,25 @@ function addCardsToPlayer(card, grid){
     grid.appendChild(playCard);
 }
 
-function passTurn() {
+export function passTurn(name, game) {
     document.getElementById("alert").innerHTML = '';
-    playerPlaying = this.parentElement.id;
-    let player = findPlayerIndexFromId();
-    player.passTurn();
+    game.playerList.forEach(player => {
+       if(player.name === name){
+           playerPlaying = player;
+       }
+    });
+    playerPlaying.passTurn();
     selectedRules = [];
     niceDayCount = 0;
-    //change?
     declaration = "- ";
-    document.getElementById('played').innerHTML = '- ';
-    document.getElementById('played').style.color = '#b0210b';
+    // document.getElementById('played').innerHTML = '- ';
+    // document.getElementById('played').style.color = '#b0210b';
     //player.hilite(document.getElementById(player.name+'show'));
 }
 
-function playTurn() {
+export function playTurn(game) {
     if(selectedCard != ""){
-        let player = findPlayerIndexFromId();
+        let player = findPlayerIndexFromId(playerPlaying, game);
         let cardIndex = -1;
         for(let i = 0; i < player.hand.length; i++){
             if(player.hand[i].suit === selectedCard.charAt(0) && player.hand[i].value === selectedCard.charAt(1) && player.hand[i].num.toString() === selectedCard.substring(2)){
@@ -1312,21 +1334,20 @@ function playTurn() {
         selectedRules = [];
         niceDayCount = 0;
         declaration = "- ";
-        //player.hilite(document.getElementById(player.name + 'show'));
-    } else if (findPlayerIndexFromId() !== undefined){
-        findPlayerIndexFromId().showAlert('must select card to play turn');
+    } else if (findPlayerIndexFromId(playerPlaying, game) !== undefined){
+        findPlayerIndexFromId(playerPlaying, game).alerts.push('must select card to play turn');
     }
 }
 
-function findPlayerIndexFromId(){
+export function findPlayerIndexFromId(id, game){
     let playerIndex = -1;
-    for (let i = 0; i < ourGame.playerList.length; i++) {
-        if (ourGame.playerList[i].name === playerPlaying) {
+    for (let i = 0; i < game.playerList.length; i++) {
+        if (game.playerList[i].name ===  id) {
             playerIndex = i;
             break;
         }
     }
-    let player = ourGame.playerList[playerIndex];
+    let player = game.playerList[playerIndex];
     return player;
 }
 
