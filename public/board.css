@@ -85,11 +85,14 @@
 #numRules{
     font-family: Oriya MN;
     font-size: 18px;
-    background-color: gold;
+    /*background-color: gold;*/
     color: #b0210b;
     vertical-align: center;
-    border-color: gold;
-    border-radius: 0px;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    border: 0 gold;
+    outline: 2px outset gold;
+    outline-offset: -1px;
 }
 
 #numRules:focus {

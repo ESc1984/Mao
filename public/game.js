@@ -812,7 +812,7 @@ class Rules{
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
             player.game.rules.wildRules.played = true;
-            player.showAlert('* jack of ' + suit + ' *');
+            player.showAlert('* wild ' + suit + ' *');
         } else {
             player.game.drawCard(player);
             player.showAlert('failure to declare a suit');
@@ -978,7 +978,7 @@ export function randomGame(){
     const numRulesPrompt = document.createElement('label');
     numRulesPrompt.id = 'numRulesPrompt';
     numRulesPrompt.setAttribute('for', 'numRules');
-    numRulesPrompt.innerHTML = 'Choose Difficulty Level ';
+    numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
     const numRulesResponse = document.createElement('select');
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
