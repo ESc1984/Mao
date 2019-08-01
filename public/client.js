@@ -34,12 +34,10 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, rules;
+    let playingHand, playerName, rules, selected;
     function updateView(data) {
         if(data.stage){
-            if(data.stage === 'start'){
-                socket = new WebSocket("ws://" + ip + ":8080/ws");
-            } else {
+            if(data.stage === 'name'){
                 socket.send(JSON.stringify({
                     action: 'loadNameScreen',
                     mode: data.mode
@@ -53,19 +51,23 @@ import Game from "./game.js";
                 randomGame();
             }
             modeDecided();
-            // if(data.users){
-            //     users.push({name: data.users['name'], id: data.users['id']});
-            //     let HTML = "<table>";
-            //     let counter = 1;
-            //     HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
-            //     users.forEach(user => {
-            //         HTML += "<tr>" +
-            //             "  <td>" + counter + "</td>" +
-            //             "  <td>" + user.name + "</td>" +
-            //             "</tr>";
-            //         counter++;
-            //     });
-            // }
+            if(data.users !== [] && data.users !== undefined){
+                data.users.forEach(user => {
+                    users.push({name: user['name'], id: user['id']});
+                });
+                checkLength();
+                let HTML = "<table>";
+                let counter = 1;
+                HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+                users.forEach(user => {
+                    HTML += "<tr>" +
+                        "  <td>" + counter + "</td>" +
+                        "  <td>" + user.name + "</td>" +
+                        "</tr>";
+                    counter++;
+                });
+                document.getElementById("activePlayers").innerHTML = HTML;
+            }
             let choseName = document.getElementById('choseName');
             if(choseName){
                 choseName.addEventListener('click', function() {
@@ -76,10 +78,12 @@ import Game from "./game.js";
                         name: playerName,
                         userId: document.querySelector("[name=\"userId\"]").value
                     }));
+                    selected = true;
                 });
             }
         } else if(data.namePlayer){
             users.push({name: data.namePlayer, id: data.userId});
+            checkLength();
             let HTML = "<table>";
             let counter = 1;
             HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
@@ -91,7 +95,7 @@ import Game from "./game.js";
                 counter++;
             });
             document.getElementById("activePlayers").innerHTML = HTML;
-            if(counter > 2){
+            if(counter > 2 && selected){
                 let startGame = document.getElementById('startButton');
                 startGame.style.visibility = 'visible';
                 startGame.addEventListener('click', function() {
@@ -275,6 +279,15 @@ import Game from "./game.js";
             hands[i] = ourGame.playerList[i].hand;
         }
         return hands;
+    }
+
+    function checkLength(){
+        if(users.length >= 6){
+            let nameSubmit = document.getElementById('choseName');
+            if(nameSubmit){
+                removeElement(nameSubmit);
+            }
+        }
     }
 
     function generateId(len) {

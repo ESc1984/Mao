@@ -60,6 +60,7 @@ function onSocketConnect(ws) {
     clients.add(ws);
     console.log(`new connection`);
 
+    let user = {};
     ws.on('message', function (message) {
         console.log(`message received: ${message}`);
 
@@ -87,7 +88,7 @@ function onSocketConnect(ws) {
         if(msg.action === 'loadNameScreen'){
             return ws.send(JSON.stringify({
                 mode: msg.mode,
-                //users: users
+                users: users
             }));
             mode = msg.mode;
             stage = 'name';
@@ -110,7 +111,9 @@ function onSocketConnect(ws) {
                     userId: msg.userId,
                 }));
             });
-            //users.push({name: msg.name, id: msg.userId});
+            user.name = msg.name;
+            user.id = msg.userId;
+            users.push(user);
             stage = 'name';
         }
 
