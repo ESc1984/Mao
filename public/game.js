@@ -1,3 +1,5 @@
+
+
 let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
@@ -202,8 +204,7 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-
-                this._game.rules.findWin(this);     //win screen somehow connect
+                this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
         }
@@ -211,8 +212,8 @@ class Player {
 
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(selected => {
-            if(selected === 'Mao' && this._game.rules.maoRules.played === false){
-                this._game.rules.mao(this, selected);
+            if(selected === 'Mao' && this._game.rules.maoRules.played === false && this._game.rules.rulesInPlay.includes('mao')){
+                this._game.rules.maoPlayed(this, selected);
             } else if(selected === 'Spades' && !this._game.rules.spadeRules.played && card.suit === 'S' && this._game.rules.rulesInPlay.includes('spade')) {
                 this._game.rules.gameRules[0].function(this, selected, card);
             } else if(selected === 'Pair' && this._game.rules.pairRules.played === false &&
@@ -241,21 +242,25 @@ class Player {
             }
         });
 
-        if(this.hand.length === 2 && !this._game.rules.maoRules.played){
-            this._game.rules.mao(this, "");
+        if(this._game.rules.rulesInPlay.includes('mao') && this.hand.length === 2 && !this._game.rules.maoRules.played){
+            this._game.rules.maoPlayed(this, "");
         }
 
-        if(card.suit === 'S' && this._game.rules.spadeRules.played === false && this._game.rules.rulesInPlay.includes('spade')){
+        if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
             this._game.rules.gameRules[0].function(this, "");
         }
 
-        if(card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false && this._game.rules.rulesInPlay.includes('pair')){
+        if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
             this._game.rules.gameRules[2].function(this, "", card);
         }
 
-        if((this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))
-            && this._game.rules.runRules.played === false && this._game.rules.rulesInPlay.includes('run')){
-            this._game.rules.gameRules[1].function(this, "");
+        if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
+            && this._game.rules.runRules.played === false){
+            this._game.rules.gameRules[3].function(this, "");
+        }
+
+        if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
+            this._game.rules.skipChoosePlayed(this, "");
         }
 
         this._game.rules.gameRules.forEach(rule => {
@@ -264,8 +269,9 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(card.suit === 'H' && checkPlayedStatus === 'skipNextRules' && this._game.rules.rulesInPlay.includes('skipChoose')){
+                    if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
                         this._game.rules.skipChoosePlayed(this, "");
+                        this._game.updateTurn();
                     } else {
                         rule.function(this, "");
                     }
@@ -274,17 +280,6 @@ class Player {
         });
     }
 
-    // showAlert(message, name){
-    //     if (document.getElementById("alert").innerHTML === ''){
-    //         document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${this._name.toUpperCase()} -<br>`);
-    //     }
-    //     document.getElementById("alert").insertAdjacentHTML('beforeend', `- ${message.toUpperCase()} -<br>`);
-    //     document.getElementById('alert').classList.toggle('hide');
-    //     setTimeout(function(){
-    //         document.getElementById("alert").innerHTML = '';
-    //         document.getElementById('alert').classList.toggle('hide');
-    //     }, 1600);
-    // }
 }
 
 
@@ -399,14 +394,27 @@ export default class Game {
     updateTurn(){
         let currentPlayer = this.getCurrentPlayer();
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
+        //this.checkNext(currentPlayer, nextPlayer);
+        if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
+            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+            //this.rules.skippedPlayer.splice(i, 1);
+            //relocation
+            this.disableTurn(nextPlayer);
+            if (nextPlayer === this._playerList.length-1){
+                nextPlayer = 0;
+                console.log(nextPlayer);
+            } else {
+                nextPlayer++;
+                console.log(nextPlayer);
+            }
+            //nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
+            console.log('new next player: ' + nextPlayer);
+            this.rules.skippedPlayer.splice(i, 1);
+            console.log(this.rules.skippedPlayer);
+        }
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
         this.passCount();
-        if(this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
-            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
-            this.rules.skippedPlayer.splice(i, 1);
-            this.updateTurn();
-        }
     }
 
     showAlert(message, name){
@@ -486,11 +494,13 @@ export class Rules{
             {function: this.chairwomanPlayed, name: 'chairwoman'},
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
-            {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
             {function: this.pairPlayed, name: 'pair'},
-            {function: this.runPlayed, name: 'run'}
+            {function: this.runPlayed, name: 'run'},
+            {function: this.maoPlayed, name: 'mao'},
+            {function: this.skipChoosePlayed, name: 'skipChoose'},
+            {function: this.skipNextPlayed, name: 'skipNext'}
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
@@ -502,12 +512,12 @@ export class Rules{
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
         this._maoRules = {played: false};
-        this._skipNextRules = {played: false};
         this._reverseRules = {played: false};
         this._playAgainRules = {played: false};
-        this._skipChooseRules = {played: false};
         this._pairRules = {played: false};
         this._runRules = {played: false};
+        this._skipChooseRules = {played: false};
+        this._skipNextRules = {played: false};
 
         if(numRules === false){
             this.normalRules();
@@ -594,7 +604,7 @@ export class Rules{
                 this.allRules.splice(ruleNum, 1);
             }
             else if (this.allRules[ruleNum].name === 'run'){
-                this.gameRules[1].function = this.allRules[ruleNum].function;
+                this.gameRules[3].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
@@ -604,7 +614,20 @@ export class Rules{
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule(this.gameRules[0], this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
-            } else if(this.gameRules[cardNum].function === this.noRule){
+            }
+            else if (this.allRules[ruleNum].name === 'skipChoose'){
+                this.gameRules[1].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule("", this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            }
+            else if(this.gameRules[cardNum].name === 'mao'){
+                this.gameRules[2].function = this.allRules[ruleNum].function;
+                let name = this.allRules[ruleNum].name + 'Rules';
+                this.storeCardRule('', this.allRules[ruleNum], name);
+                this.allRules.splice(ruleNum, 1);
+            }
+            else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
                 this.storeCardRule(this.gameRules[cardNum], this.allRules[ruleNum], name);
@@ -636,7 +659,7 @@ export class Rules{
             {value:"K", function: this.chairmanPlayed}
         ];
         this._rulesInPlay = ['niceDay', 'wild',
-            'chairwoman', 'chairman', 'spade', 'skipNext', 'reverse', 'playAgain'];
+            'chairwoman', 'chairman', 'spade', 'skipNext', 'reverse', 'playAgain', 'mao'];
         this.niceDayRules.card = '7';
         this.wildRules.card = 'J';
         this.chairwomanRules.card = 'Q';
@@ -672,6 +695,10 @@ export class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
+        // if(rule.name === 'skipNext'){
+        //     //include randomization
+        //     this.rulesInPlay.push('skipChoose');
+        // }
         if(rule.name === 'skipNext' && this.random === true){
             this.rulesInPlay.push('skipChoose');
         }
@@ -690,12 +717,12 @@ export class Rules{
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
         this._maoRules.played = false;
-        this._skipNextRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
-        this._skipChooseRules.played = false;
         this._pairRules.played = false;
         this._runRules.played = false;
+        this._skipChooseRules.played = false;
+        this._skipNextRules.played = false;
     }
 
     cardMatch(card, player){
@@ -745,14 +772,69 @@ export class Rules{
         }
     }
 
+    skipChoosePlayed(player, state){
+        if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
+            if (state !== "") {
+                let message = 'declared ' + state + ' out of turn';
+                player.alerts.push(message);
+                player.game.drawCard(player);
+            }
+            let prompt = document.createElement('p');
+            prompt.classList.add('alert');
+            prompt.innerHTML = 'Select the Player you Wish to Skip';
+            game.appendChild(prompt);
+            const grid = document.createElement('playerNameGrid');
+            grid.setAttribute('class', 'grid');
+            prompt.appendChild(grid);
+            ourGame.playerList.forEach(player => {
+                if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+                    const gamePlayer = document.createElement('button');
+                    gamePlayer.classList.add('ruleButton');
+                    gamePlayer.innerHTML = player.name;
+                    gamePlayer.onclick = (() => {
+                        // let checker = ourGame._playerList.indexOf(player);
+                        // let checkee = ourGame.getCurrentPlayer();
+                        //fremulon
+                        //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
+                        //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                        //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
+                        if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+                            player.game.rules.skippedPlayer.push(player.name);
+                            // this.nextSkip = false;
+                        } else {
+                            // this.nextSkip = true;
+                            ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                            let nowplay = ourGame._playerList.indexOf(player) + 1;
+                            if (nowplay >= ourGame._playerList.length) {
+                                nowplay = 0;
+                            }
+                            ourGame.getPlayer(nowplay)._turn = true;
+                        }
+                        prompt.parentNode.removeChild(prompt);
+                    });
+                    grid.appendChild(gamePlayer);
+                }
+            });
+            player.game.rules.skipChoosePlayed.played = true;
+        }
+    }
+
     skipNextPlayed(player, state){
         if(state != ""){
             let message = 'declared ' + state + ' out of turn';
             player.alerts.push(message);
             player.game.drawCard(player);
         }
-        player.game.updateTurn();
-        player.game.rules.skipNextRules.played = true;
+        if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
+            if(this.skipChooseRules.played === false){
+                //|| this.nextSkip === true) {
+                player.game.updateTurn();
+                player.game.rules.skipNextRules.played = true;
+            }
+        } else {
+            player.game.updateTurn();
+            player.game.rules.skipNextRules.played = true;
+        }
     }
 
     niceDayPlayed(player, state){
@@ -791,6 +873,7 @@ export class Rules{
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
             player.game.rules.wildRules.played = true;
+            player.alerts.push('* jack of ' + suit + ' *');
         } else {
             player.game.drawCard(player);
             player.alerts.push('failure to declare a suit');
@@ -832,32 +915,6 @@ export class Rules{
         }
     }
 
-    skipChoosePlayed(player, state){
-        if(state != ""){
-            let message = 'declared ' + state + ' out of turn';
-            player.alerts.push(message);
-            player.game.drawCard(player);
-        }
-        let prompt = document.createElement('p');
-        prompt.classList.add('alert');
-        prompt.innerHTML = 'Select the Player you Wish to Skip';
-        game.appendChild(prompt);
-        const grid = document.createElement('playerNameGrid');
-        grid.setAttribute('class', 'grid');
-        prompt.appendChild(grid);
-        ourGame.playerList.forEach(player => {
-           const gamePlayer = document.createElement('button');
-           gamePlayer.classList.add('ruleButton');
-           gamePlayer.innerHTML = player.name;
-           gamePlayer.onclick = (() => {
-               player.game.rules.skippedPlayer.push(player.name);
-               prompt.parentNode.removeChild(prompt);
-           });
-           grid.appendChild(gamePlayer);
-        });
-        player.game.rules.skipChoosePlayed.played = true;
-    }
-
     runPlayed(player, state){
         if(runCount >= 1 && state !== 'Run'){
             player.game.drawCard(player);
@@ -881,7 +938,7 @@ export class Rules{
     }
 
 
-    mao(player, state){
+    maoPlayed(player, state){
         let cardsLeft = player.hand.length;
         if ((cardsLeft === 2)&&(state.toLowerCase() !== 'mao')) {
             player.game.drawCard(player);
@@ -906,7 +963,7 @@ export class Rules{
         document.getElementById('alert').style.marginLeft = '0';
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
-        document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+        document.getElementById("alert").innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
         document.getElementById('redoButton').style.display = 'block';
     }
 
@@ -915,7 +972,7 @@ export class Rules{
         document.getElementById('alert').style.marginLeft = '0';
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
-        document.getElementById("alert").innerHTML = 'SORRY, ' + name.toUpperCase() + " - YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
+        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
         document.getElementById('redoButton').style.display = 'block';
     }
 }
@@ -958,11 +1015,18 @@ export function randomGame(){
     // const numRulesPrompt = document.createElement('label');
     // numRulesPrompt.id = 'numRulesPrompt';
     // numRulesPrompt.setAttribute('for', 'numRules');
-    // numRulesPrompt.innerHTML = 'Enter Number of Rules ';
-    // const numRulesResponse = document.createElement('input');
+    // numRulesPrompt.innerHTML = 'Choose Difficulty Level ';
+    // const numRulesResponse = document.createElement('select');
     // numRulesResponse.name = 'numRulesPrompt';
     // numRulesResponse.id = 'numRules';
-    // numRulesResponse.type = 'number';
+    // //numRulesResponse.type = 'option';
+    // const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
+    // for (let i = 0; i < levels.length; i++) {
+    //     let option = document.createElement("option");
+    //     option.value = ((i+1) * 3).toString();
+    //     option.text = levels[i];
+    //     numRulesResponse.add(option);
+    // }
     // const newLine = document.createElement('br');
     // startGame.appendChild(numRulesPrompt);
     // startGame.appendChild(numRulesResponse);
@@ -1100,8 +1164,13 @@ export function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
-function displayPlayerHand(playerIndex) {
-    document.getElementById("displayHand").innerHTML = ourGame.getPlayer(playerIndex).hand;
+export function hilite(boop){
+    if(boop){
+        boop.classList.toggle('highlight');
+        setTimeout(function(){
+            boop.classList.toggle('highlight');
+        }, 1200)
+    }
 }
 
 export function createTopBar(topDiscard){
@@ -1229,7 +1298,7 @@ export function playTurn(game) {
         selectedRules = [];
         niceDayCount = 0;
         declaration = "- ";
-    } else {
+    } else if (findPlayerIndexFromId(playerPlaying, game) !== undefined){
         findPlayerIndexFromId(playerPlaying, game).alerts.push('must select card to play turn');
     }
 }

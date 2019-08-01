@@ -1,5 +1,5 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn,
-    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame } from "./game.js";
+    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
 (function () {
     "use strict";
@@ -231,6 +231,7 @@ import Game from "./game.js";
                     numCards.setAttribute('id', `${player.name}numCards`);
                     numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
                     hand.appendChild(numCards);
+                    hilite(document.getElementById(data.player + 'show'));
                 }
             });
         }

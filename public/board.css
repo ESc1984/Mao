@@ -45,6 +45,10 @@
     width: 200px;
 }
 
+.hand:active {
+    background-color: #b0210b;
+}
+
 .grid{
     max-width: 1400px;
     margin: 0 auto;
@@ -69,11 +73,27 @@
 #discard .card {
     width: 130px;
     height: 190px;
+    border-color: #b0210b !important;
+    pointer-events: none !important;
 }
 
 .numCards{
     margin: 0;
     font-size: 25px;
+}
+
+#numRules{
+    font-family: Oriya MN;
+    font-size: 18px;
+    background-color: gold;
+    color: #b0210b;
+    vertical-align: center;
+    border-color: gold;
+    border-radius: 0px;
+}
+
+#numRules:focus {
+    outline-color: goldenrod;
 }
 
 /*.playerhand {*/
@@ -102,7 +122,9 @@ body {
 label {
     color: gold;
     font-family: Oriya MN;
-    font-size: 30px;
+    font-size: 25px;
+    line-height: 40px;
+    vertical-align: center;
 }
 
 p {
@@ -137,6 +159,15 @@ button:focus {
 
 button:active {
     background-color: #c21515;
+}
+
+input {
+    font-family: Oriya MN;
+    font-size: 16px;
+    /*background-color: gold;*/
+    color: #b0210b;
+    vertical-align: center;
+    border-color: gold;
 }
 
 input:focus {
@@ -258,6 +289,81 @@ input:focus {
     }
     to {
         opacity: 0;
+    }
+}
+
+.highlight {
+    animation-name: spotlight;
+    animation-duration: .8s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-name: spotlight;
+    -webkit-animation-duration: .8s;
+    -webkit-animation-fill-mode: forwards;
+    -webkit-animation-timing-function: ease-in-out;
+}
+
+@keyframes spotlight {
+    /*0% {*/
+    /*    background-color: #b0210b;*/
+    /*}*/
+    /*5% {*/
+    /*    background-color: #c21515;*/
+    /*    !*background-color: #ff3d1f;*!*/
+    /*}*/
+    /*100% {*/
+    /*    background-color: #b0210b;*/
+    /*}*/
+
+    /*from {*/
+    /*    background-color: goldenrod;*/
+    /*    !*opacity: 1;*!*/
+    /*}*/
+    /*to {*/
+    /*    background-color: #780e0e;*/
+    /*    !*opacity: 0;*!*/
+    /*}*/
+
+    0% {
+        background-color: #780e0e;
+    }
+    10% {
+        background-color: gold;
+    }
+    100% {
+        background-color: #780e0e;
+    }
+}
+
+@-webkit-keyframes spotlight {
+    /*0% {*/
+    /*    background-color: #b0210b;*/
+    /*}*/
+    /*5% {*/
+    /*    background-color: #c21515;*/
+    /*    !*background-color: #ff3d1f;*!*/
+    /*}*/
+    /*100% {*/
+    /*    background-color: #b0210b;*/
+    /*}*/
+
+    /*from {*/
+    /*    background-color: goldenrod;*/
+    /*    !*opacity: 1;*!*/
+    /*}*/
+    /*to {*/
+    /*    background-color: #780e0e;*/
+    /*    !*opacity: 0;*!*/
+    /*}*/
+
+    0% {
+        background-color: #780e0e;
+    }
+    10% {
+        background-color: gold;
+    }
+    100% {
+        background-color: #780e0e;
     }
 }
 
