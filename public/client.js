@@ -1,5 +1,5 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn,
-    initializePlayerHand, /*saveNames,*/ checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
+    initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
 (function () {
     "use strict";
@@ -69,7 +69,8 @@ import Game from "./game.js";
             let choseName = document.getElementById('choseName');
             if(choseName){
                 choseName.addEventListener('click', function() {
-                    let playerName = document.getElementById('namePlayersPrompt').value;
+                    let inName = document.getElementById('namePlayersPrompt').value;
+                    playerName = checkName(inName);
                     removeElement(window.document.getElementById('choseName'));
                     socket.send(JSON.stringify({
                         action: 'choseName',
@@ -95,7 +96,7 @@ import Game from "./game.js";
                 let startGame = document.getElementById('startButton');
                 startGame.style.visibility = 'visible';
                 startGame.addEventListener('click', function() {
-                    let players = saveNames(users);
+                    let players = diffNames(users);
                     let playingHands = getHands();
                     thisGame = ourGame.game;
                     let topDiscard = thisGame.discardPile.topDiscard();

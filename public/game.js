@@ -269,7 +269,7 @@ class Player {
         }
 
         if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
-            this._game.rules.skipChoosePlayed(this, "");
+            this._game.rules.skipChoosePlayed(this, "", this.game);
         }
 
         this._game.rules.gameRules.forEach(rule => {
@@ -279,7 +279,7 @@ class Player {
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
                     if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
-                        this._game.rules.skipChoosePlayed(this, "");
+                        this._game.rules.skipChoosePlayed(this, "", this.game);
                         this._game.updateTurn();
                     } else {
                         rule.function(this, "");
@@ -781,7 +781,8 @@ export class Rules{
         }
     }
 
-    skipChoosePlayed(player, state){
+    //fremulon
+    skipChoosePlayed(player, state, thisGame){
         if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
             if (state !== "") {
                 let message = 'declared ' + state + ' out of turn';
@@ -795,29 +796,28 @@ export class Rules{
             const grid = document.createElement('playerNameGrid');
             grid.setAttribute('class', 'grid');
             prompt.appendChild(grid);
-            ourGame.playerList.forEach(player => {
-                if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+            thisGame.playerList.forEach(player => {
+                if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                     const gamePlayer = document.createElement('button');
                     gamePlayer.classList.add('ruleButton');
                     gamePlayer.innerHTML = player.name;
                     gamePlayer.onclick = (() => {
                         // let checker = ourGame._playerList.indexOf(player);
                         // let checkee = ourGame.getCurrentPlayer();
-                        //fremulon
                         //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
                         //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
                         //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
-                        if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+                        if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                             player.game.rules.skippedPlayer.push(player.name);
                             // this.nextSkip = false;
                         } else {
                             // this.nextSkip = true;
-                            ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
-                            let nowplay = ourGame._playerList.indexOf(player) + 1;
-                            if (nowplay >= ourGame._playerList.length) {
+                            thisGame.getPlayer(thisGame._playerList.indexOf(player))._turn = false;
+                            let nowplay = thisGame._playerList.indexOf(player) + 1;
+                            if (nowplay >= thisGame._playerList.length) {
                                 nowplay = 0;
                             }
-                            ourGame.getPlayer(nowplay)._turn = true;
+                            thisGame.getPlayer(nowplay)._turn = true;
                         }
                         prompt.parentNode.removeChild(prompt);
                     });
@@ -1107,6 +1107,14 @@ export function modeDecided() {
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
+    // startGamePrompt.appendChild(newLine);
+    // startGamePrompt.appendChild(newLine);
+
+    let startWarn = document.createElement('p');
+    startWarn.setAttribute('id', 'startWarn');
+    startWarn.style.position = 'relative';
+    startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS HAVE SIGNED ON';
+    startGamePrompt.appendChild(startWarn);
 }
 
 // export function saveNames(players) {
@@ -1212,10 +1220,10 @@ export function checkName(entry) {
                     name = censor;
                 }
             }
-            name = name.charAt(0).toUpperCase() + name.substring(1, name.length);
         } else if (name === '' || name === null) {
             name = 'x';
         }
+        name = name.charAt(0).toUpperCase() + name.substring(1, name.length);
         return name;
 }
 
@@ -1224,14 +1232,14 @@ export function diffNames(names){
     for (let i = 0; i < (names.length - 1); i++){
         let diff = 2;
         for (let j = (i + 1); j < names.length; j++){
-            if (names[i].toLowerCase() === names[j].toLowerCase()){
-                names[j] += ('-'+diff.toString());
+            if (names[i].name.toLowerCase() === names[j].name.toLowerCase()){
+                names[j].name += ('-'+diff.toString());
                 diff++;
             }
         }
-        newPlayers.push(names[i]);
+        newPlayers.push(names[i].name);
         if (i+2 === names.length){
-            newPlayers.push(names[i+1]);
+            newPlayers.push(names[i+1].name);
         }
     }
     ourGame = new Game(newPlayers, ruleNumber);
