@@ -980,12 +980,14 @@ export function randomGame(){
     numRulesPrompt.setAttribute('for', 'numRules');
     numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
     const numRulesResponse = document.createElement('select');
+    numRulesResponse.classList.add('select');
     numRulesResponse.name = 'numRulesPrompt';
     numRulesResponse.id = 'numRules';
     //numRulesResponse.type = 'option';
     const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
     for (let i = 0; i < levels.length; i++) {
         let option = document.createElement("option");
+        option.classList.add('option');
         option.value = ((i+1) * 3).toString();
         option.text = levels[i];
         numRulesResponse.add(option);

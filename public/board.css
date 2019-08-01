@@ -82,7 +82,8 @@
     font-size: 25px;
 }
 
-#numRules{
+/*#numRules{*/
+select{
     font-family: Oriya MN;
     font-size: 18px;
     /*background-color: gold;*/
@@ -95,9 +96,42 @@
     outline-offset: -1px;
 }
 
-#numRules:focus {
+select:focus {
     outline-color: goldenrod;
 }
+
+/*select > option {*/
+/*    background-color: white;*/
+/*}*/
+
+option {
+    background-color: white;
+    color: #b0210b;
+}
+
+/*.option {*/
+/*    font-family: Oriya MN;*/
+/*    font-size: 18px;*/
+/*}*/
+
+/*.select {*/
+/*    !*position: relative;*!*/
+/*    !*display: block;*!*/
+/*    !*width: 20em;*!*/
+/*    !*height: 3em;*!*/
+/*    !*line-height: 3;*!*/
+/*    background: white;*/
+/*    overflow: hidden;*/
+/*    border-radius: .25em;*/
+/*}*/
+
+/*.select::after {*/
+/*    background-color: white;*/
+/*}*/
+
+/*.select:hover::after {*/
+/*    color: palegoldenrod;*/
+/*}*/
 
 /*.playerhand {*/
 /*    grid-auto-rows: 130px;*/
