@@ -1109,12 +1109,65 @@ export function modeDecided() {
     startGamePrompt.appendChild(startButton);
 }
 
-export function saveNames(players) {
-    let num = Object.entries(players);
-    let newPlayers = [];
-    let toCheck = [];
-    for (let h = 0; h < num.length; h++) {
-        let name = num[h][1].name;
+// export function saveNames(players) {
+//     let num = Object.entries(players);
+//     let newPlayers = [];
+//     let toCheck = [];
+//     for (let h = 0; h < num.length; h++) {
+//         let name = num[h][1].name;
+//         if (name.length > 0){
+//             if (name.indexOf(' ') > -1){
+//                 let squish = '';
+//                 for (let i = 0; i < name.length; i++){
+//                     if (name.charAt(i) !== ' '){
+//                         squish += name.charAt(i);
+//                     } else {
+//                         squish += '-';
+//                     }
+//                 }
+//                 name = squish;
+//             }
+//             let nums = ['1','2','3','4','5','6','7','8','9','0'];
+//             for (let n = 0; n < nums.length; n++){
+//                 if (name.charAt(0) === nums[n]){
+//                     name = 'x' + name;
+//                 }
+//             }
+//             let prof = ['fxxx', 'sxxx', 'axx', 'cxxx', 'dxxx', 'bxxxx'];
+//             let good = ['fork', 'shirt', 'ash', 'crab', 'ding', 'bench'];
+//             let checker = name.toLowerCase();
+//             for (let b = 0; b < prof.length; b++){
+//                 if (checker.includes(prof[b])){
+//                     let censor = '';
+//                     for (let i = 0; i < checker.length; i++){
+//                         if (checker.charAt(i) === prof[b].charAt(0)){
+//                             let start = i;
+//                             let end = 0;
+//                             let found = true;
+//                             for (let w = start; w < start + prof[b].length; w++){
+//                                 if (checker.charAt(w) !== prof[b].charAt(w-start)){
+//                                     found = false;
+//                                 } else {
+//                                     end = w + 1;
+//                                 }
+//                             }
+//                             if (found = true){
+//                                 censor = name.substring(0, start) + good[b] + name.substring(end, name.length+1);
+//                             }
+//                         }
+//                     }
+//                     name = censor;
+//                 }
+//             }
+//             name = name.charAt(0).toUpperCase() + name.substring(1, name.length);
+//              toCheck.push(name);
+//         } else if (name === '' || name === null) {
+//             toCheck.push('x');
+//         }
+//     }
+
+export function checkName(entry) {
+    let name = entry.trim();
         if (name.length > 0){
             if (name.indexOf(' ') > -1){
                 let squish = '';
@@ -1160,23 +1213,25 @@ export function saveNames(players) {
                 }
             }
             name = name.charAt(0).toUpperCase() + name.substring(1, name.length);
-             toCheck.push(name);
         } else if (name === '' || name === null) {
-            toCheck.push('x');
+            name = 'x';
         }
-    }
+        return name;
+}
 
-    for (let i = 0; i < (toCheck.length - 1); i++){
+export function diffNames(names){
+    let newPlayers = [];
+    for (let i = 0; i < (names.length - 1); i++){
         let diff = 2;
-        for (let j = (i + 1); j < toCheck.length; j++){
-            if (toCheck[i].toLowerCase() === toCheck[j].toLowerCase()){
-                toCheck[j] += ('-'+diff.toString());
+        for (let j = (i + 1); j < names.length; j++){
+            if (names[i].toLowerCase() === names[j].toLowerCase()){
+                names[j] += ('-'+diff.toString());
                 diff++;
             }
         }
-        newPlayers.push(toCheck[i]);
-        if (i+2 === toCheck.length){
-            newPlayers.push(toCheck[i+1]);
+        newPlayers.push(names[i]);
+        if (i+2 === names.length){
+            newPlayers.push(names[i+1]);
         }
     }
     ourGame = new Game(newPlayers, ruleNumber);
@@ -1197,14 +1252,14 @@ export function removeElement(element) {
     element.parentNode.removeChild(element);
 }
 
-// export function hilite(boop){
-//     if(boop){
-//         boop.classList.toggle('highlight');
-//         setTimeout(function(){
-//             boop.classList.toggle('highlight');
-//         }, 1200)
-//     }
-// }
+export function hilite(boop){
+    if(boop){
+        boop.classList.toggle('highlight');
+        setTimeout(function(){
+            boop.classList.toggle('highlight');
+        }, 1200)
+    }
+}
 
 export function createTopBar(topDiscard){
     removeElement(window.document.getElementById('startGame'));

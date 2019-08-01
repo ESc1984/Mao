@@ -1,5 +1,5 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn,
-    initializePlayerHand, saveNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
+    initializePlayerHand, /*saveNames,*/ checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
 (function () {
     "use strict";
