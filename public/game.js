@@ -147,6 +147,10 @@ class Player {
         return this._name;
     }
 
+    set name(name){
+        this._name = name;
+    }
+
     get turn() {
         return this._turn;
     }
@@ -295,16 +299,15 @@ export default class Game {
         this._passes = 0;
     }
 
-     updateGame(hands, deck, player, penalties, turnOrder, numPasses, topDiscard, suit){
-        for(let i = 0; i < this._playerList.length; i++){
-            this._playerList[i].turn = turnOrder[this._playerList[i].name];
-            this._playerList[i].hand = hands[this._playerList[i].name];
+     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit){
+        for(let i = 0; i < players.length; i++){
+            this._playerList[i].name = players[i];
+            this._playerList[i].turn = turnOrder[players[i]];
+            this._playerList[i].hand = hands[players[i]];
         }
-         this._playDeck = new Deck(deck);
+        this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
-        if(suit !== undefined){
-            this._discardPile.expectedSuit = suit;
-        }
+        this._discardPile.expectedSuit = suit;
         this._passes = numPasses;
         this.passCount();
     }
@@ -323,6 +326,14 @@ export default class Game {
             hands[player.name] = player.hand;
         });
         return hands;
+    }
+
+    get playerNames(){
+        let names = [];
+        this.playerList.forEach(player => {
+            names.push(player.name);
+        });
+        return names;
     }
 
     get rules(){

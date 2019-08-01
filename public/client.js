@@ -5,10 +5,10 @@ import Game from "./game.js";
     "use strict";
     let thisGame;
 
-    document.querySelector("[name=\"userId\"]").value = generateId();
-
     let ip = window.location.hostname;
     let socket = new WebSocket("ws://" + ip + ":8080/ws");
+
+    document.querySelector("[name=\"userId\"]").value = generateId();
 
     socket.onopen = function (evt) {    //onopen prompt user for name
         socket.send(JSON.stringify({
@@ -38,7 +38,7 @@ import Game from "./game.js";
     function updateView(data) {
         if(data.stage){
             if(data.stage === 'start'){
-                document.body.HTML = document.body.innerHTML;
+                socket = new WebSocket("ws://" + ip + ":8080/ws");
             } else {
                 socket.send(JSON.stringify({
                     action: 'loadNameScreen',
@@ -168,6 +168,7 @@ import Game from "./game.js";
                         deck: thisGame.playDeck,
                         playerName: playerName,
                         playerId: playerId,
+                        allPlayers: thisGame.playerNames,
                         playerHands: thisGame.hands,
                         penalties: "test",
                         numPasses: thisGame.numPasses,
@@ -182,9 +183,11 @@ import Game from "./game.js";
                    socket.send(JSON.stringify({
                        action: "playTurn",
                        topDiscard: thisGame.discardPile.topDiscard(),
+                       suit: thisGame.discardPile.expectedSuit,
                        deck: thisGame.playDeck,
                        playerName: playerName,
                        playerId: playerId,
+                       allPlayers: thisGame.playerNames,
                        playerHands: thisGame.hands,
                        penalties: "test",
                        numPasses: thisGame.numPasses,
@@ -199,9 +202,7 @@ import Game from "./game.js";
                 thisGame.rules.loseMessage(playerName, data.winner);
             }
         } else {
-            let otherPlayers = document.getElementById('otherPlayersGrid');
-            otherPlayers.innerHTML = "";
-            thisGame.updateGame(data.hands, data.deck, data.player, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
+            thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
             thisGame.playerList.forEach(player => {
                 if(data.hands[player.name].length === 0){
                     socket.send(JSON.stringify({
@@ -215,18 +216,14 @@ import Game from "./game.js";
                     playerHand.innerHTML = "";
                     initializePlayerHand(data.hands[player.name], playerHand);
                 } else {
-                    const gamePlayer = document.createElement('div');
-                    gamePlayer.classList.add('player');
-                    gamePlayer.setAttribute("class", "player");
-                    gamePlayer.setAttribute("id", player.name);
-                    gamePlayer.dataset.name = player.name;
-                    otherPlayers.appendChild(gamePlayer);
+                    let otherPlayer = document.getElementById(player.name);
+                    otherPlayer.innerHTML = "";
 
                     const hand = document.createElement('button');
                     hand.setAttribute('class', 'hand');
                     hand.setAttribute('id', `${player.name}show`);
                     hand.innerHTML = player.name;
-                    gamePlayer.appendChild(hand);
+                    otherPlayer.appendChild(hand);
 
                     let numCards = document.createElement('h3');
                     numCards.classList.add('numCards');
@@ -254,15 +251,6 @@ import Game from "./game.js";
             socket.send(JSON.stringify({
                 action: "modeSelected",
                 mode: "chaos"
-            }));
-        });
-    }
-
-    let playAgain = document.getElementById('redoButton');
-    if(playAgain){
-        playAgain.addEventListener('click', function(){
-            socket.send(JSON.stringify({
-                action: "loadStartScreen"
             }));
         });
     }
