@@ -470,13 +470,13 @@ class Rules{
             {function: this.chairwomanPlayed, name: 'chairwoman'},
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
-            {function: this.skipChoosePlayed, name: 'skipChoose'},
-            {function: this.skipNextPlayed, name: 'skipNext'},
             {function: this.reversePlayed, name: 'reverse'},
             {function: this.playAgainPlayed, name: 'playAgain'},
             {function: this.pairPlayed, name: 'pair'},
             {function: this.runPlayed, name: 'run'},
-            {function: this.maoPlayed, name: 'mao'}
+            {function: this.maoPlayed, name: 'mao'},
+            {function: this.skipChoosePlayed, name: 'skipChoose'},
+            {function: this.skipNextPlayed, name: 'skipNext'}
         ];
         this._rulesInPlay = [];
         this._skippedPlayer = [];
@@ -487,12 +487,12 @@ class Rules{
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
         this._maoRules = {played: false};
-        this._skipChooseRules = {played: false};
-        this._skipNextRules = {played: false};
         this._reverseRules = {played: false};
         this._playAgainRules = {played: false};
         this._pairRules = {played: false};
         this._runRules = {played: false};
+        this._skipChooseRules = {played: false};
+        this._skipNextRules = {played: false};
 
         if(numRules === false){
             this.normalRules();
@@ -600,6 +600,7 @@ class Rules{
                 i--;
             }
         }
+        console.log(this.rulesInPlay);
     }
 
     normalRules(){
@@ -655,12 +656,12 @@ class Rules{
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
         this._maoRules.played = false;
-        this._skipChooseRules.played = false;
-        this._skipNextRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
         this._pairRules.played = false;
         this._runRules.played = false;
+        this._skipChooseRules.played = false;
+        this._skipNextRules.played = false;
     }
 
     cardMatch(card, player){
@@ -711,48 +712,50 @@ class Rules{
     }
 
     skipChoosePlayed(player, state){
-        if(state != ""){
-            let message = 'declared ' + state + ' out of turn';
-            player.showAlert(message);
-            player.game.drawCard(player);
-        }
-        let prompt = document.createElement('p');
-        prompt.classList.add('alert');
-        prompt.innerHTML = 'Select the Player you Wish to Skip';
-        game.appendChild(prompt);
-        const grid = document.createElement('playerNameGrid');
-        grid.setAttribute('class', 'grid');
-        prompt.appendChild(grid);
-        ourGame.playerList.forEach(player => {
-            if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
-                const gamePlayer = document.createElement('button');
-                gamePlayer.classList.add('ruleButton');
-                gamePlayer.innerHTML = player.name;
-                gamePlayer.onclick = (() => {
-                    // let checker = ourGame._playerList.indexOf(player);
-                    // let checkee = ourGame.getCurrentPlayer();
-                    //fremulon
-                    //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
-                    //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
-                    //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
-                    if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()){
-                        player.game.rules.skippedPlayer.push(player.name);
-                        // this.nextSkip = false;
-                    } else {
-                        // this.nextSkip = true;
-                        ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
-                        let nowplay = ourGame._playerList.indexOf(player) + 1;
-                        if (nowplay >= ourGame._playerList.length){
-                            nowplay = 0;
-                        }
-                        ourGame.getPlayer(nowplay)._turn = true;
-                    }
-                    prompt.parentNode.removeChild(prompt);
-                });
-                grid.appendChild(gamePlayer);
+        if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
+            if (state !== "") {
+                let message = 'declared ' + state + ' out of turn';
+                player.showAlert(message);
+                player.game.drawCard(player);
             }
-        });
-        player.game.rules.skipChoosePlayed.played = true;
+            let prompt = document.createElement('p');
+            prompt.classList.add('alert');
+            prompt.innerHTML = 'Select the Player you Wish to Skip';
+            game.appendChild(prompt);
+            const grid = document.createElement('playerNameGrid');
+            grid.setAttribute('class', 'grid');
+            prompt.appendChild(grid);
+            ourGame.playerList.forEach(player => {
+                if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+                    const gamePlayer = document.createElement('button');
+                    gamePlayer.classList.add('ruleButton');
+                    gamePlayer.innerHTML = player.name;
+                    gamePlayer.onclick = (() => {
+                        // let checker = ourGame._playerList.indexOf(player);
+                        // let checkee = ourGame.getCurrentPlayer();
+                        //fremulon
+                        //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
+                        //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                        //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
+                        if (ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer()) {
+                            player.game.rules.skippedPlayer.push(player.name);
+                            // this.nextSkip = false;
+                        } else {
+                            // this.nextSkip = true;
+                            ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
+                            let nowplay = ourGame._playerList.indexOf(player) + 1;
+                            if (nowplay >= ourGame._playerList.length) {
+                                nowplay = 0;
+                            }
+                            ourGame.getPlayer(nowplay)._turn = true;
+                        }
+                        prompt.parentNode.removeChild(prompt);
+                    });
+                    grid.appendChild(gamePlayer);
+                }
+            });
+            player.game.rules.skipChoosePlayed.played = true;
+        }
     }
 
     skipNextPlayed(player, state){
@@ -809,6 +812,7 @@ class Rules{
         if ((suit === 'Hearts')||(suit === 'Spades')||(suit ==='Diamonds')||(suit === 'Clubs')){
             player.game.discardPile.expectedSuit = suit.charAt(0);
             player.game.rules.wildRules.played = true;
+            player.showAlert('* jack of ' + suit + ' *');
         } else {
             player.game.drawCard(player);
             player.showAlert('failure to declare a suit');
@@ -1307,7 +1311,7 @@ function playTurn() {
         niceDayCount = 0;
         declaration = "- ";
         //player.hilite(document.getElementById(player.name + 'show'));
-    } else {
+    } else if (findPlayerIndexFromId() !== undefined){
         findPlayerIndexFromId().showAlert('must select card to play turn');
     }
 }
