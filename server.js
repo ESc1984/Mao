@@ -53,6 +53,8 @@ function accept(req, res) {
     }
 }
 
+let stage = 'start';
+let mode = undefined;
 function onSocketConnect(ws) {
     clients.add(ws);
     console.log(`new connection`);
@@ -76,35 +78,37 @@ function onSocketConnect(ws) {
 
         let user = {};
 
-        if (msg.action === "getUsers") {    //send game info instead
+        if(msg.action === 'loadStartScreen'){
             return ws.send(JSON.stringify({
-                users: users
+                stage: stage,
+                mode: mode
+            }));
+        }
+
+        if(msg.action === 'loadNameScreen'){
+            return ws.send(JSON.stringify({
+                mode: msg.mode
             }));
         }
 
         if (msg.action === 'modeSelected'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    mode: msg.mode,
+                    mode: msg.mode
                 }));
             });
-        }
-
-        if (msg.action === 'numPlayersDecided'){
-            clients.forEach(client => {
-               return client.send(JSON.stringify({
-                   numPlayers: msg.numPlayers
-               }));
-            });
+            stage = 'name';
+            mode = msg.mode;
         }
 
         if (msg.action === 'choseName'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
                     namePlayer: msg.name,
-                    userId: msg.userId
+                    userId: msg.userId,
                 }));
             });
+            stage = 'start';
         }
 
         if (msg.action === 'startGame'){
@@ -133,6 +137,15 @@ function onSocketConnect(ws) {
                    passes: msg.numPasses,
                    turnOrder: msg.turnOrder
                }));
+            });
+        }
+
+        if (msg.action === 'gameWon'){
+            clients.forEach(client => {
+                return client.send(JSON.stringify({
+                    winner: msg.name,
+                    win: msg.name
+                }));
             });
         }
     });

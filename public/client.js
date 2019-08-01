@@ -10,11 +10,11 @@ import Game from "./game.js";
     let ip = window.location.hostname;
     let socket = new WebSocket("ws://" + ip + ":8080/ws");
 
-    // socket.onopen = function (evt) {    //onopen prompt user for name
-    //     socket.send(JSON.stringify({
-    //         action: "getView"      //get game
-    //     }));
-    // };
+    socket.onopen = function (evt) {    //onopen prompt user for name
+        socket.send(JSON.stringify({
+            action: "loadStartScreen"
+        }));
+    };
 
     socket.onmessage = function (event) {
         console.log("[message] Data received.");
@@ -36,7 +36,16 @@ import Game from "./game.js";
     let users = [];
     let playingHand, playerName, rules;
     function updateView(data) {
-        if(data.mode){
+        if(data.stage){
+            if(data.stage === 'start'){
+                document.body.HTML = document.body.innerHTML;
+            } else {
+                socket.send(JSON.stringify({
+                    action: 'loadNameScreen',
+                    mode: data.mode
+                }));
+            }
+        } else if(data.mode){
             removeElement(document.getElementById('startPage'));
             if(data.mode === 'standard'){
                 standardGame();
@@ -110,6 +119,10 @@ import Game from "./game.js";
                     playerName = player;
                     gamePlayer.setAttribute("id", player);
                     gamePlayer.dataset.name = player;
+                    let name = document.createElement('h1');
+                    name.setAttribute('class', 'numCards');
+                    name.innerHTML = player;
+                    document.getElementById(player).appendChild(name);
                     const playerHand = document.createElement('section');
                     playerHand.setAttribute('class', 'grid playerHand');
                     playerHand.id = 'playerHand';
@@ -179,11 +192,24 @@ import Game from "./game.js";
                    }));
                 });
             }
+        } else if (data.win) {
+            if(data.winner === playerName){
+                thisGame.rules.winMessage(data.winner);
+            } else {
+                thisGame.rules.loseMessage(playerName, data.winner);
+            }
         } else {
             let otherPlayers = document.getElementById('otherPlayersGrid');
             otherPlayers.innerHTML = "";
             thisGame.updateGame(data.hands, data.deck, data.player, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
             thisGame.playerList.forEach(player => {
+                if(data.hands[player.name].length === 0){
+                    socket.send(JSON.stringify({
+                        action: "gameWon",
+                        name: player.name,
+                        win: true
+                    }));
+                }
                 if(player.name === playerName){
                     let playerHand = document.getElementById("playerHand");
                     playerHand.innerHTML = "";
@@ -228,6 +254,15 @@ import Game from "./game.js";
             socket.send(JSON.stringify({
                 action: "modeSelected",
                 mode: "chaos"
+            }));
+        });
+    }
+
+    let playAgain = document.getElementById('redoButton');
+    if(playAgain){
+        playAgain.addEventListener('click', function(){
+            socket.send(JSON.stringify({
+                action: "loadStartScreen"
             }));
         });
     }

@@ -859,13 +859,26 @@ export class Rules{
 
     findWin(player){
         if (player.hand.length === 0){
-            document.getElementById('gameBoard').innerHTML = "";
-            document.getElementById('alert').style.marginLeft = '0';
-            document.getElementById('alert').style.fontSize = '100px';
-            document.getElementById('alert').style.top = '10%';
-            document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + player.name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
-            document.getElementById('redoButton').style.display = 'block';
+            this.winMessage(name);
         }
+    }
+
+    winMessage(name){
+        document.getElementById('gameBoard').innerHTML = "";
+        document.getElementById('alert').style.marginLeft = '0';
+        document.getElementById('alert').style.fontSize = '100px';
+        document.getElementById('alert').style.top = '10%';
+        document.getElementById("alert").innerHTML = 'CONGRATULATIONS, ' + name.toUpperCase() + " - YOU HAVE WON THIS ROUND OF MAO";
+        document.getElementById('redoButton').style.display = 'block';
+    }
+
+    loseMessage(name, winner){
+        document.getElementById('gameBoard').innerHTML = "";
+        document.getElementById('alert').style.marginLeft = '0';
+        document.getElementById('alert').style.fontSize = '100px';
+        document.getElementById('alert').style.top = '10%';
+        document.getElementById("alert").innerHTML = 'SORRY, ' + name.toUpperCase() + " - YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
+        document.getElementById('redoButton').style.display = 'block';
     }
 }
 
