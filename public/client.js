@@ -53,6 +53,19 @@ import Game from "./game.js";
                 randomGame();
             }
             modeDecided();
+            // if(data.users){
+            //     users.push({name: data.users['name'], id: data.users['id']});
+            //     let HTML = "<table>";
+            //     let counter = 1;
+            //     HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+            //     users.forEach(user => {
+            //         HTML += "<tr>" +
+            //             "  <td>" + counter + "</td>" +
+            //             "  <td>" + user.name + "</td>" +
+            //             "</tr>";
+            //         counter++;
+            //     });
+            // }
             let choseName = document.getElementById('choseName');
             if(choseName){
                 choseName.addEventListener('click', function() {

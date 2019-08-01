@@ -53,6 +53,7 @@ function accept(req, res) {
     }
 }
 
+let users = [];
 let stage = 'start';
 let mode = undefined;
 function onSocketConnect(ws) {
@@ -76,8 +77,6 @@ function onSocketConnect(ws) {
             return ws.send("You need to tell me what you want from me! ERROR: No action defined.");
         }
 
-        let user = {};
-
         if(msg.action === 'loadStartScreen'){
             return ws.send(JSON.stringify({
                 stage: stage,
@@ -87,8 +86,11 @@ function onSocketConnect(ws) {
 
         if(msg.action === 'loadNameScreen'){
             return ws.send(JSON.stringify({
-                mode: msg.mode
+                mode: msg.mode,
+                //users: users
             }));
+            mode = msg.mode;
+            stage = 'name';
         }
 
         if (msg.action === 'modeSelected'){
@@ -97,8 +99,8 @@ function onSocketConnect(ws) {
                     mode: msg.mode
                 }));
             });
-            stage = 'name';
             mode = msg.mode;
+            stage = 'name';
         }
 
         if (msg.action === 'choseName'){
@@ -108,7 +110,8 @@ function onSocketConnect(ws) {
                     userId: msg.userId,
                 }));
             });
-            stage = 'start';
+            //users.push({name: msg.name, id: msg.userId});
+            stage = 'name';
         }
 
         if (msg.action === 'startGame'){
@@ -122,6 +125,7 @@ function onSocketConnect(ws) {
                     rules: msg.rules
                 }));
             });
+            stage = 'start';
         }
 
         if (msg.action === 'playTurn'){
