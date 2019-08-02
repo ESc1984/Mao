@@ -195,7 +195,6 @@ class Player {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
-        //this.hilite(document.getElementById(this.name + 'show'));
     };
 
     playCard(cardIndex, selectedRules) {
@@ -216,6 +215,7 @@ class Player {
     }
 
     sendRuleDeclarations(card, selectedRules){
+        let length = this.hand.length;
         selectedRules.forEach(selected => {
             if(selected === 'Mao' && this._game.rules.maoRules.played === false && this._game.rules.rulesInPlay.includes('mao')){
                 this._game.rules.maoPlayed(this, selected);
@@ -247,7 +247,7 @@ class Player {
             }
         });
 
-        if(this._game.rules.rulesInPlay.includes('mao') && this.hand.length === 2 && !this._game.rules.maoRules.played){
+        if(this._game.rules.rulesInPlay.includes('mao') && length === 2 && !this._game.rules.maoRules.played){
             this._game.rules.maoPlayed(this, "");
         }
 
