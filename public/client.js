@@ -1,4 +1,4 @@
-import { removeElement, standardGame, randomGame, modeDecided, playTurn,
+import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
     initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
 (function () {
@@ -35,7 +35,7 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, rules, selected;
+    let playingHand, playerName, rules, selected, difficulty, index;
     function updateView(data) {
         if(data.stage){
             if(data.stage === 'name'){
@@ -79,15 +79,23 @@ import Game from "./game.js";
                     let inName = document.getElementById('namePlayersPrompt').value;
                     playerName = checkName(inName);
                     removeElement(window.document.getElementById('choseName'));
+                    let selectDifficulty = document.getElementById('numRules');
+                    if(selectDifficulty){
+                        difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
+                    }
                     socket.send(JSON.stringify({
                         action: 'choseName',
                         name: playerName,
-                        userId: document.querySelector("[name=\"userId\"]").value
+                        userId: document.querySelector("[name=\"userId\"]").value,
+                        difficulty: difficulty
                     }));
                     selected = true;
                 });
             }
         } else if(data.namePlayer){
+            if(data.difficulty !== undefined){
+                rulesDecided(data.difficulty);
+            }
             users.push({name: data.namePlayer, id: data.userId});
             checkLength();
             let HTML = "<table>";
@@ -104,6 +112,8 @@ import Game from "./game.js";
             if(counter > 2 && selected){
                 let startGame = document.getElementById('startButton');
                 startGame.style.visibility = 'visible';
+                let warn = document.getElementById('startWarn');
+                warn.style.visibility = 'visible';
                 startGame.addEventListener('click', function() {
                     let players = diffNames(users);
                     let playingHands = getHands();
@@ -116,7 +126,7 @@ import Game from "./game.js";
                         playingHands: playingHands,
                         playDeck: thisGame.playDeck,
                         topDiscard: topDiscard,
-                        rules: thisGame.rules,
+                        rules: thisGame.rules
                     }));
                 });
             }
@@ -125,7 +135,7 @@ import Game from "./game.js";
             thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
             rules = data.rules;
             let counter = 0;
-            let index, playerId;
+            let playerId;
             let game = document.getElementById("gameBoard");
             const gamePlayer = document.createElement('div');
             gamePlayer.classList.add('player');
@@ -226,6 +236,7 @@ import Game from "./game.js";
             }
         } else {
             thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
+            let counter = 0;
             thisGame.playerList.forEach(player => {
                 if(data.hands[player.name].length === 0){
                     socket.send(JSON.stringify({
@@ -235,6 +246,7 @@ import Game from "./game.js";
                     }));
                 }
                 if(player.name === playerName){
+                    index = counter;
                     let playerHand = document.getElementById("playerHand");
                     playerHand.innerHTML = "";
                     initializePlayerHand(data.hands[player.name], playerHand);
@@ -254,8 +266,10 @@ import Game from "./game.js";
                     numCards.setAttribute('id', `${player.name}numCards`);
                     numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
                     hand.appendChild(numCards);
+
                     hilite(document.getElementById(data.player + 'show'));
                 }
+                counter++;
             });
         }
     }
@@ -276,6 +290,25 @@ import Game from "./game.js";
                 action: "modeSelected",
                 mode: "chaos"
             }));
+            const numRulesPrompt = document.createElement('label');
+            numRulesPrompt.id = 'numRulesPrompt';
+            numRulesPrompt.setAttribute('for', 'numRules');
+            numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
+            const numRulesResponse = document.createElement('select');
+            numRulesResponse.name = 'numRulesPrompt';
+            numRulesResponse.id = 'numRules';
+            const levels = ['Comprehensible', 'Challenging', 'Convoluted'];
+            for (let i = 0; i < levels.length; i++) {
+                let option = document.createElement("option");
+                option.value = ((i+1) * 3).toString();
+                option.text = levels[i];
+                numRulesResponse.add(option);
+            }
+            let startGame = document.getElementById('startGame');
+            const newLine = document.createElement('br');
+            startGame.appendChild(numRulesPrompt);
+            startGame.appendChild(numRulesResponse);
+            startGame.appendChild(newLine);
         });
     }
 
