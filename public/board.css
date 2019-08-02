@@ -435,3 +435,30 @@ input:focus {
     /*margin-left: 510px;*/
 
 }
+
+.close {
+    margin: 0 auto;
+}
+
+table, th, td {
+    border: 1px solid gold;
+}
+
+table {
+    table-layout: auto;
+    font-family: Oriya MN;
+    font-size: 20px;
+    color: gold;
+    alignment: center;
+    margin: 0 auto;
+}
+
+th {
+    /*text-align: left;*/
+    text-align: center;
+}
+
+td {
+    /*text-align: left;*/
+    text-align: center;
+}

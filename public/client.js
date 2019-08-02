@@ -61,14 +61,15 @@ import Game from "./game.js";
                     users.push({name: user['name'], id: user['id']});
                 });
                 checkLength();
-                let HTML = "<table>";
+                let HTML = "<table borderColor='gold'>";
                 let counter = 1;
-                HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+                HTML += "<tr><th>Player</th><th>Name</th></tr>";
                 users.forEach(user => {
                     HTML += "<tr>" +
-                        "  <td>" + counter + "</td>" +
-                        "  <td>" + user.name + "</td>" +
+                        "  <td width='100'> " + counter + "</td>" +
+                        "  <td width='200'> " + user.name + "</td>" +
                         "</tr>";
+                        //dashes if not celled
                     counter++;
                 });
                 document.getElementById("activePlayers").innerHTML = HTML;
@@ -78,7 +79,11 @@ import Game from "./game.js";
                 choseName.addEventListener('click', function() {
                     let inName = document.getElementById('namePlayersPrompt').value;
                     playerName = checkName(inName);
+                    window.document.getElementById('choseName').style.display = 'none';
                     removeElement(window.document.getElementById('choseName'));
+                    window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
+                    window.document.getElementById('namePlayers').style.visibility = 'hidden';
+                    //removeElement(window.document.getElementById('namePlayers'));
                     socket.send(JSON.stringify({
                         action: 'choseName',
                         name: playerName,
@@ -92,11 +97,11 @@ import Game from "./game.js";
             checkLength();
             let HTML = "<table>";
             let counter = 1;
-            HTML += "<tr><th>Player Number</th><th>Name</th></tr>";
+            HTML += "<tr><th>Player</th><th>Name</th></tr>";
             users.forEach(user => {
                 HTML += "<tr>" +
-                    "  <td>" + counter + "</td>" +
-                    "  <td>" + user.name + "</td>" +
+                    "  <td width='100'>" + counter + "</td>" +
+                    "  <td width='200'>" + user.name + "</td>" +
                     "</tr>";
                 counter++;
             });
@@ -146,16 +151,26 @@ import Game from "./game.js";
                     name.setAttribute('class', 'numCards');
                     name.innerHTML = player;
                     document.getElementById(player).appendChild(name);
-                    const playerHand = document.createElement('section');
-                    playerHand.setAttribute('class', 'grid playerHand');
-                    playerHand.id = 'playerHand';
-                    initializePlayerHand(playingHand, playerHand);
-                    document.getElementById(player).appendChild(playerHand);
+                    name.style.display = 'inline-block';
+                    name.style.fontSize = '40px';
+                    name.style.margin = '7px';
                     const passBtn = document.createElement("button");
                     passBtn.id = 'passTurn';
                     passBtn.setAttribute('class', 'pass');
                     passBtn.innerHTML = 'Pass Turn';
                     document.getElementById(player).appendChild(passBtn);
+                    passBtn.style.display = 'inline-block';
+                    passBtn.style.margin = '5px';
+                    const playerHand = document.createElement('section');
+                    playerHand.setAttribute('class', 'grid playerHand');
+                    playerHand.id = 'playerHand';
+                    initializePlayerHand(playingHand, playerHand);
+                    document.getElementById(player).appendChild(playerHand);
+                    // const passBtn = document.createElement("button");
+                    // passBtn.id = 'passTurn';
+                    // passBtn.setAttribute('class', 'pass');
+                    // passBtn.innerHTML = 'Pass Turn';
+                    // document.getElementById(player).appendChild(passBtn);
                     document.getElementById(player).appendChild(otherPlayers);
                 } else {
                     const gamePlayer = document.createElement('div');

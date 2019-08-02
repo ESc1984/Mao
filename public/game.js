@@ -498,16 +498,16 @@ export class Rules{
             {value:"K", function: this.noRule}
         ];
         this.allRules = [
+            {function: this.maoPlayed, name: 'mao'},
             {function: this.niceDayPlayed, name: 'niceDay'},
             {function: this.wildPlayed, name: 'wild'},
             {function: this.chairwomanPlayed, name: 'chairwoman'},
             {function: this.chairmanPlayed, name: 'chairman'},
             {function: this.spadePlayed, name: 'spade'},
-            {function: this.reversePlayed, name: 'reverse'},
-            {function: this.playAgainPlayed, name: 'playAgain'},
             {function: this.pairPlayed, name: 'pair'},
             {function: this.runPlayed, name: 'run'},
-            {function: this.maoPlayed, name: 'mao'},
+            {function: this.reversePlayed, name: 'reverse'},
+            {function: this.playAgainPlayed, name: 'playAgain'},
             {function: this.skipChoosePlayed, name: 'skipChoose'},
             {function: this.skipNextPlayed, name: 'skipNext'}
         ];
@@ -515,16 +515,16 @@ export class Rules{
         this._skippedPlayer = [];
         this._random = false;
 
+        this._maoRules = {played: false};
         this._niceDayRules = {played: false};
         this._wildRules = {played: false};
         this._chairwomanRules = {played: false};
         this._chairmanRules = {played: false};
         this._spadeRules = {played: false};
-        this._maoRules = {played: false};
-        this._reverseRules = {played: false};
-        this._playAgainRules = {played: false};
         this._pairRules = {played: false};
         this._runRules = {played: false};
+        this._reverseRules = {played: false};
+        this._playAgainRules = {played: false};
         this._skipChooseRules = {played: false};
         this._skipNextRules = {played: false};
 
@@ -603,8 +603,12 @@ export class Rules{
 
     pickRules(num){
         this.random = true;
+        this.gameRules[2].function = this.allRules[0].function;
+        let name = this.allRules[0].name + 'Rules';
+        this.storeCardRule('', this.allRules[0], name);
+        this.allRules.splice(0, 1);
         for(let i = 0; i < num; i++){
-            let ruleNum = Math.floor(Math.random() * this.allRules.length);
+            let ruleNum = Math.floor(1 + Math.random() * (this.allRules.length-1));
             let cardNum = Math.floor(Math.random() * 13 + 4);
             if (this.allRules[ruleNum].name === 'pair'){
                 this.gameRules[2].function = this.allRules[ruleNum].function;
@@ -725,11 +729,11 @@ export class Rules{
         this._chairwomanRules.played = false;
         this._chairmanRules.played = false;
         this._spadeRules.played = false;
+        this._pairRules.played = false;
+        this._runRules.played = false;
         this._maoRules.played = false;
         this._reverseRules.played = false;
         this._playAgainRules.played = false;
-        this._pairRules.played = false;
-        this._runRules.played = false;
         this._skipChooseRules.played = false;
         this._skipNextRules.played = false;
     }
@@ -829,7 +833,7 @@ export class Rules{
     }
 
     skipNextPlayed(player, state){
-        if(state != ""){
+        if(state !== ""){
             let message = 'declared ' + state + ' out of turn';
             player.alerts.push(message);
             player.game.drawCard(player);
@@ -1098,6 +1102,7 @@ export function modeDecided() {
 
     let activePlayers = document.createElement("table");
     activePlayers.id = 'activePlayers';
+    activePlayers.style.borderColor = '#b0210b';
     startGamePrompt.appendChild(activePlayers);
 
     startGamePrompt.appendChild(nameDone);
