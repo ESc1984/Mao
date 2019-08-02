@@ -147,6 +147,7 @@ function onSocketConnect(ws) {
                return client.send(JSON.stringify({
                    topDiscard: msg.topDiscard,
                    suit: msg.suit,
+                   sevensCount: msg.sevensCount,
                    deck: msg.deck,
                    player: msg.playerName,
                    playerId: msg. playerId,
