@@ -124,6 +124,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            users = [];
         }
 
         if (msg.action === 'startGame'){
@@ -138,6 +139,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            users = [];
         }
 
         if (msg.action === 'playTurn'){
@@ -145,6 +147,7 @@ function onSocketConnect(ws) {
                return client.send(JSON.stringify({
                    topDiscard: msg.topDiscard,
                    suit: msg.suit,
+                   sevensCount: msg.sevensCount,
                    deck: msg.deck,
                    player: msg.playerName,
                    playerId: msg. playerId,

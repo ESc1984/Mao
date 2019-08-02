@@ -57,6 +57,10 @@ class DiscardPile {
         return this._sevensCount;
     }
 
+    set sevensCount(sevens){
+        this._sevensCount = sevens;
+    }
+
     get cards() {
         return this._cards;
     }
@@ -191,7 +195,6 @@ class Player {
             document.getElementById(selectedCard).classList.toggle('selectedCard');
         }
         selectedCard = '';
-        //this.hilite(document.getElementById(this.name + 'show'));
     };
 
     playCard(cardIndex, selectedRules) {
@@ -212,6 +215,7 @@ class Player {
     }
 
     sendRuleDeclarations(card, selectedRules){
+        let length = this.hand.length;
         selectedRules.forEach(selected => {
             if(selected === 'Mao' && this._game.rules.maoRules.played === false && this._game.rules.rulesInPlay.includes('mao')){
                 this._game.rules.maoPlayed(this, selected);
@@ -243,7 +247,7 @@ class Player {
             }
         });
 
-        if(this._game.rules.rulesInPlay.includes('mao') && this.hand.length === 2 && !this._game.rules.maoRules.played){
+        if(this._game.rules.rulesInPlay.includes('mao') && length === 2 && !this._game.rules.maoRules.played){
             this._game.rules.maoPlayed(this, "");
         }
 
@@ -304,7 +308,7 @@ export default class Game {
         this._passes = 0;
     }
 
-     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit){
+     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens){
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
@@ -314,6 +318,7 @@ export default class Game {
         this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
         this._discardPile.expectedSuit = suit;
+        this._discardPile.sevensCount = sevens;
         this._passes = numPasses;
         this.passCount();
         if(penalties !== undefined){

@@ -213,6 +213,7 @@ import {findPlayerIndexFromId} from "./game";
                         action: "playTurn",
                         topDiscard: thisGame.discardPile.topDiscard(),
                         suit: thisGame.discardPile.expectedSuit,
+                        sevensCount: thisGame.discardPile.sevensCount,
                         deck: thisGame.playDeck,
                         playerName: playerName,
                         playerId: playerId,
@@ -232,6 +233,7 @@ import {findPlayerIndexFromId} from "./game";
                        action: "playTurn",
                        topDiscard: thisGame.discardPile.topDiscard(),
                        suit: thisGame.discardPile.expectedSuit,
+                       sevensCount: thisGame.discardPile.sevensCount,
                        deck: thisGame.playDeck,
                        playerName: playerName,
                        playerId: playerId,
@@ -250,7 +252,7 @@ import {findPlayerIndexFromId} from "./game";
                 thisGame.rules.loseMessage(playerName, data.winner);
             }
         } else {
-            thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit);
+            thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit, data.sevensCount);
             let counter = 0;
             thisGame.playerList.forEach(player => {
                 if(data.hands[player.name].length === 0){
