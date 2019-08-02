@@ -124,6 +124,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            users = [];
         }
 
         if (msg.action === 'startGame'){
@@ -138,6 +139,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            users = [];
         }
 
         if (msg.action === 'playTurn'){
