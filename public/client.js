@@ -1,6 +1,7 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
     initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
+import {findPlayerIndexFromId} from "./game";
 (function () {
     "use strict";
     let thisGame;
@@ -84,8 +85,13 @@ import Game from "./game.js";
                     window.document.getElementById('namePlayers').style.visibility = 'hidden';
                     //removeElement(window.document.getElementById('namePlayers'));
                     let selectDifficulty = document.getElementById('numRules');
+                    // let showDiff = document.createElement('p');
+                    // showDiff.setAttribute('id', 'showDiff');
+                    // window.document.appendChild(showDiff);
                     if(selectDifficulty){
                         difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
+                        //push text as alert at start of game
+                        //showDiff.innerHTML = selectDifficulty.options[selectDifficulty.selectedIndex].text;
                     }
                     socket.send(JSON.stringify({
                         action: 'choseName',
@@ -308,7 +314,7 @@ import Game from "./game.js";
             const levels = ['Comprehensible', 'Challenging', 'Convoluted'];
             for (let i = 0; i < levels.length; i++) {
                 let option = document.createElement("option");
-                option.value = ((i+1) * 3).toString();
+                option.value = ((i+1) * 3 + 1).toString();
                 option.text = levels[i];
                 numRulesResponse.add(option);
             }

@@ -1066,6 +1066,11 @@ export function modeDecided() {
     startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS HAVE SIGNED ON';
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
+
+    // if (game._rules._random === true){
+    //     let showDiff = document.createElement('p');
+    //     showDiff.innerHTML =
+    // }
 }
 
 export function checkName(entry) {
