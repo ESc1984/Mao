@@ -209,15 +209,7 @@ class Player {
                 this._game.updateTurn();
             }
         }
-        //this.hilite(document.getElementById(this.name + 'show'));
     }
-
-    // hilite(boop){
-    //     boop.classList.toggle('highlight');
-    //     setTimeout(function(){
-    //         boop.classList.toggle('highlight');
-    //     }, 1200)
-    // }
 
     sendRuleDeclarations(card, selectedRules){
         selectedRules.forEach(selected => {
@@ -1024,51 +1016,6 @@ export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
-    // namePrompt(startGame);
-    // const numRulesPrompt = document.createElement('label');
-    // numRulesPrompt.id = 'numRulesPrompt';
-    // numRulesPrompt.setAttribute('for', 'numRules');
-    // numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
-    // const numRulesResponse = document.createElement('select');
-    // numRulesResponse.name = 'numRulesPrompt';
-    // numRulesResponse.id = 'numRules';
-    // //numRulesResponse.type = 'option';
-    // const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
-    // for (let i = 0; i < levels.length; i++) {
-    //     let option = document.createElement("option");
-    //     option.value = ((i+1) * 3).toString();
-    //     option.text = levels[i];
-    //     numRulesResponse.add(option);
-    // }
-    // const newLine = document.createElement('br');
-    // startGame.appendChild(numRulesPrompt);
-    // startGame.appendChild(numRulesResponse);
-    // startGame.appendChild(newLine);
-    // submitButton(startGame, true);
-
-    // namePrompt(startGame);
-    // const numRulesPrompt = document.createElement('label');
-    // numRulesPrompt.id = 'numRulesPrompt';
-    // numRulesPrompt.setAttribute('for', 'numRules');
-    // numRulesPrompt.innerHTML = 'Choose Difficulty Level - ';
-    // const numRulesResponse = document.createElement('select');
-    // numRulesResponse.classList.add('select');
-    // numRulesResponse.name = 'numRulesPrompt';
-    // numRulesResponse.id = 'numRules';
-    // //numRulesResponse.type = 'option';
-    // const levels = ['Comprehensible', 'Challenging', 'Convoluted', 'Climactic'];
-    // for (let i = 0; i < levels.length; i++) {
-    //     let option = document.createElement("option");
-    //     option.classList.add('option');
-    //     option.value = ((i+1) * 3).toString();
-    //     option.text = levels[i];
-    //     numRulesResponse.add(option);
-    // }
-    // const newLine = document.createElement('br');
-    // startGame.appendChild(numRulesPrompt);
-    // startGame.appendChild(numRulesResponse);
-    // startGame.appendChild(newLine);
-    // submitButton(startGame, true);
 }
 
 export function standardGame(){
@@ -1112,13 +1059,12 @@ export function modeDecided() {
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
-    // startGamePrompt.appendChild(newLine);
-    // startGamePrompt.appendChild(newLine);
 
     let startWarn = document.createElement('p');
     startWarn.setAttribute('id', 'startWarn');
     startWarn.style.position = 'relative';
     startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS HAVE SIGNED ON';
+    startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
 }
 
@@ -1194,14 +1140,8 @@ export function diffNames(names){
     return newPlayers;
 }
 
-export function numRulesDecided(numRules){
-    if(numRules > specialRules.length - 1){
-        ruleNumber = specialRules.length -1;
-    } else if (numRules < 2) {
-        ruleNumber = 2;
-    } else {
-        ruleNumber = numRules;
-    }
+export function rulesDecided(numRules){
+    ruleNumber = parseInt(numRules);
 }
 
 export function removeElement(element) {
@@ -1325,9 +1265,6 @@ export function passTurn(name, game) {
     selectedRules = [];
     niceDayCount = 0;
     declaration = "- ";
-    // document.getElementById('played').innerHTML = '- ';
-    // document.getElementById('played').style.color = '#b0210b';
-    //player.hilite(document.getElementById(player.name+'show'));
 }
 
 export function playTurn(game) {

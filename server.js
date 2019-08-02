@@ -18,6 +18,7 @@ const clients = new Set();
 let users = [];
 let stage = 'start';
 let mode = undefined;
+let difficulty = undefined;
 
 function accept(req, res) {
     try {
@@ -106,6 +107,7 @@ function onSocketConnect(ws) {
                 return client.send(JSON.stringify({
                     namePlayer: msg.name,
                     userId: msg.userId,
+                    difficulty: msg.difficulty
                 }));
             });
             user.name = msg.name;
