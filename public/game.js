@@ -1,7 +1,7 @@
 
 
-let suits = ['S', 'H', 'H', 'C'];
-let values = ['A', 'A', 'A', 'A', 'A', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+let suits = ['S', 'H', 'D', 'C'];
+let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
     constructor(deck){
