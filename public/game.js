@@ -212,6 +212,7 @@ class Player {
                 this._game.updateTurn();
             }
         }
+        console.log(this._game.rules.rulesInPlay);
     }
 
     sendRuleDeclarations(card, selectedRules){

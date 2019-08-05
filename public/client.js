@@ -86,12 +86,16 @@ import Game from "./game.js";
                     playerName = checkName(inName);
                     window.document.getElementById('choseName').style.display = 'none';
                     removeElement(window.document.getElementById('choseName'));
-                    window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
-                    window.document.getElementById('namePlayers').style.visibility = 'hidden';
+                    window.document.getElementById('namePlayersPrompt').style.display = 'none';
+                    window.document.getElementById('namePlayers').style.display = 'none';
                     let selectDifficulty = document.getElementById('numRules');
                     if(selectDifficulty){
                         difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
                         textDiff = selectDifficulty.options[selectDifficulty.selectedIndex].text;
+                    }
+                    if ((window.document.getElementById('numRulesPrompt') !== null) && (window.document.getElementById('numRules') !== null)){
+                        removeElement(window.document.getElementById('numRulesPrompt'));
+                        removeElement(window.document.getElementById('numRules'));
                     }
                     socket.send(JSON.stringify({
                         action: 'choseName',
