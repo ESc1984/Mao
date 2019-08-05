@@ -325,7 +325,7 @@ import Game from "./game.js";
             const levels = ['Comprehensible', 'Challenging', 'Convoluted'];
             for (let i = 0; i < levels.length; i++) {
                 let option = document.createElement("option");
-                option.value = ((i+1) * 3).toString();
+                option.value = ((i+1) * 3 + 1).toString();
                 option.text = levels[i];
                 numRulesResponse.add(option);
             }
@@ -378,4 +378,3 @@ import Game from "./game.js";
         return ret;
     }
 }());
-
