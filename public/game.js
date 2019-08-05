@@ -692,6 +692,12 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
+        if (ruleName === 'skipNext' && random === true){
+            let random = Math.floor(2 * Math.random());
+            if (random = 0) {
+                this.rulesInPlay.push('skipChoose');
+            }
+        }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
