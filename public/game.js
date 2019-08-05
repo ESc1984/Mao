@@ -389,6 +389,7 @@ class Computer extends Player {
                 suit = suitCount[i].suit;
             }
         }
+        return suit;
     }
 
     getStatement(rule){
@@ -559,11 +560,8 @@ export default class Game {
     updateTurn(){
         let currentPlayer = this.getCurrentPlayer();
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
-        //this.checkNext(currentPlayer, nextPlayer);
         if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
             let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
-            //this.rules.skippedPlayer.splice(i, 1);
-            //relocation
             this.disableTurn(nextPlayer);
             if (nextPlayer === this._playerList.length-1){
                 nextPlayer = 0;
@@ -572,7 +570,6 @@ export default class Game {
                 nextPlayer++;
                 console.log(nextPlayer);
             }
-            //nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
             console.log('new next player: ' + nextPlayer);
             this.rules.skippedPlayer.splice(i, 1);
             console.log(this.rules.skippedPlayer);
@@ -858,13 +855,6 @@ export class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
-        // // if(rule.name === 'skipNext'){
-        // //     //include randomization
-        // //     this.rulesInPlay.push('skipChoose');
-        // // }
-        // if(rule.name === 'skipNext' && this.random === true){
-        //     this.rulesInPlay.push('skipChoose');
-        // }
         if(card !== ""){
             this[name]['card'] = card.value;
         }
@@ -937,7 +927,6 @@ export class Rules{
         }
     }
 
-    //fremulon
     skipChoosePlayed(player, state, thisGame){
         if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
             if (state !== "") {
@@ -958,16 +947,9 @@ export class Rules{
                     gamePlayer.classList.add('ruleButton');
                     gamePlayer.innerHTML = player.name;
                     gamePlayer.onclick = (() => {
-                        // let checker = ourGame._playerList.indexOf(player);
-                        // let checkee = ourGame.getCurrentPlayer();
-                        //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
-                        //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
-                        //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
                         if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                             player.game.rules.skippedPlayer.push(player.name);
-                            // this.nextSkip = false;
                         } else {
-                            // this.nextSkip = true;
                             thisGame.getPlayer(thisGame._playerList.indexOf(player))._turn = false;
                             let nowplay = thisGame._playerList.indexOf(player) + 1;
                             if (nowplay >= thisGame._playerList.length) {
