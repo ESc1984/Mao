@@ -1,7 +1,10 @@
 
 
-let suits = ['S', 'H', 'D', 'C'];
-let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+// let suits = ['S', 'H', 'D', 'C'];
+// let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+
+let suits = ['H', 'C'];
+let values = ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', '2', '3'];
 
 class Deck{
     constructor(deck){
@@ -631,12 +634,12 @@ export class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
-            else if(this.gameRules[cardNum].name === 'mao'){
-                this.gameRules[2].function = this.allRules[ruleNum].function;
-                let name = this.allRules[ruleNum].name + 'Rules';
-                this.storeCardRule('', this.allRules[ruleNum], name);
-                this.allRules.splice(ruleNum, 1);
-            }
+            // else if(this.gameRules[cardNum].name === 'mao'){
+            //     this.gameRules[2].function = this.allRules[ruleNum].function;
+            //     let name = this.allRules[ruleNum].name + 'Rules';
+            //     this.storeCardRule('', this.allRules[ruleNum], name);
+            //     this.allRules.splice(ruleNum, 1);
+            // }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -646,6 +649,7 @@ export class Rules{
                 i--;
             }
         }
+        console.log(this.rulesInPlay);
     }
 
     normalRules(){
@@ -691,9 +695,9 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        if(ruleName === 'skipNext' && random === true){
-            this.rulesInPlay.push('skipChoose');
-        }
+        // if(ruleName === 'skipNext' && random === true){
+        //     this.rulesInPlay.push('skipChoose');
+        // }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
@@ -748,6 +752,7 @@ export class Rules{
             }
             player.alerts.push('failure to play in turn');
         }
+        console.log(this.skippedPlayer);
     }
 
     playedCardCheckRules(card, player){
@@ -763,6 +768,7 @@ export class Rules{
             player.alerts.push('failure to play within proper values');
             player.game.updateTurn();
         }
+        console.log(this.skippedPlayer);
     }
 
     noRule(player, state){
@@ -810,6 +816,7 @@ export class Rules{
                         //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
                         if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                             player.game.rules.skippedPlayer.push(player.name);
+                            console.log(player.game.rules.skippedPlayer);
                             // this.nextSkip = false;
                         } else {
                             // this.nextSkip = true;
@@ -819,12 +826,18 @@ export class Rules{
                                 nowplay = 0;
                             }
                             thisGame.getPlayer(nowplay)._turn = true;
+                            console.log(player.game.rules.skippedPlayer);
                         }
                         prompt.parentNode.removeChild(prompt);
+                        console.log(this.skippedPlayer);
+                        console.log(player._name + ' ' + player._turn);
                     });
                     grid.appendChild(gamePlayer);
                 }
             });
+            // thisGame.playerList.forEach(player => {
+            //     console.log(player._name + ' ' + player._turn);
+            // });
             player.game.rules.skipChoosePlayed.played = true;
         }
     }
@@ -982,7 +995,7 @@ export class Rules{
         document.getElementById('alert').style.marginLeft = '0';
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
-        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
+        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO.<BR>THE WINNER IS " + winner.toUpperCase() +".";
         document.getElementById('redoButton').style.display = 'block';
     }
 }
@@ -995,6 +1008,7 @@ let game;
 let ruleNumber = false;
 let players;
 export let selectedCard = "";
+let isChaos = false;
 let oldCard = "";
 export let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
@@ -1017,10 +1031,18 @@ function overlay() {
     }
 }
 
+function chaosBringer(){
+    isChaos = true;
+}
+
 export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
+    const seeDiff = document.createElement('h3');
+    seeDiff.id = 'seeDiff';
+    seeDiff.style.visibility = 'hidden';
+    startGame.appendChild(seeDiff);
 }
 
 export function standardGame(){
@@ -1072,10 +1094,11 @@ export function modeDecided() {
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
 
-    // if (game._rules._random === true){
-    //     let showDiff = document.createElement('p');
-    //     showDiff.innerHTML =
-    // }
+    if (isChaos === true){
+        let showDiff = document.createElement('p');
+        showDiff.innerHTML = document.getElementById('numRules').options[document.getElementById('numRules').selectedIndex].text;
+        startGamePrompt.appendChild(showDiff);
+    }
 }
 
 export function checkName(entry) {
@@ -1168,7 +1191,7 @@ export function hilite(boop){
 }
 
 export function createTopBar(topDiscard){
-    removeElement(window.document.getElementById('startGame'));
+    //removeElement(window.document.getElementById('startGame'));
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');
