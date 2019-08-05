@@ -35,7 +35,7 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, rules, selected, difficulty, index;
+    let playingHand, playerName, rules, selected, difficulty, index, againstComp;
     function updateView(data) {
         if(data.stage){
             if(data.stage === 'name'){
@@ -82,7 +82,6 @@ import Game from "./game.js";
                     removeElement(window.document.getElementById('choseName'));
                     window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
                     window.document.getElementById('namePlayers').style.visibility = 'hidden';
-                    //removeElement(window.document.getElementById('namePlayers'));
                     let selectDifficulty = document.getElementById('numRules');
                     if(selectDifficulty){
                         difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
@@ -113,8 +112,15 @@ import Game from "./game.js";
                 counter++;
             });
             document.getElementById("activePlayers").innerHTML = HTML;
-            if(counter > 2 && selected){
+            if(selected){
+                let text = 'Play Computer';
+                againstComp = true;
+                if(counter > 2){
+                    text = 'Start Game';
+                    againstComp = false;
+                }
                 let startGame = document.getElementById('startButton');
+                startGame.innerHTML = text;
                 startGame.style.visibility = 'visible';
                 let warn = document.getElementById('startWarn');
                 warn.style.visibility = 'visible';
@@ -127,6 +133,7 @@ import Game from "./game.js";
                         action: 'startGame',
                         names: players,
                         playerId: users,
+                        againstComputer: againstComp,
                         playingHands: playingHands,
                         playDeck: thisGame.playDeck,
                         topDiscard: topDiscard,
@@ -136,7 +143,7 @@ import Game from "./game.js";
             }
         } else if(data.rules){
             createTopBar(data.topDiscard);
-            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
+            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard, data.againstComp);
             rules = data.rules;
             let counter = 0;
             let playerId;
@@ -149,33 +156,56 @@ import Game from "./game.js";
             otherPlayers.setAttribute('class', 'grid');
             otherPlayers.id = 'otherPlayersGrid';
             data.names.forEach(player => {
-                if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
-                    index = counter;
-                    playerId = users[index].id;
-                    playingHand = data.hands[counter];
-                    playerName = player;
-                    gamePlayer.setAttribute("id", player);
-                    gamePlayer.dataset.name = player;
-                    let name = document.createElement('h1');
-                    name.setAttribute('class', 'numCards');
-                    name.innerHTML = player;
-                    document.getElementById(player).appendChild(name);
-                    name.style.display = 'inline-block';
-                    name.style.fontSize = '40px';
-                    name.style.margin = '7px';
-                    const passBtn = document.createElement("button");
-                    passBtn.id = 'passTurn';
-                    passBtn.setAttribute('class', 'pass');
-                    passBtn.innerHTML = 'Pass Turn';
-                    document.getElementById(player).appendChild(passBtn);
-                    passBtn.style.display = 'inline-block';
-                    passBtn.style.margin = '5px';
-                    const playerHand = document.createElement('section');
-                    playerHand.setAttribute('class', 'grid playerHand');
-                    playerHand.id = 'playerHand';
-                    initializePlayerHand(playingHand, playerHand);
-                    document.getElementById(player).appendChild(playerHand);
-                    document.getElementById(player).appendChild(otherPlayers);
+                if(data.playerId[counter]){
+                    if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
+                        index = counter;
+                        playerId = users[index].id;
+                        playingHand = data.hands[counter];
+                        playerName = player;
+                        gamePlayer.setAttribute("id", player);
+                        gamePlayer.dataset.name = player;
+                        let name = document.createElement('h1');
+                        name.setAttribute('class', 'numCards');
+                        name.innerHTML = player;
+                        document.getElementById(player).appendChild(name);
+                        name.style.display = 'inline-block';
+                        name.style.fontSize = '40px';
+                        name.style.margin = '7px';
+                        const passBtn = document.createElement("button");
+                        passBtn.id = 'passTurn';
+                        passBtn.setAttribute('class', 'pass');
+                        passBtn.innerHTML = 'Pass Turn';
+                        document.getElementById(player).appendChild(passBtn);
+                        passBtn.style.display = 'inline-block';
+                        passBtn.style.margin = '5px';
+                        const playerHand = document.createElement('section');
+                        playerHand.setAttribute('class', 'grid playerHand');
+                        playerHand.id = 'playerHand';
+                        initializePlayerHand(playingHand, playerHand);
+                        document.getElementById(player).appendChild(playerHand);
+                        document.getElementById(player).appendChild(otherPlayers);
+                    }
+                    else {
+                        const gamePlayer = document.createElement('div');
+                        gamePlayer.classList.add('player');
+                        gamePlayer.setAttribute("class", "player");
+                        gamePlayer.setAttribute("id", player);
+                        gamePlayer.dataset.name = player;
+                        otherPlayers.appendChild(gamePlayer);
+
+                        const hand = document.createElement('button');
+                        hand.setAttribute('class', 'hand');
+                        hand.setAttribute('id', `${player}show`);
+                        hand.innerHTML = player;
+                        gamePlayer.appendChild(hand);
+
+                        let numCards = document.createElement('h3');
+                        numCards.classList.add('numCards');
+                        numCards.setAttribute('class', 'numCards');
+                        numCards.setAttribute('id', `${player}numCards`);
+                        numCards.innerHTML = data.hands[counter].length.toString() + ' cards';
+                        hand.appendChild(numCards);
+                    }
                 } else {
                     const gamePlayer = document.createElement('div');
                     gamePlayer.classList.add('player');
@@ -280,7 +310,7 @@ import Game from "./game.js";
                     hilite(document.getElementById(data.player + 'show'));
                 }
                 counter++;
-            });
+        });
         }
     }
 

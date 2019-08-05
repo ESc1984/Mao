@@ -178,10 +178,6 @@ class Player {
         this._hand.push(card);
     }
 
-    handSize(){
-        return this._hand.length;
-    }
-
     passTurn() {
         document.getElementById('played').innerHTML = '- ';
         document.getElementById('played').style.color = '#b0210b';
@@ -274,7 +270,7 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
+                    if(this._game.rules.rulesInPlay.includes('skipChoose') && this._game.playerList.length > 2 && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
                         this._game.rules.skipChoosePlayed(this, "", this.game);
                         this._game.updateTurn();
                     } else {
@@ -287,6 +283,154 @@ class Player {
 
 }
 
+class Computer extends Player {
+    constructor(hand, name, turn, game){
+        super(hand, name, turn, game);
+        this._knownRules = [];
+        if(game.rules.random === false){
+            this._knownRules = game.rules.rulesInPlay;
+        }
+        this._chosenRules = [];
+        this._card = null;
+        this.ruleAlertPairs = [{rule: 'spade', alert: 'Spades'}, {rule: 'mao', alert: 'Mao'},
+            {rule: 'niceDay', alert: 'Have a Nice Day'}, {rule: 'chairwoman', alert: 'All Hail the Chairwoman'},
+            {rule: 'chairman', alert: 'All Hail the Chairman'}, {rule: 'pair', alert: 'Pair'}, {rule: 'run', alert: 'Run'},
+            {rule: 'wild', alert: 'A Suit'}, {rule: 'S', alert: 'Spades'}, {rule: 'H', alert: 'Hearts'},
+            {rule: 'D', alert: 'Diamonds'}, {rule: 'C', alert: 'Clubs'}];
+        this._cardIndex = -1;
+    }
+
+    set turn(turn){
+        this._turn = turn;
+    }
+
+    get turn(){
+        return this._turn;
+    }
+
+    set alerts(alerts){
+        this._alerts = alerts;
+        if(alerts[0] !== undefined){
+            this._game.showAlert(alerts, this._name);
+        }
+        this.checkAlerts();
+    }
+
+    get alerts(){
+        return this._alerts;
+    }
+
+    checkPlay(){
+        if(this._turn ){    //|| this.shouldPlay()
+            this._card = this.selectCard();
+            this.playTurn();
+        }
+    }
+
+    checkAlerts(){
+        if(this._knownRules.length < this._game.rules.rulesInPlay.length){
+            if(!this._knownRules.includes('mao')){
+                this._knownRules.push('mao');
+            }
+            alerts.forEach(alert => {
+                if(alert.includes('failure to declare')){
+                    let check = alert.substring(alert.indexOf('failure to declare') + 18);
+                    this.ruleAlertPairs.forEach(pair => {
+                       if(pair.alert.toLowerCase() === check.toLowerCase()){
+                           if(!this._knownRules.includes(pair.rule)){
+                               this._knownRules.push(pair.rule);
+                           }
+                       }
+                    });
+                }
+            });
+        }
+    }
+
+    shouldPlay(){
+
+    }
+
+    /*
+        -- ShouldPlay: what about reverse and skips?
+            -- check last card played for rule, check known rules,
+                if known don't play, if not known play
+     */
+
+    selectCard(){
+        let chosen = null;
+        let i = 0;
+        this._cardIndex = -1;
+        this._hand.forEach(card => {
+            if(this._game.rules.cardMatch(card, this)){
+                chosen = card;
+                this._cardIndex = i;
+            }
+            i++;
+        });
+        return chosen;
+    }
+
+    selectWild(){
+        let suitCount = [{suit: 'S', count: 0}, {suit: 'H', count: 0},
+            {suit: 'D', count: 0}, {suit: 'C', count: 0}];
+        this._hand.forEach(card => {
+           if(card.suit === 'S'){
+               suitCount[0].count = suitCount[0].count + 1;
+           } else if(card.suit === 'H'){
+               suitCount[1].count = suitCount[1].count + 1;
+           } else if(card.suit === 'D'){
+               suitCount[2].count = suitCount[2].count + 1;
+           } else {
+               suitCount[3].count = suitCount[3].count + 1;
+           }
+        });
+        let max = suitCount[0].count;
+        let suit = suitCount[0].suit;
+        for(let i = 1; i < suitCount.length; i++){
+            if(suitCount[i].count > max){
+                max = suitCount[i].count;
+                suit = suitCount[i].suit;
+            }
+        }
+    }
+
+    getStatement(rule){
+        let chosen = null;
+        this.ruleAlertPairs.forEach(pair => {
+           if(pair.rule === rule){
+               chosen = pair.alert;
+           }
+        });
+        return chosen;
+    }
+
+    selectRules(){
+        this._knownRules.forEach(rule => {
+            let name = rule + 'Rules';
+            if(this._game.rules[name].card === this._card.value){
+                if(name === 'wild'){
+                    rule = this.selectWild();
+                }
+                let statement = this.getStatement(rule);
+                if(statement !== null){
+                    this._chosenRules.push(statement);
+                }
+            }
+        });
+    }
+
+    playTurn(){
+        if(this._card === null){
+            super.passTurn();
+        } else {
+            this.selectRules();
+            super.playCard(this._cardIndex, this._chosenRules);
+        }
+        this._chosenRules = [];
+    }
+}
+
 
 
 
@@ -294,26 +438,38 @@ class Player {
 
 
 export default class Game {
-    constructor(players, rules, hands, deck, topDiscard){
+    constructor(players, rules, hands, deck, topDiscard, againstComp){
         this._playDeck = new Deck(deck);
+        this._againstComp = againstComp;
         let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._rules = new Rules(rules);
         this._playerList = [];
         for (let i = 0; i < players.length; i++){
             let hand = (hands !== undefined) ? hands[i] : this.dealHand();
-            this._playerList.push(new Player(hand, players[i],false, this));
+            if(i === 1 && againstComp === true){
+                this._playerList.push(new Computer(hand, players[i],false, this));
+            } else {
+                this._playerList.push(new Player(hand, players[i],false, this));
+            }
+        }
+        if(players.length === 1){
+            this._playerList.push(new Computer(this.dealHand(), 'Computer', false, this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
     }
 
      updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens){
+        let compIndex = -1;
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
             this._playerList[i].hand = hands[players[i]];
             this._playerList[i].alerts = [];
+            if(this._playerList[i].name === 'Computer'){
+                compIndex = i;
+            }
         }
         this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
@@ -325,6 +481,9 @@ export default class Game {
             penalties.forEach(penalty => {
                 this.showAlert(penalty, player);
             });
+        }
+        if(this._againstComp === true){
+            this._playerList[compIndex].checkPlay();
         }
     }
 
@@ -631,12 +790,6 @@ export class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
-            else if(this.gameRules[cardNum].name === 'mao'){
-                this.gameRules[2].function = this.allRules[ruleNum].function;
-                let name = this.allRules[ruleNum].name + 'Rules';
-                this.storeCardRule('', this.allRules[ruleNum], name);
-                this.allRules.splice(ruleNum, 1);
-            }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -753,7 +906,9 @@ export class Rules{
     playedCardCheckRules(card, player){
         if(!player.turn) {
             player.game.drawCard(player);
-            document.getElementById(selectedCard).classList.toggle('selectedCard');
+            if(document.getElementById(selectedCard)){
+                document.getElementById(selectedCard).classList.toggle('selectedCard');
+            }
             selectedCard = '';
             player.alerts.push('failure to play in turn');
         } else if (!this.cardMatch(card, player)) {
@@ -1062,7 +1217,6 @@ export function modeDecided() {
     startButton.style.visibility = 'hidden';
     startButton.class ='close';
     startButton.id = 'startButton';
-    startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
 
     let startWarn = document.createElement('p');
@@ -1128,6 +1282,9 @@ export function checkName(entry) {
 
 export function diffNames(names){
     let newPlayers = [];
+    if(names.length === 1) {
+        newPlayers.push(names[0].name);
+    }
     for (let i = 0; i < (names.length - 1); i++){
         let diff = 2;
         for (let j = (i + 1); j < names.length; j++){
@@ -1142,7 +1299,11 @@ export function diffNames(names){
         }
     }
     ourGame = new Game(newPlayers, ruleNumber);
-    return newPlayers;
+    if(newPlayers.length === 1){
+        return [names[0].name, 'Computer'];
+    } else {
+        return newPlayers;
+    }
 }
 
 export function rulesDecided(numRules){
@@ -1320,3 +1481,15 @@ function selectCard() {
 function removeVisibility(object) {
     object.style.visibility = "hidden";
 }
+
+/*
+if playerList length is one, playerList add new computer
+computer class:
+    same as player class mainly
+    add in play card function
+        picks card from hand that matches top suit or top value
+        if standard game, knows the rules
+            goes through rules and selects ones for card (rule list, hand size)
+        if chaos game, doesn't know the rules
+            as it gets penalties, adds rules to knowledge/rule list
+ */
