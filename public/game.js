@@ -310,10 +310,6 @@ class Computer extends Player {
 
     set alerts(alerts){
         this._alerts = alerts;
-        if(alerts[0] !== undefined){
-            this._game.showAlert(alerts, this._name);
-        }
-        this.checkAlerts();
     }
 
     get alerts(){
@@ -427,6 +423,10 @@ class Computer extends Player {
             this.selectRules();
             super.playCard(this._cardIndex, this._chosenRules);
         }
+        this._alerts.forEach(alert => {
+            this._game.showAlert(alert, this._name);
+        });
+        this.checkAlerts();
         this._chosenRules = [];
     }
 }
