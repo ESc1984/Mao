@@ -1,7 +1,7 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
     initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
 import Game from "./game.js";
-(function () {
+( function () {
     "use strict";
     let thisGame;
 
@@ -215,7 +215,8 @@ import Game from "./game.js";
                         playerHands: thisGame.hands,
                         penalties: thisGame.playerList[index].alerts,
                         numPasses: thisGame.numPasses,
-                        turnOrder: thisGame.turnOrder
+                        turnOrder: thisGame.turnOrder,
+                        skipList: thisGame.rules.skippedPlayer
                     }));
                 });
             }
@@ -235,10 +236,13 @@ import Game from "./game.js";
                        playerHands: thisGame.hands,
                        penalties: thisGame.playerList[index].alerts,
                        numPasses: thisGame.numPasses,
-                       turnOrder: thisGame.turnOrder
+                       turnOrder: thisGame.turnOrder,
+                       skipList: thisGame.rules.skippedPlayer
                    }));
                 });
             }
+        } else if (data.skippedList) {
+            thisGame.updateSkipList(data.skippedList, data.allPlayers, data.turnOrder);
         } else if (data.win) {
             if(data.winner === playerName){
                 thisGame.rules.winMessage(data.winner);
@@ -246,7 +250,7 @@ import Game from "./game.js";
                 thisGame.rules.loseMessage(playerName, data.winner);
             }
         } else {
-            thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit, data.sevensCount);
+            thisGame.updateGame(data.hands, data.deck, data.player, data.allPlayers, data.penalties, data.turnOrder, data.passes, data.topDiscard, data.suit, data.sevensCount, data.skipList);
             let counter = 0;
             thisGame.playerList.forEach(player => {
                 if(data.hands[player.name].length === 0){
@@ -262,6 +266,17 @@ import Game from "./game.js";
                     playerHand.innerHTML = "";
                     initializePlayerHand(data.hands[player.name], playerHand);
                 } else {
+                    let skipPlayer = document.getElementById(`skip${player.name}`);
+                    if(skipPlayer){
+                        skipPlayer.addEventListener('click', function () {
+                            socket.send(JSON.stringify({
+                                action: "updateTurns",
+                                allPlayers: thisGame.playerNames,
+                                turnOrder: thisGame.turnOrder,
+                                skippedList: player.name
+                            }));
+                        });
+                    }
                     let otherPlayer = document.getElementById(player.name);
                     otherPlayer.innerHTML = "";
 
@@ -363,3 +378,4 @@ import Game from "./game.js";
         return ret;
     }
 }());
+

@@ -155,7 +155,18 @@ function onSocketConnect(ws) {
                    hands: msg.playerHands,
                    penalties: msg.penalties,
                    passes: msg.numPasses,
-                   turnOrder: msg.turnOrder
+                   turnOrder: msg.turnOrder,
+                   skipList: msg.skipList
+               }));
+            });
+        }
+
+        if (msg.action === 'updateTurns'){
+            clients.forEach(client => {
+               return client.send(JSON.stringify({
+                   allPlayers: msg.allPlayers,
+                   turnOrder: msg.turnOrder,
+                   skippedList: msg.skippedList
                }));
             });
         }

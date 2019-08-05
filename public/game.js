@@ -1,7 +1,7 @@
 
 
-let suits = ['S', 'H', 'D', 'C'];
-let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
+let suits = ['S', 'H', 'H', 'C'];
+let values = ['A', 'A', 'A', 'A', 'A', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
 class Deck{
     constructor(deck){
@@ -264,7 +264,7 @@ class Player {
             this._game.rules.gameRules[3].function(this, "");
         }
 
-        if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
+        if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && this._game.playerList.length > 2){
             this._game.rules.skipChoosePlayed(this, "", this.game);
         }
 
@@ -274,10 +274,7 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && checkPlayedStatus === 'skipNextRules'){
-                        this._game.rules.skipChoosePlayed(this, "", this.game);
-                        this._game.updateTurn();
-                    } else {
+                    if(checkPlayedStatus !== 'skipNextRules'){
                         rule.function(this, "");
                     }
                 }
@@ -308,13 +305,14 @@ export default class Game {
         this._passes = 0;
     }
 
-     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens){
+     updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens, skipped){
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
             this._playerList[i].hand = hands[players[i]];
             this._playerList[i].alerts = [];
         }
+        this._rules.skippedPlayer = skipped;
         this._playDeck = new Deck(deck);
         this._discardPile.addToDiscard(topDiscard);
         this._discardPile.expectedSuit = suit;
@@ -326,6 +324,17 @@ export default class Game {
                 this.showAlert(penalty, player);
             });
         }
+    }
+
+    updateSkipList(skipped, players, turnOrder){
+        if(skipped !== undefined){
+            this._rules.skippedPlayer.push(skipped);
+        }
+        for(let i = 0; i < players.length; i++){
+            this._playerList[i].name = players[i];
+            this._playerList[i].turn = turnOrder[players[i]];
+        }
+        this.updateTurn();
     }
 
     get game(){
@@ -400,27 +409,15 @@ export default class Game {
     updateTurn(){
         let currentPlayer = this.getCurrentPlayer();
         let nextPlayer = currentPlayer + 1 >= this._playerList.length ? 0 : currentPlayer + 1;
-        //this.checkNext(currentPlayer, nextPlayer);
-        if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
-            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
-            //this.rules.skippedPlayer.splice(i, 1);
-            //relocation
-            this.disableTurn(nextPlayer);
-            if (nextPlayer === this._playerList.length-1){
-                nextPlayer = 0;
-                console.log(nextPlayer);
-            } else {
-                nextPlayer++;
-                console.log(nextPlayer);
-            }
-            //nextPlayer = currentPlayer + 2 >= this._playerList.length ? 0 : currentPlayer + 2;
-            console.log('new next player: ' + nextPlayer);
-            this.rules.skippedPlayer.splice(i, 1);
-            console.log(this.rules.skippedPlayer);
-        }
+
         this.disableTurn(currentPlayer);
         this.enableTurn(nextPlayer);
         this.passCount();
+        if (this.rules.skippedPlayer.includes(this.getPlayer(nextPlayer).name)){
+            let i = this.rules.skippedPlayer.indexOf(this.getPlayer(nextPlayer).name);
+            this.rules.skippedPlayer.splice(i, 1);
+            this.updateTurn();
+        }
     }
 
     showAlert(message, name){
@@ -466,7 +463,6 @@ export default class Game {
         }
     }
 }
-
 
 
 
@@ -548,6 +544,10 @@ export class Rules{
 
     get skippedPlayer(){
         return this._skippedPlayer;
+    }
+
+    set skippedPlayer(skipped){
+        this._skippedPlayer = skipped;
     }
 
     get niceDayRules(){
@@ -782,7 +782,6 @@ export class Rules{
         }
     }
 
-    //fremulon
     skipChoosePlayed(player, state, thisGame){
         if (selectedCard.indexOf('H') > -1 && selectedCard.indexOf('A') > -1) {
             if (state !== "") {
@@ -800,27 +799,17 @@ export class Rules{
             thisGame.playerList.forEach(player => {
                 if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                     const gamePlayer = document.createElement('button');
+                    gamePlayer.id = "skip" + player.name;
                     gamePlayer.classList.add('ruleButton');
                     gamePlayer.innerHTML = player.name;
                     gamePlayer.onclick = (() => {
-                        // let checker = ourGame._playerList.indexOf(player);
-                        // let checkee = ourGame.getCurrentPlayer();
-                        //let checkplayer = ourGame.getPlayer(ourGame._playerList.indexOf(player));
-                        //ourGame.getPlayer(ourGame._playerList.indexOf(player))._turn = false;
-                        //if(ourGame._playerList.indexOf(player) !== ourGame.getCurrentPlayer() - 1){
                         if (thisGame._playerList.indexOf(player) !== thisGame.getCurrentPlayer()) {
                             player.game.rules.skippedPlayer.push(player.name);
-                            // this.nextSkip = false;
                         } else {
-                            // this.nextSkip = true;
-                            thisGame.getPlayer(thisGame._playerList.indexOf(player))._turn = false;
-                            let nowplay = thisGame._playerList.indexOf(player) + 1;
-                            if (nowplay >= thisGame._playerList.length) {
-                                nowplay = 0;
-                            }
-                            thisGame.getPlayer(nowplay)._turn = true;
+                            thisGame.updateTurn();
                         }
                         prompt.parentNode.removeChild(prompt);
+                        thisGame.updateTurn();
                     });
                     grid.appendChild(gamePlayer);
                 }
