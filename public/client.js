@@ -137,13 +137,14 @@ import Game from "./game.js";
                         playingHands: playingHands,
                         playDeck: thisGame.playDeck,
                         topDiscard: topDiscard,
-                        rules: thisGame.rules
+                        rules: thisGame.rules,
+                        random: thisGame.rules.random
                     }));
                 });
             }
         } else if(data.rules){
             createTopBar(data.topDiscard);
-            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard, data.againstComp);
+            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard, data.againstComp, data.random);
             rules = data.rules;
             let counter = 0;
             let playerId;
@@ -289,25 +290,29 @@ import Game from "./game.js";
                 if(player.name === playerName){
                     index = counter;
                     let playerHand = document.getElementById("playerHand");
-                    playerHand.innerHTML = "";
-                    initializePlayerHand(data.hands[player.name], playerHand);
+                    if(playerHand){
+                        playerHand.innerHTML = "";
+                        initializePlayerHand(data.hands[player.name], playerHand);
+                    }
                 } else {
                     let otherPlayer = document.getElementById(player.name);
-                    otherPlayer.innerHTML = "";
+                    if(otherPlayer){
+                        otherPlayer.innerHTML = "";
 
-                    const hand = document.createElement('button');
-                    hand.setAttribute('class', 'hand');
-                    hand.setAttribute('id', `${player.name}show`);
-                    hand.innerHTML = player.name;
-                    otherPlayer.appendChild(hand);
+                        const hand = document.createElement('button');
+                        hand.setAttribute('class', 'hand');
+                        hand.setAttribute('id', `${player.name}show`);
+                        hand.innerHTML = player.name;
+                        otherPlayer.appendChild(hand);
 
-                    let numCards = document.createElement('h3');
-                    numCards.classList.add('numCards');
-                    numCards.setAttribute('class', 'numCards');
-                    numCards.setAttribute('id', `${player.name}numCards`);
-                    numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
-                    hand.appendChild(numCards);
-                    hilite(document.getElementById(data.player + 'show'));
+                        let numCards = document.createElement('h3');
+                        numCards.classList.add('numCards');
+                        numCards.setAttribute('class', 'numCards');
+                        numCards.setAttribute('id', `${player.name}numCards`);
+                        numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
+                        hand.appendChild(numCards);
+                        hilite(document.getElementById(data.player + 'show'));
+                    }
                 }
                 counter++;
         });

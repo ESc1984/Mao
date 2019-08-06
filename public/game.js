@@ -298,6 +298,8 @@ class Computer extends Player {
             {rule: 'wild', alert: 'A Suit'}, {rule: 'S', alert: 'Spades'}, {rule: 'H', alert: 'Hearts'},
             {rule: 'D', alert: 'Diamonds'}, {rule: 'C', alert: 'Clubs'}];
         this._cardIndex = -1;
+        this._shouldPlayAgain = false;
+        this._otherPlayer = this._game.playerList[0].name;
     }
 
     set turn(turn){
@@ -317,7 +319,10 @@ class Computer extends Player {
     }
 
     checkPlay(){
-        if(this._turn ){    //|| this.shouldPlay()
+        if(this._hand.length === 0){
+            this._game.rules.loseMessage(this._otherPlayer, 'Computer');
+        } else if(this._turn || this._shouldPlayAgain){
+            this._shouldPlayAgain = false;
             this._card = this.selectCard();
             this.playTurn();
         }
@@ -343,16 +348,6 @@ class Computer extends Player {
         }
     }
 
-    shouldPlay(){
-
-    }
-
-    /*
-        -- ShouldPlay: what about reverse and skips?
-            -- check last card played for rule, check known rules,
-                if known don't play, if not known play
-     */
-
     selectCard(){
         let chosen = null;
         let i = 0;
@@ -364,6 +359,7 @@ class Computer extends Player {
             }
             i++;
         });
+        console.log(chosen);
         return chosen;
     }
 
@@ -392,27 +388,57 @@ class Computer extends Player {
         return suit;
     }
 
+    findNiceDay(){
+        let statement = 'Have a ' + 'Very '.repeat(this._game.discardPile.sevensCount) + "Nice Day";
+        return statement;
+    }
+
     getStatement(rule){
         let chosen = null;
+        if(rule === 'reverse' || rule === 'playAgain' || rule === 'skipNext'){
+            this._shouldPlayAgain = true;
+        }
         this.ruleAlertPairs.forEach(pair => {
-           if(pair.rule === rule){
-               chosen = pair.alert;
+             if(pair.rule === rule){
+                chosen = pair.alert;
+                if(pair.rule === 'niceDay'){
+                    chosen = this.findNiceDay();
+                }
            }
         });
-        return chosen;
+        if(chosen !== null){
+            return chosen;
+        }
     }
 
     selectRules(){
         this._knownRules.forEach(rule => {
             let name = rule + 'Rules';
-            if(this._game.rules[name].card === this._card.value){
-                if(name === 'wild'){
+            let selected = undefined;
+            if(name === 'maoRules' && this._hand.length === 2){
+                selected = 'Mao';
+            } else if(name === 'spadeRules') {
+                if(this._card.suit === 'S'){
+                    selected = 'Spades';
+                }
+            } else if (name === 'pairRules') {
+                if(this._card.value === this._game.discardPile.expectedValue){
+                    selected = 'Pair';
+                }
+            } else if (name === 'runRules') {
+                if(this._game.discardPile.findValue(card.value) ===
+                    (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)){
+                    selected = 'Run';
+                }
+            } else if(this._game.rules[name].card === this._card.value) {
+                if (name === 'wildRules') {
                     rule = this.selectWild();
                 }
-                let statement = this.getStatement(rule);
-                if(statement !== null){
-                    this._chosenRules.push(statement);
-                }
+                selected = this.getStatement(rule);
+            }
+            if(selected !== undefined) {
+                console.log(selected);
+                this._chosenRules.push(selected);
             }
         });
     }
@@ -429,6 +455,7 @@ class Computer extends Player {
         });
         this.checkAlerts();
         this._chosenRules = [];
+        this.checkPlay();
     }
 }
 
@@ -439,12 +466,15 @@ class Computer extends Player {
 
 
 export default class Game {
-    constructor(players, rules, hands, deck, topDiscard, againstComp){
+    constructor(players, rules, hands, deck, topDiscard, againstComp, random){
         this._playDeck = new Deck(deck);
         this._againstComp = againstComp;
         let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._rules = new Rules(rules);
+        if(random !== undefined){
+            this._rules.random = random;
+        }
         this._playerList = [];
         for (let i = 0; i < players.length; i++){
             let hand = (hands !== undefined) ? hands[i] : this.dealHand();
@@ -1003,7 +1033,7 @@ export class Rules{
     }
 
     reversePlayed(player, state){
-        if(state != ""){
+        if(state !== ""){
             let message = 'declared ' + state + ' out of turn';
             player.alerts.push(message);
             player.game.drawCard(player);

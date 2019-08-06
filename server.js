@@ -136,7 +136,8 @@ function onSocketConnect(ws) {
                     hands: msg.playingHands,
                     deck: msg.playDeck,
                     topDiscard: msg.topDiscard,
-                    rules: msg.rules
+                    rules: msg.rules,
+                    random: msg.random
                 }));
             });
             stage = 'start';
