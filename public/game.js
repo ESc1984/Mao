@@ -451,7 +451,7 @@ class Computer extends Player {
         if(this._hand.length === 0){
             let that = this;
             setTimeout(function() {
-                that._game.rules.loseMessage(that._otherPlayer, 'Computer')}, 1000);
+                that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 1000);
         }
         this._alerts.forEach(alert => {
             this._game.showAlert(alert, this._name);
@@ -510,7 +510,7 @@ export default class Game {
             }
         }
         if(players.length === 1){
-            this._playerList.push(new Computer(this.dealHand(), 'Computer', false, this));
+            this._playerList.push(new Computer(this.dealHand(), 'Mycroft', false, this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
@@ -523,7 +523,7 @@ export default class Game {
             this._playerList[i].turn = turnOrder[players[i]];
             this._playerList[i].hand = hands[players[i]];
             this._playerList[i].alerts = [];
-            if(this._playerList[i].name === 'Computer'){
+            if(this._playerList[i].name === 'Mycroft'){
                 compIndex = i;
             }
         }
@@ -533,7 +533,7 @@ export default class Game {
         this._discardPile.sevensCount = sevens;
         this._passes = numPasses;
         this.passCount();
-        if(player !== 'Computer'){
+        if(player !== 'Mycroft'){
             if(penalties !== undefined){
                 penalties.forEach(penalty => {
                     this.showAlert(penalty, player);
@@ -1341,7 +1341,7 @@ export function diffNames(names){
     }
     ourGame = new Game(newPlayers, ruleNumber);
     if(newPlayers.length === 1){
-        return [names[0].name, 'Computer'];
+        return [names[0].name, 'Mycroft'];
     } else {
         return newPlayers;
     }
