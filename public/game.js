@@ -204,7 +204,7 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-                this._game.rules.findWin(this);
+                //this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
         }
@@ -319,7 +319,7 @@ class Computer extends Player {
     }
 
     checkPlay(){
-         if(this._turn || this._shouldPlayAgain){
+        if(this._turn || this._shouldPlayAgain){
             this._shouldPlayAgain = false;
             this._card = this.selectCard();
             this.playTurn();
@@ -387,8 +387,7 @@ class Computer extends Player {
     }
 
     findNiceDay(){
-        let statement = 'Have a ' + 'Very '.repeat(this._game.discardPile.sevensCount) + "Nice Day";
-        return statement;
+        niceDayCount = this._game.discardPile.sevensCount + 1;
     }
 
     getStatement(rule){
@@ -400,7 +399,7 @@ class Computer extends Player {
              if(pair.rule === rule){
                 chosen = pair.alert;
                 if(pair.rule === 'niceDay'){
-                    chosen = this.findNiceDay();
+                    this.findNiceDay();
                 }
            }
         });
@@ -447,17 +446,41 @@ class Computer extends Player {
         } else {
             this.selectRules();
             super.playCard(this._cardIndex, this._chosenRules);
-            hilite(document.getElementById('Computershow'));
+            this.updateCardView();
+        }
+        if(this._hand.length === 0){
+            let that = this;
+            setTimeout(function() {
+                that._game.rules.loseMessage(that._otherPlayer, 'Computer')}, 1000);
         }
         this._alerts.forEach(alert => {
             this._game.showAlert(alert, this._name);
         });
         this.checkAlerts();
-        if(this._hand.length === 0){
-            this._game.rules.loseMessage(this._otherPlayer, 'Computer');
-        }
         this._chosenRules = [];
+        niceDayCount = 0;
         setTimeout(this.checkPlay.bind(this), 5000);
+    }
+
+    updateCardView() {
+        let otherPlayer = document.getElementById(this._name);
+        if (otherPlayer) {
+            otherPlayer.innerHTML = "";
+
+            const hand = document.createElement('button');
+            hand.setAttribute('class', 'hand');
+            hand.setAttribute('id', `${this._name}show`);
+            hand.innerHTML = this._name;
+            otherPlayer.appendChild(hand);
+
+            let numCards = document.createElement('h3');
+            numCards.classList.add('numCards');
+            numCards.setAttribute('class', 'numCards');
+            numCards.setAttribute('id', `${this._name}numCards`);
+            numCards.innerHTML = this._hand.length.toString() + ' cards';
+            hand.appendChild(numCards);
+            hilite(document.getElementById(this._name + 'show'));
+        }
     }
 }
 
@@ -510,10 +533,12 @@ export default class Game {
         this._discardPile.sevensCount = sevens;
         this._passes = numPasses;
         this.passCount();
-        if(penalties !== undefined){
-            penalties.forEach(penalty => {
-                this.showAlert(penalty, player);
-            });
+        if(player !== 'Computer'){
+            if(penalties !== undefined){
+                penalties.forEach(penalty => {
+                    this.showAlert(penalty, player);
+                });
+            }
         }
         if(this._againstComp === true){
             let player = this._playerList[compIndex];
@@ -1496,15 +1521,3 @@ function selectCard() {
 function removeVisibility(object) {
     object.style.visibility = "hidden";
 }
-
-/*
-if playerList length is one, playerList add new computer
-computer class:
-    same as player class mainly
-    add in play card function
-        picks card from hand that matches top suit or top value
-        if standard game, knows the rules
-            goes through rules and selects ones for card (rule list, hand size)
-        if chaos game, doesn't know the rules
-            as it gets penalties, adds rules to knowledge/rule list
- */
