@@ -212,6 +212,7 @@ class Player {
                 this._game.updateTurn();
             }
         }
+        console.log(this._game.rules.rulesInPlay);
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -629,12 +630,12 @@ export class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
-            else if(this.gameRules[cardNum].name === 'mao'){
-                this.gameRules[2].function = this.allRules[ruleNum].function;
-                let name = this.allRules[ruleNum].name + 'Rules';
-                this.storeCardRule('', this.allRules[ruleNum], name);
-                this.allRules.splice(ruleNum, 1);
-            }
+            // else if(this.gameRules[cardNum].name === 'mao'){
+            //     this.gameRules[2].function = this.allRules[ruleNum].function;
+            //     let name = this.allRules[ruleNum].name + 'Rules';
+            //     this.storeCardRule('', this.allRules[ruleNum], name);
+            //     this.allRules.splice(ruleNum, 1);
+            // }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -689,8 +690,11 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        if(ruleName === 'skipNext' && random === true){
-            this.rulesInPlay.push('skipChoose');
+        if (ruleName === 'skipNext' && random === true){
+            let random = Math.floor(2 * Math.random());
+            if (random = 0) {
+                this.rulesInPlay.push('skipChoose');
+            }
         }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
@@ -703,13 +707,6 @@ export class Rules{
 
     storeCardRule(card, rule, name){
         this.rulesInPlay.push(rule.name);
-        // // if(rule.name === 'skipNext'){
-        // //     //include randomization
-        // //     this.rulesInPlay.push('skipChoose');
-        // // }
-        // if(rule.name === 'skipNext' && this.random === true){
-        //     this.rulesInPlay.push('skipChoose');
-        // }
         if(card !== ""){
             this[name]['card'] = card.value;
         }
@@ -969,7 +966,7 @@ export class Rules{
         document.getElementById('alert').style.marginLeft = '0';
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
-        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO. " + winner.toUpperCase() + " HAS WON.";
+        document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO.<BR>THE WINNER IS " + winner.toUpperCase() +".";
         document.getElementById('redoButton').style.display = 'block';
     }
 }
@@ -982,6 +979,7 @@ let game;
 let ruleNumber = false;
 let players;
 export let selectedCard = "";
+let isChaos = false;
 let oldCard = "";
 export let playerPlaying;
 let specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao"];
@@ -1004,10 +1002,18 @@ function overlay() {
     }
 }
 
+function chaosBringer(){
+    isChaos = true;
+}
+
 export function randomGame(){
     specialRules = ["Spades", "Hearts", "Clubs", "Diamonds", "Have a Nice Day", "All Hail the Chairwoman", "All Hail the Chairman", "Mao", "Pair", "Run"];
     let startGame = document.getElementById('startGame');
     startGame.style.visibility = 'visible';
+    const seeDiff = document.createElement('h3');
+    seeDiff.id = 'seeDiff';
+    seeDiff.style.visibility = 'hidden';
+    startGame.appendChild(seeDiff);
 }
 
 export function standardGame(){
@@ -1059,10 +1065,11 @@ export function modeDecided() {
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
 
-    // if (game._rules._random === true){
-    //     let showDiff = document.createElement('p');
-    //     showDiff.innerHTML =
-    // }
+    if (isChaos === true){
+        let showDiff = document.createElement('p');
+        showDiff.innerHTML = document.getElementById('numRules').options[document.getElementById('numRules').selectedIndex].text;
+        startGamePrompt.appendChild(showDiff);
+    }
 }
 
 export function checkName(entry) {
@@ -1155,7 +1162,7 @@ export function hilite(boop){
 }
 
 export function createTopBar(topDiscard){
-    removeElement(window.document.getElementById('startGame'));
+    //removeElement(window.document.getElementById('startGame'));
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');

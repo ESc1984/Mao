@@ -1,7 +1,7 @@
 import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
-    initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite } from "./game.js";
+    initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite, findPlayerIndexFromId } from "./game.js";
 import Game from "./game.js";
-( function () {
+(function () {
     "use strict";
     let thisGame;
 
@@ -35,13 +35,14 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, rules, selected, difficulty, index;
+    let playingHand, playerName, rules, textDiff, selected, difficulty, index;
     function updateView(data) {
         if(data.stage){
             if(data.stage === 'name'){
                 socket.send(JSON.stringify({
                     action: 'loadNameScreen',
-                    mode: data.mode
+                    mode: data.mode,
+                    difficulty: data.difficultyName
                 }));
             }
         } else if(data.full) {
@@ -56,6 +57,11 @@ import Game from "./game.js";
                 randomGame();
             }
             modeDecided();
+            if(data.difficultyName !== undefined) {
+                document.getElementById('seeDiff').style.visibility = 'visible';
+                let message = 'DIFFICULTY: ' + data.difficultyName.toUpperCase();
+                document.getElementById('seeDiff').innerHTML = message;
+            }
             if(data.users !== [] && data.users !== undefined){
                 data.users.forEach(user => {
                     users.push({name: user['name'], id: user['id']});
@@ -80,25 +86,35 @@ import Game from "./game.js";
                     playerName = checkName(inName);
                     window.document.getElementById('choseName').style.display = 'none';
                     removeElement(window.document.getElementById('choseName'));
-                    window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
-                    window.document.getElementById('namePlayers').style.visibility = 'hidden';
-                    //removeElement(window.document.getElementById('namePlayers'));
+                    window.document.getElementById('namePlayersPrompt').style.display = 'none';
+                    window.document.getElementById('namePlayers').style.display = 'none';
                     let selectDifficulty = document.getElementById('numRules');
                     if(selectDifficulty){
                         difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
+                        textDiff = selectDifficulty.options[selectDifficulty.selectedIndex].text;
+                    }
+                    if ((window.document.getElementById('numRulesPrompt') !== null) && (window.document.getElementById('numRules') !== null)){
+                        removeElement(window.document.getElementById('numRulesPrompt'));
+                        removeElement(window.document.getElementById('numRules'));
                     }
                     socket.send(JSON.stringify({
                         action: 'choseName',
                         name: playerName,
                         userId: document.querySelector("[name=\"userId\"]").value,
-                        difficulty: difficulty
+                        difficultyLevel: difficulty,
+                        difficultyName: textDiff
                     }));
                     selected = true;
                 });
             }
         } else if(data.namePlayer){
-            if(data.difficulty !== undefined){
-                rulesDecided(data.difficulty);
+            if(data.difficultyLevel !== undefined){
+                rulesDecided(data.difficultyLevel);
+            }
+            if(data.difficultyName !== undefined) {
+                document.getElementById('seeDiff').style.visibility = 'visible';
+                let message = 'DIFFICULTY: ' + data.difficultyName.toUpperCase();
+                document.getElementById('seeDiff').innerHTML = message;
             }
             users.push({name: data.namePlayer, id: data.userId});
             checkLength();
@@ -118,6 +134,7 @@ import Game from "./game.js";
                 startGame.style.visibility = 'visible';
                 let warn = document.getElementById('startWarn');
                 warn.style.visibility = 'visible';
+                let diff = document.getElementById('showDiff');
                 startGame.addEventListener('click', function() {
                     let players = diffNames(users);
                     let playingHands = getHands();
@@ -135,6 +152,9 @@ import Game from "./game.js";
                 });
             }
         } else if(data.rules){
+            if (window.document.getElementById('startGame') !== null){
+                removeElement(window.document.getElementById('startGame'));
+            }
             createTopBar(data.topDiscard);
             thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
             rules = data.rules;
@@ -329,13 +349,57 @@ import Game from "./game.js";
                 option.text = levels[i];
                 numRulesResponse.add(option);
             }
+
             let startGame = document.getElementById('startGame');
             const newLine = document.createElement('br');
             startGame.appendChild(numRulesPrompt);
             startGame.appendChild(numRulesResponse);
             startGame.appendChild(newLine);
+            startGame.appendChild(newLine);
         });
     }
+
+    function displayDiff(val){
+        let find = ((val-1)/3);
+        let level;
+        if (find === 1) {
+            level = 'COMPREHENSIBLE';
+        } else if (find === 2) {
+            level = 'CHALLENGING';
+        } else if (find === 3) {
+            level = 'CONVOLUTED';
+        }
+        let message = 'DIFFICULTY: ' + level;
+        document.getElementById('seeDiff').innerHTML = message;
+    }
+
+    // if(choseName){
+    //     choseName.addEventListener('click', function() {
+    //         let inName = document.getElementById('namePlayersPrompt').value;
+    //         playerName = checkName(inName);
+    //         window.document.getElementById('choseName').style.display = 'none';
+    //         removeElement(window.document.getElementById('choseName'));
+    //         window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
+    //         window.document.getElementById('namePlayers').style.visibility = 'hidden';
+    //         //removeElement(window.document.getElementById('namePlayers'));
+    //         let selectDifficulty = document.getElementById('numRules');
+    //         // let showDiff = document.createElement('p');
+    //         // showDiff.setAttribute('id', 'showDiff');
+    //         // window.document.appendChild(showDiff);
+    //         if(selectDifficulty){
+    //             difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
+    //             //push text as alert at start of game
+    //             //showDiff.innerHTML = selectDifficulty.options[selectDifficulty.selectedIndex].text;
+    //         }
+    //         socket.send(JSON.stringify({
+    //             action: 'choseName',
+    //             name: playerName,
+    //             userId: document.querySelector("[name=\"userId\"]").value,
+    //             difficulty: difficulty
+    //         }));
+    //         selected = true;
+    //     });
+    // }
 
     function getHands(){
         let hands = {};

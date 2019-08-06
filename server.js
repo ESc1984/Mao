@@ -79,15 +79,20 @@ function onSocketConnect(ws) {
         if(msg.action === 'loadStartScreen'){
             return ws.send(JSON.stringify({
                 stage: stage,
-                mode: mode
+                mode: mode,
+                difficultyName: difficulty
             }));
         }
 
         if(msg.action === 'loadNameScreen'){
             return ws.send(JSON.stringify({
                 mode: msg.mode,
-                users: users
+                users: users,
+                difficultyName: msg.difficulty
             }));
+            if(msg.difficulty !== undefined){
+                difficulty = msg.difficultyName;
+            }
             mode = msg.mode;
             stage = 'name';
         }
@@ -95,7 +100,8 @@ function onSocketConnect(ws) {
         if (msg.action === 'modeSelected'){
             clients.forEach(client => {
                 return client.send(JSON.stringify({
-                    mode: msg.mode
+                    mode: msg.mode,
+                    difficultyName: difficulty
                 }));
             });
             mode = msg.mode;
@@ -107,13 +113,17 @@ function onSocketConnect(ws) {
                 return client.send(JSON.stringify({
                     namePlayer: msg.name,
                     userId: msg.userId,
-                    difficulty: msg.difficulty
+                    difficultyLevel: msg.difficultyLevel,
+                    difficultyName: msg.difficultyName
                 }));
             });
             user.name = msg.name;
             user.id = msg.userId;
             users.push(user);
             stage = 'name';
+            if(msg.difficultyName !== undefined){
+                difficulty = msg.difficultyName;
+            }
         }
 
         if(msg.action === 'gameFull'){
@@ -124,6 +134,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            difficulty = undefined;
             users = [];
         }
 
@@ -139,6 +150,7 @@ function onSocketConnect(ws) {
                 }));
             });
             stage = 'start';
+            difficulty = undefined;
             users = [];
         }
 
@@ -184,6 +196,9 @@ function onSocketConnect(ws) {
     ws.on('close', function () {
         console.log(`connection closed`);
         clients.delete(ws);
+        stage = 'start';
+        difficulty = undefined;
+        users = [];
     });
 
     ws.on('error', function(err) {

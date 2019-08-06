@@ -217,13 +217,20 @@ input:focus {
     font-size: 40px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 550px;
+    margin-top: 600px;
 }
 
 #playCard {
     display: block;
     width: 150px;
     margin-left: 5px;
+}
+
+h3 {
+    color: gold;
+    font-family: Oriya MN;
+    font-size: 25px;
+    line-height: 40px;
 }
 
 .ruleButton {
