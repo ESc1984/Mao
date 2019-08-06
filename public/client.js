@@ -1,3 +1,4 @@
+
 import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
     initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite, findPlayerIndexFromId } from "./game.js";
 import Game from "./game.js";
@@ -378,34 +379,6 @@ import Game from "./game.js";
         let message = 'DIFFICULTY: ' + level;
         document.getElementById('seeDiff').innerHTML = message;
     }
-
-    // if(choseName){
-    //     choseName.addEventListener('click', function() {
-    //         let inName = document.getElementById('namePlayersPrompt').value;
-    //         playerName = checkName(inName);
-    //         window.document.getElementById('choseName').style.display = 'none';
-    //         removeElement(window.document.getElementById('choseName'));
-    //         window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
-    //         window.document.getElementById('namePlayers').style.visibility = 'hidden';
-    //         //removeElement(window.document.getElementById('namePlayers'));
-    //         let selectDifficulty = document.getElementById('numRules');
-    //         // let showDiff = document.createElement('p');
-    //         // showDiff.setAttribute('id', 'showDiff');
-    //         // window.document.appendChild(showDiff);
-    //         if(selectDifficulty){
-    //             difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
-    //             //push text as alert at start of game
-    //             //showDiff.innerHTML = selectDifficulty.options[selectDifficulty.selectedIndex].text;
-    //         }
-    //         socket.send(JSON.stringify({
-    //             action: 'choseName',
-    //             name: playerName,
-    //             userId: document.querySelector("[name=\"userId\"]").value,
-    //             difficulty: difficulty
-    //         }));
-    //         selected = true;
-    //     });
-    // }
 
     function getHands(){
         let hands = {};

@@ -1,4 +1,4 @@
-/*jshint node: true, esnext: true */
+
 const http = require('http');
 const ws = require('ws');
 const fs = require('fs');
@@ -26,7 +26,7 @@ function accept(req, res) {
             req.headers.upgrade.toLowerCase() == 'websocket' &&
             req.headers.connection.match(/\bupgrade\b/i)) {
             wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
-        } else if (req.url === '/') { // index.html
+        } else if (req.url === '/') {
             fs.createReadStream('mao.html').pipe(res);
         } else if (req.url.match("\.js")) {
             let jsPath = path.join(__dirname, 'public', req.url);
@@ -43,7 +43,7 @@ function accept(req, res) {
             let fileStream = fs.createReadStream(imagePath);
             res.writeHead(200, {"Content-Type": "image/png"});
             fileStream.pipe(res);
-        } else { // page not found
+        } else {
             res.writeHead(404);
             res.end();
         }
@@ -71,7 +71,6 @@ function onSocketConnect(ws) {
             msg = {};
         }
 
-        /* Determine the user action */
         if (!msg.action) {
             return ws.send("You need to tell me what you want from me! ERROR: No action defined.");
         }
@@ -212,8 +211,6 @@ if (!module.parent) {
     }).listen(8080);
     console.log("••• Listening on: " + ip.address() + ":8080 •••");
 } else {
-    // to embed into javascript.info
     let log = function () {};
-    // log = console.log;
     exports.accept = accept;
 }

@@ -254,16 +254,19 @@ class Player {
         }
 
         if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
-            this._game.rules.gameRules[0].function(this, "");
+            //this._game.rules.gameRules[0].function(this, "");
+            this._game.rules.spadePlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
-            this._game.rules.gameRules[2].function(this, "", card);
+            //this._game.rules.gameRules[2].function(this, "", card);
+            this._game.rules.pairPlayed(this, '', card);
         }
 
         if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
             && this._game.rules.runRules.played === false){
-            this._game.rules.gameRules[3].function(this, "");
+            //this._game.rules.gameRules[3].function(this, "");
+            this._game.rules.runPlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && this._game.playerList.length > 2){
@@ -459,7 +462,6 @@ export default class Game {
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            runCount = 0;
         }
     }
 }
@@ -631,12 +633,6 @@ export class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
-            // else if(this.gameRules[cardNum].name === 'mao'){
-            //     this.gameRules[2].function = this.allRules[ruleNum].function;
-            //     let name = this.allRules[ruleNum].name + 'Rules';
-            //     this.storeCardRule('', this.allRules[ruleNum], name);
-            //     this.allRules.splice(ruleNum, 1);
-            // }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -691,12 +687,6 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        // if (ruleName === 'skipNext' && random === true){
-        //     let random = Math.floor(2 * Math.random());
-        //     if (random = 0) {
-        //         this.rulesInPlay.push('skipChoose');
-        //     }
-        // }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
@@ -825,13 +815,12 @@ export class Rules{
             player.alerts.push(message);
             player.game.drawCard(player);
         }
-        // if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
-        //     if(this.skipChooseRules.played === false){
-        //         //|| this.nextSkip === true) {
-        //         player.game.updateTurn();
-        //         player.game.rules.skipNextRules.played = true;
-        //     }
-        else {
+        if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
+            if(this.skipChooseRules.played === false){
+                player.game.updateTurn();
+                player.game.rules.skipNextRules.played = true;
+            }
+        } else {
             player.game.updateTurn();
             player.game.rules.skipNextRules.played = true;
         }
@@ -1190,7 +1179,6 @@ export function hilite(boop){
 }
 
 export function createTopBar(topDiscard){
-    //removeElement(window.document.getElementById('startGame'));
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');
