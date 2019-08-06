@@ -450,18 +450,35 @@ class Computer extends Player {
                 that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 2000);
         } else {
             if(this._alerts[0] !== undefined){
-                let that = this;
-                setTimeout(function() {
-                    that.alerts.forEach(alert => {
-                        that.game.showAlert(alert, 'Mycroft');
+                if(this._alerts[0] === 'passed turn'){
+                    this.checkAlertsReady(this._alerts[0]);
+                } else {
+                    this._alerts.forEach(alert => {
+                       this._game.showAlert(alert, 'Mycroft');
                     });
-                }, 1200);
-                this.checkAlerts(this._alerts);
+                    this.checkAlerts(this._alerts);
+                }
+                // let that = this;
+                // setTimeout(function() {
+                //     that.alerts.forEach(alert => {
+                //         that.game.showAlert(alert, 'Mycroft');
+                //     });
+                // }, 1200);
+
             }
         }
         this._chosenRules = [];
         niceDayCount = 0;
         setTimeout(this.checkPlay.bind(this), 4000);
+    }
+
+    checkAlertsReady(pass){
+        if(document.getElementById("alert").innerHTML === ''){
+            this._game.showAlert(pass, 'Mycroft');
+        } else {
+            setTimeout(this.checkAlertsReady.bind(this), 200, pass);
+            //this.checkAlertsReady(pass);
+        }
     }
 
     updateCardView() {
