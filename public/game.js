@@ -179,10 +179,6 @@ class Player {
         this._hand.push(card);
     }
 
-    handSize(){
-        return this._hand.length;
-    }
-
     passTurn() {
         document.getElementById('played').innerHTML = '- ';
         document.getElementById('played').style.color = '#b0210b';
@@ -209,11 +205,9 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-                this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
         }
-        console.log(this._game.rules.rulesInPlay);
     }
 
     sendRuleDeclarations(card, selectedRules){
@@ -254,18 +248,15 @@ class Player {
         }
 
         if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
-            //this._game.rules.gameRules[0].function(this, "");
             this._game.rules.spadePlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
-            //this._game.rules.gameRules[2].function(this, "", card);
-            this._game.rules.pairPlayed(this, '', card);
+            this._game.rules.pairPlayed(this, "", card);
         }
 
         if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
             && this._game.rules.runRules.played === false){
-            //this._game.rules.gameRules[3].function(this, "");
             this._game.rules.runPlayed(this, "");
         }
 
@@ -287,6 +278,213 @@ class Player {
 
 }
 
+class Computer extends Player {
+    constructor(hand, name, turn, game){
+        super(hand, name, turn, game);
+        this._knownRules = [];
+        if(game.rules.random === false){
+            this._knownRules = game.rules.rulesInPlay;
+        }
+        this._chosenRules = [];
+        this._card = null;
+        this.ruleAlertPairs = [{rule: 'spade', alert: 'Spades'}, {rule: 'mao', alert: 'Mao'},
+            {rule: 'niceDay', alert: 'Have a Nice Day'}, {rule: 'chairwoman', alert: 'All Hail the Chairwoman'},
+            {rule: 'chairman', alert: 'All Hail the Chairman'}, {rule: 'pair', alert: 'Pair'}, {rule: 'run', alert: 'Run'},
+            {rule: 'wild', alert: 'A Suit'}, {rule: 'S', alert: 'Spades'}, {rule: 'H', alert: 'Hearts'},
+            {rule: 'D', alert: 'Diamonds'}, {rule: 'C', alert: 'Clubs'}];
+        this._cardIndex = -1;
+        this._shouldPlayAgain = false;
+        this._otherPlayer = this._game.playerList[0].name;
+    }
+
+    set turn(turn){
+        this._turn = turn;
+    }
+
+    get turn(){
+        return this._turn;
+    }
+
+    set alerts(alerts){
+        this._alerts = alerts;
+    }
+
+    get alerts(){
+        return this._alerts;
+    }
+
+    checkPlay(){
+        if(this._turn || this._shouldPlayAgain){
+            this._shouldPlayAgain = false;
+            this._card = this.selectCard();
+            this.playTurn();
+        }
+    }
+
+    checkAlerts(penalties){
+        if(this._knownRules.length < this._game.rules.rulesInPlay.length){
+            if(!this._knownRules.includes('mao')){
+                this._knownRules.push('mao');
+            }
+            penalties.forEach(alert => {
+                if(alert.includes('failure to declare')){
+                    let check = alert.substring(alert.indexOf('failure to declare ') + 19);
+                    this.ruleAlertPairs.forEach(pair => {
+                       if(pair.alert.toLowerCase() === check.toLowerCase()){
+                           if(!this._knownRules.includes(pair.rule) && pair.rule.length > 1){
+                               this._knownRules.push(pair.rule);
+                           }
+                       }
+                    });
+                }
+            });
+        }
+    }
+
+    selectCard(){
+        let chosen = null;
+        let i = 0;
+        this._cardIndex = -1;
+        this._hand.forEach(card => {
+            if(this._game.rules.cardMatch(card, this)){
+                chosen = card;
+                this._cardIndex = i;
+            }
+            i++;
+        });
+        console.log(chosen);
+        return chosen;
+    }
+
+    selectWild(){
+        let suitCount = [{suit: 'S', count: 0}, {suit: 'H', count: 0},
+            {suit: 'D', count: 0}, {suit: 'C', count: 0}];
+        this._hand.forEach(card => {
+           if(card.suit === 'S'){
+               suitCount[0].count = suitCount[0].count + 1;
+           } else if(card.suit === 'H'){
+               suitCount[1].count = suitCount[1].count + 1;
+           } else if(card.suit === 'D'){
+               suitCount[2].count = suitCount[2].count + 1;
+           } else {
+               suitCount[3].count = suitCount[3].count + 1;
+           }
+        });
+        let max = suitCount[0].count;
+        let suit = suitCount[0].suit;
+        for(let i = 1; i < suitCount.length; i++){
+            if(suitCount[i].count > max){
+                max = suitCount[i].count;
+                suit = suitCount[i].suit;
+            }
+        }
+        return suit;
+    }
+
+    findNiceDay(){
+        niceDayCount = this._game.discardPile.sevensCount + 1;
+    }
+
+    getStatement(rule){
+        let chosen = null;
+        if(rule === 'reverse' || rule === 'playAgain' || rule === 'skipNext'){
+            this._shouldPlayAgain = true;
+        }
+        this.ruleAlertPairs.forEach(pair => {
+             if(pair.rule === rule){
+                chosen = pair.alert;
+                if(pair.rule === 'niceDay'){
+                    this.findNiceDay();
+                }
+           }
+        });
+        if(chosen !== null){
+            return chosen;
+        }
+    }
+
+    selectRules(){
+        this._knownRules.forEach(rule => {
+            let name = rule + 'Rules';
+            let selected = undefined;
+            if(name === 'maoRules' && this._hand.length === 2){
+                selected = 'Mao';
+            } else if(name === 'spadeRules') {
+                if(this._card.suit === 'S'){
+                    selected = 'Spades';
+                }
+            } else if (name === 'pairRules') {
+                if(this._card.value === this._game.discardPile.expectedValue){
+                    selected = 'Pair';
+                }
+            } else if (name === 'runRules') {
+                if(this._game.discardPile.findValue(card.value) ===
+                    (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)){
+                    selected = 'Run';
+                }
+            } else if(this._game.rules[name].card === this._card.value) {
+                if (name === 'wildRules') {
+                    rule = this.selectWild();
+                }
+                selected = this.getStatement(rule);
+            }
+            if(selected !== undefined) {
+                console.log(selected);
+                this._chosenRules.push(selected);
+            }
+        });
+    }
+
+    playTurn(){
+        if(this._card !== null){
+            this.selectRules();
+            super.playCard(this._cardIndex, this._chosenRules);
+            this.updateCardView();
+        } else {
+            super.passTurn();
+        }
+        if(this._hand.length === 0){
+            let that = this;
+            setTimeout(function() {
+                that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 2000);
+        } else {
+            if(this._alerts[0] !== undefined){
+                let that = this;
+                setTimeout(function() {
+                    that.alerts.forEach(alert => {
+                        that.game.showAlert(alert, 'Mycroft');
+                    });
+                }, 1200);
+                this.checkAlerts(this._alerts);
+            }
+        }
+        this._chosenRules = [];
+        niceDayCount = 0;
+        setTimeout(this.checkPlay.bind(this), 4000);
+    }
+
+    updateCardView() {
+        let otherPlayer = document.getElementById(this._name);
+        if (otherPlayer) {
+            otherPlayer.innerHTML = "";
+
+            const hand = document.createElement('button');
+            hand.setAttribute('class', 'hand');
+            hand.setAttribute('id', `${this._name}show`);
+            hand.innerHTML = this._name;
+            otherPlayer.appendChild(hand);
+
+            let numCards = document.createElement('h3');
+            numCards.classList.add('numCards');
+            numCards.setAttribute('class', 'numCards');
+            numCards.setAttribute('id', `${this._name}numCards`);
+            numCards.innerHTML = this._hand.length.toString() + ' cards';
+            hand.appendChild(numCards);
+            hilite(document.getElementById(this._name + 'show'));
+        }
+    }
+}
+
 
 
 
@@ -294,26 +492,41 @@ class Player {
 
 
 export default class Game {
-    constructor(players, rules, hands, deck, topDiscard){
+    constructor(players, rules, hands, deck, topDiscard, againstComp, random){
         this._playDeck = new Deck(deck);
+        this._againstComp = againstComp;
         let card = (topDiscard !== undefined) ? topDiscard : this._playDeck.deal();
         this._discardPile = new DiscardPile(card, this);
         this._rules = new Rules(rules);
+        if(random !== undefined){
+            this._rules.random = random;
+        }
         this._playerList = [];
         for (let i = 0; i < players.length; i++){
             let hand = (hands !== undefined) ? hands[i] : this.dealHand();
-            this._playerList.push(new Player(hand, players[i],false, this));
+            if(i === 1 && againstComp === true){
+                this._playerList.push(new Computer(hand, players[i],false, this));
+            } else {
+                this._playerList.push(new Player(hand, players[i],false, this));
+            }
+        }
+        if(players.length === 1){
+            this._playerList.push(new Computer(this.dealHand(), 'Mycroft', false, this));
         }
         this._playerList[0].turn = true;
         this._passes = 0;
     }
 
      updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens, skipped){
+        let compIndex = -1;
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
             this._playerList[i].hand = hands[players[i]];
             this._playerList[i].alerts = [];
+            if(this._playerList[i].name === 'Mycroft'){
+                compIndex = i;
+            }
         }
         this._rules.skippedPlayer = skipped;
         this._playDeck = new Deck(deck);
@@ -322,10 +535,17 @@ export default class Game {
         this._discardPile.sevensCount = sevens;
         this._passes = numPasses;
         this.passCount();
-        if(penalties !== undefined){
-            penalties.forEach(penalty => {
-                this.showAlert(penalty, player);
-            });
+        if(player !== 'Mycroft'){
+            if(penalties !== undefined){
+                penalties.forEach(penalty => {
+                    this.showAlert(penalty, player);
+                });
+            }
+        }
+        if(this._againstComp === true){
+            let player = this._playerList[compIndex];
+            player.checkAlerts(penalties);
+            setTimeout(player.checkPlay.bind(player), 3500);
         }
     }
 
@@ -739,7 +959,9 @@ export class Rules{
     playedCardCheckRules(card, player){
         if(!player.turn) {
             player.game.drawCard(player);
-            document.getElementById(selectedCard).classList.toggle('selectedCard');
+            if(document.getElementById(selectedCard)){
+                document.getElementById(selectedCard).classList.toggle('selectedCard');
+            }
             selectedCard = '';
             player.alerts.push('failure to play in turn');
         } else if (!this.cardMatch(card, player)) {
@@ -845,7 +1067,7 @@ export class Rules{
     }
 
     reversePlayed(player, state){
-        if(state != ""){
+        if(state !== ""){
             let message = 'declared ' + state + ' out of turn';
             player.alerts.push(message);
             player.game.drawCard(player);
@@ -899,6 +1121,15 @@ export class Rules{
             player.alerts.push('failure to declare all hail the chairman');
         } else {
             player.game.rules.chairmanRules.played = true;
+        }
+    }
+
+    chairwomanPlayed(player, state){
+        if (state !== 'All Hail the Chairwoman') {
+            player.game.drawCard(player);
+            player.alerts.push('failure to declare all hail the chairwoman');
+        } else {
+            player.game.rules.chairwomanRules.played = true;
         }
     }
 
@@ -961,12 +1192,6 @@ export class Rules{
         }
     }
 
-    findWin(player){
-        if (player.hand.length === 0){
-            this.winMessage(name);
-        }
-    }
-
     winMessage(name){
         document.getElementById('gameBoard').innerHTML = "";
         if (document.getElementById('alert') !== null) {
@@ -994,7 +1219,6 @@ export class Rules{
 export let ourGame;
 let game;
 let ruleNumber = false;
-let players;
 export let selectedCard = "";
 let isChaos = false;
 let oldCard = "";
@@ -1072,7 +1296,6 @@ export function modeDecided() {
     startButton.style.visibility = 'hidden';
     startButton.class ='close';
     startButton.id = 'startButton';
-    startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
     startGamePrompt.appendChild(newLine);
 
@@ -1127,7 +1350,7 @@ export function checkName(entry) {
                                     end = w + 1;
                                 }
                             }
-                            if (found = true){
+                            if (found === true){
                                 censor = name.substring(0, start) + good[b] + name.substring(end, name.length+1);
                             }
                         }
@@ -1144,6 +1367,9 @@ export function checkName(entry) {
 
 export function diffNames(names){
     let newPlayers = [];
+    if(names.length === 1) {
+        newPlayers.push(names[0].name);
+    }
     for (let i = 0; i < (names.length - 1); i++){
         let diff = 2;
         for (let j = (i + 1); j < names.length; j++){
@@ -1158,7 +1384,11 @@ export function diffNames(names){
         }
     }
     ourGame = new Game(newPlayers, ruleNumber);
-    return newPlayers;
+    if(newPlayers.length === 1){
+        return [names[0].name, 'Mycroft'];
+    } else {
+        return newPlayers;
+    }
 }
 
 export function rulesDecided(numRules){
@@ -1290,7 +1520,7 @@ export function passTurn(name, game) {
 }
 
 export function playTurn(game) {
-    if(selectedCard != ""){
+    if(selectedCard !== ""){
         let player = findPlayerIndexFromId(playerPlaying, game);
         let cardIndex = -1;
         for(let i = 0; i < player.hand.length; i++){
@@ -1317,8 +1547,7 @@ export function findPlayerIndexFromId(id, game){
             break;
         }
     }
-    let player = game.playerList[playerIndex];
-    return player;
+    return game.playerList[playerIndex];
 }
 
 

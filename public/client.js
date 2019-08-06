@@ -1,4 +1,3 @@
-
 import { removeElement, standardGame, randomGame, modeDecided, playTurn, rulesDecided,
     initializePlayerHand, checkName, diffNames, passTurn, createTopBar, ourGame, hilite, findPlayerIndexFromId } from "./game.js";
 import Game from "./game.js";
@@ -36,7 +35,7 @@ import Game from "./game.js";
     };
 
     let users = [];
-    let playingHand, playerName, rules, textDiff, selected, difficulty, index;
+    let playingHand, playerName, rules, textDiff, selected, difficulty, index, againstComp;
     function updateView(data) {
         if(data.stage){
             if(data.stage === 'name'){
@@ -87,8 +86,8 @@ import Game from "./game.js";
                     playerName = checkName(inName);
                     window.document.getElementById('choseName').style.display = 'none';
                     removeElement(window.document.getElementById('choseName'));
-                    window.document.getElementById('namePlayersPrompt').style.display = 'none';
-                    window.document.getElementById('namePlayers').style.display = 'none';
+                    window.document.getElementById('namePlayersPrompt').style.visibility = 'hidden';
+                    window.document.getElementById('namePlayers').style.visibility = 'hidden';
                     let selectDifficulty = document.getElementById('numRules');
                     if(selectDifficulty){
                         difficulty = selectDifficulty.options[selectDifficulty.selectedIndex].value;
@@ -130,8 +129,15 @@ import Game from "./game.js";
                 counter++;
             });
             document.getElementById("activePlayers").innerHTML = HTML;
-            if(counter > 2 && selected){
+            if(selected){
+                let text = 'Play Computer';
+                againstComp = true;
+                if(counter > 2){
+                    text = 'Start Game';
+                    againstComp = false;
+                }
                 let startGame = document.getElementById('startButton');
+                startGame.innerHTML = text;
                 startGame.style.visibility = 'visible';
                 let warn = document.getElementById('startWarn');
                 warn.style.visibility = 'visible';
@@ -145,10 +151,12 @@ import Game from "./game.js";
                         action: 'startGame',
                         names: players,
                         playerId: users,
+                        againstComputer: againstComp,
                         playingHands: playingHands,
                         playDeck: thisGame.playDeck,
                         topDiscard: topDiscard,
-                        rules: thisGame.rules
+                        rules: thisGame.rules,
+                        random: thisGame.rules.random
                     }));
                 });
             }
@@ -157,7 +165,7 @@ import Game from "./game.js";
                 removeElement(window.document.getElementById('startGame'));
             }
             createTopBar(data.topDiscard);
-            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard);
+            thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard, data.againstComp, data.random);
             rules = data.rules;
             let counter = 0;
             let playerId;
@@ -170,33 +178,56 @@ import Game from "./game.js";
             otherPlayers.setAttribute('class', 'grid');
             otherPlayers.id = 'otherPlayersGrid';
             data.names.forEach(player => {
-                if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
-                    index = counter;
-                    playerId = users[index].id;
-                    playingHand = data.hands[counter];
-                    playerName = player;
-                    gamePlayer.setAttribute("id", player);
-                    gamePlayer.dataset.name = player;
-                    let name = document.createElement('h1');
-                    name.setAttribute('class', 'numCards');
-                    name.innerHTML = player;
-                    document.getElementById(player).appendChild(name);
-                    name.style.display = 'inline-block';
-                    name.style.fontSize = '40px';
-                    name.style.margin = '7px';
-                    const passBtn = document.createElement("button");
-                    passBtn.id = 'passTurn';
-                    passBtn.setAttribute('class', 'pass');
-                    passBtn.innerHTML = 'Pass Turn';
-                    document.getElementById(player).appendChild(passBtn);
-                    passBtn.style.display = 'inline-block';
-                    passBtn.style.margin = '5px';
-                    const playerHand = document.createElement('section');
-                    playerHand.setAttribute('class', 'grid playerHand');
-                    playerHand.id = 'playerHand';
-                    initializePlayerHand(playingHand, playerHand);
-                    document.getElementById(player).appendChild(playerHand);
-                    document.getElementById(player).appendChild(otherPlayers);
+                if(data.playerId[counter]){
+                    if(data.playerId[counter].id === window.document.querySelector("[name=\"userId\"]").value){
+                        index = counter;
+                        playerId = users[index].id;
+                        playingHand = data.hands[counter];
+                        playerName = player;
+                        gamePlayer.setAttribute("id", player);
+                        gamePlayer.dataset.name = player;
+                        let name = document.createElement('h1');
+                        name.setAttribute('class', 'numCards');
+                        name.innerHTML = player;
+                        document.getElementById(player).appendChild(name);
+                        name.style.display = 'inline-block';
+                        name.style.fontSize = '40px';
+                        name.style.margin = '7px';
+                        const passBtn = document.createElement("button");
+                        passBtn.id = 'passTurn';
+                        passBtn.setAttribute('class', 'pass');
+                        passBtn.innerHTML = 'Pass Turn';
+                        document.getElementById(player).appendChild(passBtn);
+                        passBtn.style.display = 'inline-block';
+                        passBtn.style.margin = '5px';
+                        const playerHand = document.createElement('section');
+                        playerHand.setAttribute('class', 'grid playerHand');
+                        playerHand.id = 'playerHand';
+                        initializePlayerHand(playingHand, playerHand);
+                        document.getElementById(player).appendChild(playerHand);
+                        document.getElementById(player).appendChild(otherPlayers);
+                    }
+                    else {
+                        const gamePlayer = document.createElement('div');
+                        gamePlayer.classList.add('player');
+                        gamePlayer.setAttribute("class", "player");
+                        gamePlayer.setAttribute("id", player);
+                        gamePlayer.dataset.name = player;
+                        otherPlayers.appendChild(gamePlayer);
+
+                        const hand = document.createElement('button');
+                        hand.setAttribute('class', 'hand');
+                        hand.setAttribute('id', `${player}show`);
+                        hand.innerHTML = player;
+                        gamePlayer.appendChild(hand);
+
+                        let numCards = document.createElement('h3');
+                        numCards.classList.add('numCards');
+                        numCards.setAttribute('class', 'numCards');
+                        numCards.setAttribute('id', `${player}numCards`);
+                        numCards.innerHTML = data.hands[counter].length.toString() + ' cards';
+                        hand.appendChild(numCards);
+                    }
                 } else {
                     const gamePlayer = document.createElement('div');
                     gamePlayer.classList.add('player');
@@ -284,10 +315,10 @@ import Game from "./game.js";
                 if(player.name === playerName){
                     index = counter;
                     let playerHand = document.getElementById("playerHand");
-                    if (playerHand !== null) {
+                    if(playerHand){
                         playerHand.innerHTML = "";
+                        initializePlayerHand(data.hands[player.name], playerHand);
                     }
-                    initializePlayerHand(data.hands[player.name], playerHand);
                 } else {
                     let skipPlayer = document.getElementById(`skip${player.name}`);
                     if(skipPlayer){
@@ -301,25 +332,23 @@ import Game from "./game.js";
                         });
                     }
                     let otherPlayer = document.getElementById(player.name);
-                    if (otherPlayer !== null) {
+                    if(otherPlayer){
                         otherPlayer.innerHTML = "";
-                    }
 
-                    const hand = document.createElement('button');
-                    hand.setAttribute('class', 'hand');
-                    hand.setAttribute('id', `${player.name}show`);
-                    hand.innerHTML = player.name;
-                    if (otherPlayer !== null) {
+                        const hand = document.createElement('button');
+                        hand.setAttribute('class', 'hand');
+                        hand.setAttribute('id', `${player.name}show`);
+                        hand.innerHTML = player.name;
                         otherPlayer.appendChild(hand);
-                    }
 
-                    let numCards = document.createElement('h3');
-                    numCards.classList.add('numCards');
-                    numCards.setAttribute('class', 'numCards');
-                    numCards.setAttribute('id', `${player.name}numCards`);
-                    numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
-                    hand.appendChild(numCards);
-                    hilite(document.getElementById(data.player + 'show'));
+                        let numCards = document.createElement('h3');
+                        numCards.classList.add('numCards');
+                        numCards.setAttribute('class', 'numCards');
+                        numCards.setAttribute('id', `${player.name}numCards`);
+                        numCards.innerHTML = data.hands[player.name].length.toString() + ' cards';
+                        hand.appendChild(numCards);
+                        hilite(document.getElementById(data.player + 'show'));
+                    }
                 }
                 counter++;
             });
@@ -364,20 +393,6 @@ import Game from "./game.js";
             startGame.appendChild(newLine);
             startGame.appendChild(newLine);
         });
-    }
-
-    function displayDiff(val){
-        let find = ((val-1)/3);
-        let level;
-        if (find === 1) {
-            level = 'COMPREHENSIBLE';
-        } else if (find === 2) {
-            level = 'CHALLENGING';
-        } else if (find === 3) {
-            level = 'CONVOLUTED';
-        }
-        let message = 'DIFFICULTY: ' + level;
-        document.getElementById('seeDiff').innerHTML = message;
     }
 
     function getHands(){
