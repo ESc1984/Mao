@@ -1,5 +1,4 @@
 
-
 let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
@@ -102,7 +101,9 @@ class DiscardPile {
             this._expectedSuit = card.suit;
         }
         this._expectedValue = card.value;
-        disc.removeChild(disc.children[0]);
+        if (disc !== null){
+            disc.removeChild(disc.children[0]);
+        }
         addCardsToPlayer(card, disc);
     }
 
@@ -690,12 +691,12 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        if (ruleName === 'skipNext' && random === true){
-            let random = Math.floor(2 * Math.random());
-            if (random = 0) {
-                this.rulesInPlay.push('skipChoose');
-            }
-        }
+        // if (ruleName === 'skipNext' && random === true){
+        //     let random = Math.floor(2 * Math.random());
+        //     if (random = 0) {
+        //         this.rulesInPlay.push('skipChoose');
+        //     }
+        // }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
@@ -770,6 +771,11 @@ export class Rules{
 
     spadePlayed(player, state){
         if(state !== 'Spades'){
+            if(state !== ""){
+                player.game.drawCard(player);
+                let message = 'declared ' + state + ' out of turn';
+                player.alerts.push(message);
+            }
             player.game.drawCard(player);
             player.alerts.push('failure to declare spades');
         } else {
@@ -869,26 +875,41 @@ export class Rules{
             player.game.rules.wildRules.played = true;
             player.alerts.push('* wild ' + suit + ' *');
         } else {
+            if(suit !== ""){
+                player.game.drawCard(player);
+                let message = 'declared ' + suit + ' out of turn';
+                player.alerts.push(message);
+            }
             player.game.drawCard(player);
             player.alerts.push('failure to declare a suit');
         }
     }
 
-    chairmanPlayed(player, state){
-        if (state !== 'All Hail the Chairman') {
-            player.game.drawCard(player);
-            player.alerts.push('failure to declare all hail the chairman');
-        } else {
-            player.game.rules.chairmanRules.played = true;
-        }
-    }
-
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
+            if(state !== ""){
+                player.game.drawCard(player);
+                let message = 'declared ' + state + ' out of turn';
+                player.alerts.push(message);
+            }
             player.game.drawCard(player);
             player.alerts.push('failure to declare all hail the chairwoman');
         } else {
             player.game.rules.chairwomanRules.played = true;
+        }
+    }
+
+    chairmanPlayed(player, state){
+        if (state !== 'All Hail the Chairman') {
+            if(state !== ""){
+                player.game.drawCard(player);
+                let message = 'declared ' + state + ' out of turn';
+                player.alerts.push(message);
+            }
+            player.game.drawCard(player);
+            player.alerts.push('failure to declare all hail the chairman');
+        } else {
+            player.game.rules.chairmanRules.played = true;
         }
     }
 
@@ -926,6 +947,11 @@ export class Rules{
         if(state === 'Pair'){
             player.game.rules.pairRules.played = true;
         } else {
+            if(state !== ""){
+                player.game.drawCard(player);
+                let message = 'declared ' + state + ' out of turn';
+                player.alerts.push(message);
+            }
             player.game.drawCard(player);
             player.alerts.push('failure to declare pair');
         }
@@ -954,11 +980,13 @@ export class Rules{
 
     winMessage(name){
         document.getElementById('gameBoard').innerHTML = "";
-        document.getElementById('alert').style.marginLeft = '0';
-        document.getElementById('alert').style.fontSize = '100px';
-        document.getElementById('alert').style.top = '10%';
-        document.getElementById("alert").innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
-        document.getElementById('redoButton').style.display = 'block';
+        if (document.getElementById('alert') !== null) {
+            document.getElementById('alert').style.marginLeft = '0';
+            document.getElementById('alert').style.fontSize = '100px';
+            document.getElementById('alert').style.top = '10%';
+            document.getElementById('alert').innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
+            document.getElementById('redoButton').style.display = 'block';
+        }
     }
 
     loseMessage(name, winner){
@@ -1057,10 +1085,10 @@ export function modeDecided() {
     startButton.id = 'startButton';
     startButton.innerHTML = 'Start Game';
     startGamePrompt.appendChild(startButton);
+    startGamePrompt.appendChild(newLine);
 
     let startWarn = document.createElement('p');
     startWarn.setAttribute('id', 'startWarn');
-    startWarn.style.position = 'relative';
     startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS HAVE SIGNED ON';
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
@@ -1092,8 +1120,8 @@ export function checkName(entry) {
                     name = 'x' + name;
                 }
             }
-            let prof = ['fxxx', 'sxxx', 'axx', 'cxxx', 'dxxx', 'bxxxx'];
-            let good = ['fork', 'shirt', 'ash', 'crab', 'ding', 'bench'];
+            let prof = ['fxxx', 'sxxx', 'axx', 'cxxx', 'dxxx', 'bxxxx', 'rxxxxx'];
+            let good = ['fork', 'shirt', 'ash', 'crab', 'ding', 'bench', 'ringo'];
             let checker = name.toLowerCase();
             for (let b = 0; b < prof.length; b++){
                 if (checker.includes(prof[b])){
@@ -1255,7 +1283,9 @@ export function addCardsToPlayer(card, grid){
     playCard.setAttribute("id", card.suit + card.value + card.num);
     playCard.style.backgroundImage = `url(images/${card.suit}${card.value}.png)`;
     playCard.onclick = selectCard;
-    grid.appendChild(playCard);
+    if (grid !== null) {
+        grid.appendChild(playCard);
+    }
 }
 
 export function passTurn(name, game) {

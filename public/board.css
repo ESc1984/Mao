@@ -469,3 +469,9 @@ td {
     /*text-align: left;*/
     text-align: center;
 }
+
+#startWarn {
+    position: relative;
+    display: inline-block;
+    margin-top: 0;
+}
