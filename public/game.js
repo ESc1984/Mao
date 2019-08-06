@@ -279,9 +279,7 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(checkPlayedStatus !== 'skipNextRules'){
                         rule.function(this, "");
-                    }
                 }
             }
         });
@@ -464,7 +462,6 @@ export default class Game {
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            //runCount = 0;
         }
     }
 }
