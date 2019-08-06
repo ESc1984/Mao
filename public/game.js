@@ -633,12 +633,6 @@ export class Rules{
                 this.storeCardRule("", this.allRules[ruleNum], name);
                 this.allRules.splice(ruleNum, 1);
             }
-            // else if(this.gameRules[cardNum].name === 'mao'){
-            //     this.gameRules[2].function = this.allRules[ruleNum].function;
-            //     let name = this.allRules[ruleNum].name + 'Rules';
-            //     this.storeCardRule('', this.allRules[ruleNum], name);
-            //     this.allRules.splice(ruleNum, 1);
-            // }
             else if(this.gameRules[cardNum].function === this.noRule){
                 this.gameRules[cardNum].function = this.allRules[ruleNum].function;
                 let name = this.allRules[ruleNum].name + 'Rules';
@@ -693,12 +687,6 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        // if (ruleName === 'skipNext' && random === true){
-        //     let random = Math.floor(2 * Math.random());
-        //     if (random = 0) {
-        //         this.rulesInPlay.push('skipChoose');
-        //     }
-        // }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
@@ -829,7 +817,6 @@ export class Rules{
         }
         if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
             if(this.skipChooseRules.played === false){
-                //|| this.nextSkip === true) {
                 player.game.updateTurn();
                 player.game.rules.skipNextRules.played = true;
             }
@@ -1192,7 +1179,6 @@ export function hilite(boop){
 }
 
 export function createTopBar(topDiscard){
-    //removeElement(window.document.getElementById('startGame'));
     const topGrid = document.createElement('section');
     topGrid.setAttribute('id', 'topGrid');
     topGrid.setAttribute('class', 'grid');

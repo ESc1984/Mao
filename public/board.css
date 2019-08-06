@@ -1,3 +1,4 @@
+
 .card{
     margin: 5px;
     border-style: solid;
@@ -19,8 +20,6 @@
   padding-top: 150%;
   padding-left: 100%;
     border-radius: 7px;
-  /*margin-left: -20px !important;*/
-  /*margin-top: -120%;*/
   opacity: 0;
   transition: all 0.5s;
 }
@@ -35,10 +34,6 @@
 .card.selectedCard {
     border-color: palegoldenrod;
 }
-
-/*.card.discard {*/
-/*    border-color: #b0210b;*/
-/*}*/
 
 .hand {
     font-size: 28px;
@@ -82,11 +77,9 @@
     font-size: 25px;
 }
 
-/*#numRules{*/
 select{
     font-family: Oriya MN;
     font-size: 18px;
-    /*background-color: gold;*/
     color: #b0210b;
     vertical-align: center;
     border-radius: 0;
@@ -100,44 +93,10 @@ select:focus {
     outline-color: goldenrod;
 }
 
-/*select > option {*/
-/*    background-color: white;*/
-/*}*/
-
 option {
     background-color: white;
     color: #b0210b;
 }
-
-/*.option {*/
-/*    font-family: Oriya MN;*/
-/*    font-size: 18px;*/
-/*}*/
-
-/*.select {*/
-/*    !*position: relative;*!*/
-/*    !*display: block;*!*/
-/*    !*width: 20em;*!*/
-/*    !*height: 3em;*!*/
-/*    !*line-height: 3;*!*/
-/*    background: white;*/
-/*    overflow: hidden;*/
-/*    border-radius: .25em;*/
-/*}*/
-
-/*.select::after {*/
-/*    background-color: white;*/
-/*}*/
-
-/*.select:hover::after {*/
-/*    color: palegoldenrod;*/
-/*}*/
-
-/*.playerhand {*/
-/*    grid-auto-rows: 130px;*/
-/*    grid-auto-columns: 100px;*/
-/*    justify-content: start;*/
-/*}*/
 
 .cardhand{
     justify-content: start;
@@ -146,11 +105,6 @@ option {
 .pass{
     margin: 2px;
 }
-
-/*.selected {*/
-/*    border: 10px yellow;*/
-/*    border-radius: 10px;*/
-/*}*/
 
 body {
     background-color: #b0210b;
@@ -201,7 +155,6 @@ button:active {
 input {
     font-family: Oriya MN;
     font-size: 16px;
-    /*background-color: gold;*/
     color: #b0210b;
     vertical-align: center;
     border-color: gold;
@@ -296,12 +249,10 @@ h3 {
     z-index: 1000;
     opacity: 1;
     background-color: palegoldenrod;
-    /*background-color: #ffd700ab;*/
     font-family: Oriya MN;
     font-size: 80px;
     display: block;
     text-align: center;
-    /*margin: 20px 20px 200px 20px;*/
     margin: auto;
 }
 
@@ -348,26 +299,6 @@ h3 {
 }
 
 @keyframes spotlight {
-    /*0% {*/
-    /*    background-color: #b0210b;*/
-    /*}*/
-    /*5% {*/
-    /*    background-color: #c21515;*/
-    /*    !*background-color: #ff3d1f;*!*/
-    /*}*/
-    /*100% {*/
-    /*    background-color: #b0210b;*/
-    /*}*/
-
-    /*from {*/
-    /*    background-color: goldenrod;*/
-    /*    !*opacity: 1;*!*/
-    /*}*/
-    /*to {*/
-    /*    background-color: #780e0e;*/
-    /*    !*opacity: 0;*!*/
-    /*}*/
-
     0% {
         background-color: #780e0e;
     }
@@ -380,26 +311,6 @@ h3 {
 }
 
 @-webkit-keyframes spotlight {
-    /*0% {*/
-    /*    background-color: #b0210b;*/
-    /*}*/
-    /*5% {*/
-    /*    background-color: #c21515;*/
-    /*    !*background-color: #ff3d1f;*!*/
-    /*}*/
-    /*100% {*/
-    /*    background-color: #b0210b;*/
-    /*}*/
-
-    /*from {*/
-    /*    background-color: goldenrod;*/
-    /*    !*opacity: 1;*!*/
-    /*}*/
-    /*to {*/
-    /*    background-color: #780e0e;*/
-    /*    !*opacity: 0;*!*/
-    /*}*/
-
     0% {
         background-color: #780e0e;
     }
@@ -410,11 +321,6 @@ h3 {
         background-color: #780e0e;
     }
 }
-
-/*@-webkit-keyframes hide {*/
-/*    0% {opacity: 1;}*/
-/*    100% {opacity: 0;}*/
-/*}*/
 
 .alert {
     color: #780e0e;
@@ -431,16 +337,12 @@ h3 {
 }
 
 #played {
-    /*position: relative;*/
     display: block;
     color: gold;
     font-family: Oriya MN;
     font-size: 30px;
-    /*padding-top: 10px;*/
     padding-bottom: 40px;
     text-align: center;
-    /*margin-left: 510px;*/
-
 }
 
 .close {
@@ -461,12 +363,10 @@ table {
 }
 
 th {
-    /*text-align: left;*/
     text-align: center;
 }
 
 td {
-    /*text-align: left;*/
     text-align: center;
 }
 
