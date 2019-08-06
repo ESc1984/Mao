@@ -1159,12 +1159,6 @@ export class Rules{
         }
     }
 
-    findWin(player){
-        if (player.hand.length === 0){
-            this.winMessage(name);
-        }
-    }
-
     winMessage(name){
         document.getElementById('gameBoard').innerHTML = "";
         document.getElementById('alert').style.marginLeft = '0';
@@ -1190,7 +1184,6 @@ export class Rules{
 export let ourGame;
 let game;
 let ruleNumber = false;
-let players;
 export let selectedCard = "";
 let oldCard = "";
 export let playerPlaying;
@@ -1307,7 +1300,7 @@ export function checkName(entry) {
                                     end = w + 1;
                                 }
                             }
-                            if (found = true){
+                            if (found === true){
                                 censor = name.substring(0, start) + good[b] + name.substring(end, name.length+1);
                             }
                         }
@@ -1476,7 +1469,7 @@ export function passTurn(name, game) {
 }
 
 export function playTurn(game) {
-    if(selectedCard != ""){
+    if(selectedCard !== ""){
         let player = findPlayerIndexFromId(playerPlaying, game);
         let cardIndex = -1;
         for(let i = 0; i < player.hand.length; i++){
@@ -1503,8 +1496,7 @@ export function findPlayerIndexFromId(id, game){
             break;
         }
     }
-    let player = game.playerList[playerIndex];
-    return player;
+    return game.playerList[playerIndex];
 }
 
 
