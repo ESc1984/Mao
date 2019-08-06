@@ -204,7 +204,6 @@ class Player {
                 this.sendRuleDeclarations(card, selectedRules);
                 this._game.discardCard(this._hand.splice(cardIndex, 1)[0]);
                 this._game.rules.resetRules();
-                //this._game.rules.findWin(this);
                 this._game.updateTurn();
             }
         }
@@ -441,26 +440,31 @@ class Computer extends Player {
     }
 
     playTurn(){
-        if(this._card === null){
-            super.passTurn();
-        } else {
+        if(this._card !== null){
             this.selectRules();
             super.playCard(this._cardIndex, this._chosenRules);
             this.updateCardView();
+        } else {
+            super.passTurn();
         }
         if(this._hand.length === 0){
             let that = this;
             setTimeout(function() {
-                that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 1000);
+                that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 2000);
         } else {
-            this._alerts.forEach(alert => {
-                this._game.showAlert(alert, this._name);
-            });
-            this.checkAlerts(this._alerts);
+            if(this._alerts[0] !== undefined){
+                let that = this;
+                setTimeout(function() {
+                    that.alerts.forEach(alert => {
+                        that.game.showAlert(alert, 'Mycroft');
+                    });
+                }, 1200);
+                this.checkAlerts(this._alerts);
+            }
         }
         this._chosenRules = [];
         niceDayCount = 0;
-        setTimeout(this.checkPlay.bind(this), 5000);
+        setTimeout(this.checkPlay.bind(this), 4000);
     }
 
     updateCardView() {
@@ -544,7 +548,7 @@ export default class Game {
         if(this._againstComp === true){
             let player = this._playerList[compIndex];
             player.checkAlerts(penalties);
-            setTimeout(player.checkPlay.bind(player), 3000);
+            setTimeout(player.checkPlay.bind(player), 3500);
         }
     }
 
