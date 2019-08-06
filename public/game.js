@@ -274,9 +274,7 @@ class Player {
             checkPlayedStatus = checkPlayedStatus + "Rules";
             if(rule.function !== this._game.rules.noRule){
                 if( (rule.value === card.value) && (this._game.rules[checkPlayedStatus].played === false) ){
-                    if(checkPlayedStatus !== 'skipNextRules'){
                         rule.function(this, "");
-                    }
                 }
             }
         });
@@ -824,13 +822,13 @@ export class Rules{
             player.alerts.push(message);
             player.game.drawCard(player);
         }
-        if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
-            if(this.skipChooseRules.played === false){
-                //|| this.nextSkip === true) {
-                player.game.updateTurn();
-                player.game.rules.skipNextRules.played = true;
-            }
-        } else {
+        // if(player.game.rules.rulesInPlay.includes('skipChoose') && this.skipChooseRules !== undefined){
+        //     if(this.skipChooseRules.played === false){
+        //         //|| this.nextSkip === true) {
+        //         player.game.updateTurn();
+        //         player.game.rules.skipNextRules.played = true;
+        //     }
+        else {
             player.game.updateTurn();
             player.game.rules.skipNextRules.played = true;
         }
