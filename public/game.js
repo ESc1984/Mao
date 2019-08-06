@@ -1,4 +1,4 @@
-
+//scootch startwarn, find confetti
 
 let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
@@ -692,12 +692,12 @@ export class Rules{
 
     addCardRule(card, ruleName, action, random){
         this.rulesInPlay.push(ruleName);
-        if (ruleName === 'skipNext' && random === true){
-            let random = Math.floor(2 * Math.random());
-            if (random = 0) {
-                this.rulesInPlay.push('skipChoose');
-            }
-        }
+        // if (ruleName === 'skipNext' && random === true){
+        //     let random = Math.floor(2 * Math.random());
+        //     if (random = 0) {
+        //         this.rulesInPlay.push('skipChoose');
+        //     }
+        // }
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
         this.gameRules.forEach(gameRule => {
@@ -876,21 +876,21 @@ export class Rules{
         }
     }
 
-    chairmanPlayed(player, state){
-        if (state !== 'All Hail the Chairman') {
-            player.game.drawCard(player);
-            player.alerts.push('failure to declare all hail the chairman');
-        } else {
-            player.game.rules.chairmanRules.played = true;
-        }
-    }
-
     chairwomanPlayed(player, state){
         if (state !== 'All Hail the Chairwoman') {
             player.game.drawCard(player);
             player.alerts.push('failure to declare all hail the chairwoman');
         } else {
             player.game.rules.chairwomanRules.played = true;
+        }
+    }
+
+    chairmanPlayed(player, state){
+        if (state !== 'All Hail the Chairman') {
+            player.game.drawCard(player);
+            player.alerts.push('failure to declare all hail the chairman');
+        } else {
+            player.game.rules.chairmanRules.played = true;
         }
     }
 
@@ -956,6 +956,7 @@ export class Rules{
 
     winMessage(name){
         document.getElementById('gameBoard').innerHTML = "";
+        document.getElementById('alert').classList.add('confetti-container');
         document.getElementById('alert').style.marginLeft = '0';
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
@@ -1320,4 +1321,90 @@ function selectCard() {
 
 function removeVisibility(object) {
     object.style.visibility = "hidden";
+}
+
+
+//confetti testing
+
+const settings = {
+    numConfetti: 150,
+    distance: 300
+};
+
+function getRandomArrayItem(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getRandomFloat(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function getRotation() {
+    return Math.floor(Math.random() * 360) + 1;
+}
+
+function emit() {
+
+    let container = document.getElementById("confetti-container");
+
+    let containerRect = container.getBoundingClientRect();
+
+    let containerData = {
+        x: containerRect.left,
+        y: containerRect.top,
+        height: containerRect.right - containerRect.left,
+        width: containerRect.bottom - containerRect.top
+    };
+
+    let start = {
+        x: containerData.x + containerData.width / 2,
+        y: containerData.y + containerData.height / 2
+    };
+
+    let maxY = containerData.y + containerData.height + settings.distance;
+    let minY = containerData.y - settings.distance;
+
+    let maxX = containerData.x + containerData.width + settings.distance;
+    let minX = containerData.x - settings.distance;
+
+    let docFrag = document.createDocumentFragment();
+
+    for (let i = 0; i < settings.numConfetti; i++) {
+        let confetti = document.createElement("div");
+        let color = getRandomArrayItem(settings.colors);
+        let shape = getRandomArrayItem(settings.shapes);
+        let size = getRandomInt(8, 4);
+        let newX = getRandomInt(minX, maxX);
+        let newY = getRandomInt(minY, maxY);
+        confetti.className += "confetti " + color + " " + shape;
+        confetti.style.top = start.y + "px";
+        confetti.style.left = start.x + "px";
+        confetti.style.height = size + "px";
+        confetti.style.width = size + "px";
+        confetti.style.transform = "rotate(" + getRotation() + "deg)";
+        docFrag.appendChild(confetti);
+
+        setTimeout(function() {
+            confetti.style.transition = "all " + getRandomFloat(1.5, 0.5) + "s ease";
+            confetti.style.top = newY + "px";
+            confetti.style.left = newX + "px";
+            confetti.style.transform = "rotate(" + getRotation() + "deg)";
+
+            confetti.addEventListener("transitionend", function() {
+                confetti.style.transition = "all " + getRandomFloat(1.25, 1) + " ease";
+                confetti.style.opacity = 0;
+                confetti.style.transform = "rotate(" + getRotation() + "deg)";
+                confetti.style.top = parseInt(confetti.style.top) + 10 + "px";
+                setTimeout(function() {
+                    confetti.remove();
+                    confetti = null;
+                }, 1000);
+            });
+        }, 1);
+    }
+    document.body.appendChild(docFrag);
 }
