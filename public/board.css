@@ -470,37 +470,8 @@ td {
     text-align: center;
 }
 
-
-
-/*.confetti-container {*/
-/*!*    position: absolute;*!*/
-/*!*    top: 0;*!*/
-/*!*    left: 0;*!*/
-/*!*    right: 0;*!*/
-/*!*    bottom: 0;*!*/
-/*!*    min-width: 2000px;*!*/
-/*!*    background: #b0210b;*!*/
-/*!*    z-index: 1;*!*/
-/*!*    display: flex;*!*/
-/*!*    justify-content: center;*!*/
-/*!*    align-items: center;*!*/
-/*!*    font-family: sans-serif;*!*/
-/*!*    box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.5);*!*/
-/*!*    cursor: pointer;*!*/
-/*}*/
-
-.confetti {
-    height: 5px;
-    width: 5px;
-    position: absolute;
-    opacity: 0.75;
-    z-index: 0;
-    /* gpu acceleration */
-    -webkit-transform: translateZ(0);
-    -moz-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    -o-transform: translateZ(0);
-    transform: translateZ(0);
-    background: #780e0e;
-    padding: 0 1px;
+#startWarn {
+    position: relative;
+    display: inline-block;
+    margin-top: 0;
 }

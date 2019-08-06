@@ -283,7 +283,9 @@ import Game from "./game.js";
                 if(player.name === playerName){
                     index = counter;
                     let playerHand = document.getElementById("playerHand");
-                    playerHand.innerHTML = "";
+                    if (playerHand !== null) {
+                        playerHand.innerHTML = "";
+                    }
                     initializePlayerHand(data.hands[player.name], playerHand);
                 } else {
                     let skipPlayer = document.getElementById(`skip${player.name}`);
@@ -298,13 +300,17 @@ import Game from "./game.js";
                         });
                     }
                     let otherPlayer = document.getElementById(player.name);
-                    otherPlayer.innerHTML = "";
+                    if (otherPlayer !== null) {
+                        otherPlayer.innerHTML = "";
+                    }
 
                     const hand = document.createElement('button');
                     hand.setAttribute('class', 'hand');
                     hand.setAttribute('id', `${player.name}show`);
                     hand.innerHTML = player.name;
-                    otherPlayer.appendChild(hand);
+                    if (otherPlayer !== null) {
+                        otherPlayer.appendChild(hand);
+                    }
 
                     let numCards = document.createElement('h3');
                     numCards.classList.add('numCards');
