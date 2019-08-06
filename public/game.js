@@ -254,16 +254,19 @@ class Player {
         }
 
         if(this._game.rules.rulesInPlay.includes('spade') && card.suit === 'S' && this._game.rules.spadeRules.played === false){
-            this._game.rules.gameRules[0].function(this, "");
+            //this._game.rules.gameRules[0].function(this, "");
+            this._game.rules.spadePlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
-            this._game.rules.gameRules[2].function(this, "", card);
+            //this._game.rules.gameRules[2].function(this, "", card);
+            this._game.rules.pairPlayed(this, '', card);
         }
 
         if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
             && this._game.rules.runRules.played === false){
-            this._game.rules.gameRules[3].function(this, "");
+            //this._game.rules.gameRules[3].function(this, "");
+            this._game.rules.runPlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A' && this._game.playerList.length > 2){
@@ -461,7 +464,7 @@ export default class Game {
         if (this._passes >= this.playerList.length){
             this._discardPile.addToDiscard(this._playDeck.deal());
             this._passes = 0;
-            runCount = 0;
+            //runCount = 0;
         }
     }
 }
