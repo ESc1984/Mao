@@ -319,9 +319,7 @@ class Computer extends Player {
     }
 
     checkPlay(){
-        if(this._hand.length === 0){
-            this._game.rules.loseMessage(this._otherPlayer, 'Computer');
-        } else if(this._turn || this._shouldPlayAgain){
+         if(this._turn || this._shouldPlayAgain){
             this._shouldPlayAgain = false;
             this._card = this.selectCard();
             this.playTurn();
@@ -333,12 +331,12 @@ class Computer extends Player {
             if(!this._knownRules.includes('mao')){
                 this._knownRules.push('mao');
             }
-            alerts.forEach(alert => {
+            this._alerts.forEach(alert => {
                 if(alert.includes('failure to declare')){
-                    let check = alert.substring(alert.indexOf('failure to declare') + 18);
+                    let check = alert.substring(alert.indexOf('failure to declare ') + 19);
                     this.ruleAlertPairs.forEach(pair => {
                        if(pair.alert.toLowerCase() === check.toLowerCase()){
-                           if(!this._knownRules.includes(pair.rule)){
+                           if(!this._knownRules.includes(pair.rule) && pair.rule.length > 1){
                                this._knownRules.push(pair.rule);
                            }
                        }
@@ -449,13 +447,17 @@ class Computer extends Player {
         } else {
             this.selectRules();
             super.playCard(this._cardIndex, this._chosenRules);
+            hilite(document.getElementById('Computershow'));
         }
         this._alerts.forEach(alert => {
             this._game.showAlert(alert, this._name);
         });
         this.checkAlerts();
+        if(this._hand.length === 0){
+            this._game.rules.loseMessage(this._otherPlayer, 'Computer');
+        }
         this._chosenRules = [];
-        this.checkPlay();
+        setTimeout(this.checkPlay.bind(this), 5000);
     }
 }
 
@@ -514,7 +516,8 @@ export default class Game {
             });
         }
         if(this._againstComp === true){
-            this._playerList[compIndex].checkPlay();
+            let player = this._playerList[compIndex];
+            setTimeout(player.checkPlay.bind(player), 3000);
         }
     }
 
