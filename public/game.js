@@ -1,4 +1,5 @@
 
+
 let suits = ['S', 'H', 'D', 'C'];
 let values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'X', 'J', 'Q', 'K'];
 
@@ -519,6 +520,7 @@ export default class Game {
 
      updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens, skipped){
         let compIndex = -1;
+        let playerPlayed;
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
@@ -526,6 +528,9 @@ export default class Game {
             this._playerList[i].alerts = [];
             if(this._playerList[i].name === 'Mycroft'){
                 compIndex = i;
+            }
+            if(player === this._playerList[i].name){
+                playerPlayed = this._playerList[i];
             }
         }
         this._rules.skippedPlayer = skipped;
@@ -535,7 +540,7 @@ export default class Game {
         this._discardPile.sevensCount = sevens;
         this._passes = numPasses;
         this.passCount();
-        if(player !== 'Mycroft'){
+        if(! (playerPlayed instanceof Computer) ){
             if(penalties !== undefined){
                 penalties.forEach(penalty => {
                     this.showAlert(penalty, player);
