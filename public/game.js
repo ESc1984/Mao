@@ -326,12 +326,12 @@ class Computer extends Player {
         }
     }
 
-    checkAlerts(){
+    checkAlerts(penalties){
         if(this._knownRules.length < this._game.rules.rulesInPlay.length){
             if(!this._knownRules.includes('mao')){
                 this._knownRules.push('mao');
             }
-            this._alerts.forEach(alert => {
+            penalties.forEach(alert => {
                 if(alert.includes('failure to declare')){
                     let check = alert.substring(alert.indexOf('failure to declare ') + 19);
                     this.ruleAlertPairs.forEach(pair => {
@@ -456,7 +456,7 @@ class Computer extends Player {
         this._alerts.forEach(alert => {
             this._game.showAlert(alert, this._name);
         });
-        this.checkAlerts();
+        this.checkAlerts(this._alerts);
         this._chosenRules = [];
         niceDayCount = 0;
         setTimeout(this.checkPlay.bind(this), 5000);
@@ -542,6 +542,7 @@ export default class Game {
         }
         if(this._againstComp === true){
             let player = this._playerList[compIndex];
+            player.checkAlerts(penalties);
             setTimeout(player.checkPlay.bind(player), 3000);
         }
     }
