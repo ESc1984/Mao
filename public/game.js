@@ -252,12 +252,12 @@ class Player {
         }
 
         if(this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue && this._game.rules.pairRules.played === false){
-            this._game.rules.gameRules[2].function(this, "", card);
+            this._game.rules.pairPlayed(this, "", card);
         }
 
         if(this._game.rules.rulesInPlay.includes('run') && this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1)
             && this._game.rules.runRules.played === false){
-            this._game.rules.gameRules[3].function(this, "");
+            this._game.rules.runPlayed(this, "");
         }
 
         if(this._game.rules.rulesInPlay.includes('skipChoose') && card.suit === 'H' && card.value === 'A'){
@@ -452,11 +452,12 @@ class Computer extends Player {
             let that = this;
             setTimeout(function() {
                 that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 1000);
+        } else {
+            this._alerts.forEach(alert => {
+                this._game.showAlert(alert, this._name);
+            });
+            this.checkAlerts(this._alerts);
         }
-        this._alerts.forEach(alert => {
-            this._game.showAlert(alert, this._name);
-        });
-        this.checkAlerts(this._alerts);
         this._chosenRules = [];
         niceDayCount = 0;
         setTimeout(this.checkPlay.bind(this), 5000);
