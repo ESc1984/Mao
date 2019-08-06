@@ -458,13 +458,6 @@ class Computer extends Player {
                     });
                     this.checkAlerts(this._alerts);
                 }
-                // let that = this;
-                // setTimeout(function() {
-                //     that.alerts.forEach(alert => {
-                //         that.game.showAlert(alert, 'Mycroft');
-                //     });
-                // }, 1200);
-
             }
         }
         this._chosenRules = [];
@@ -477,7 +470,6 @@ class Computer extends Player {
             this._game.showAlert(pass, 'Mycroft');
         } else {
             setTimeout(this.checkAlertsReady.bind(this), 200, pass);
-            //this.checkAlertsReady(pass);
         }
     }
 
