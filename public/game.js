@@ -520,6 +520,7 @@ export default class Game {
      updateGame(hands, deck, player, players, penalties, turnOrder, numPasses, topDiscard, suit, sevens, skipped){
         let compIndex = -1;
         let playerPlayed;
+        let win = false;
         for(let i = 0; i < players.length; i++){
             this._playerList[i].name = players[i];
             this._playerList[i].turn = turnOrder[players[i]];
@@ -531,6 +532,9 @@ export default class Game {
             if(player === this._playerList[i].name){
                 playerPlayed = this._playerList[i];
             }
+            if(hands[players[i]].length === 0){
+                win = true;
+            }
         }
         this._rules.skippedPlayer = skipped;
         this._playDeck = new Deck(deck);
@@ -540,7 +544,7 @@ export default class Game {
         this._passes = numPasses;
         this.passCount();
         if(! (playerPlayed instanceof Computer) ){
-            if(penalties !== undefined){
+            if(penalties !== undefined && win === false){
                 penalties.forEach(penalty => {
                     this.checkAlertsReady(penalty, player);
                 });
