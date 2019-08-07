@@ -375,3 +375,43 @@ td {
     display: inline-block;
     margin-top: 0;
 }
+
+.wrapper {
+    position: relative;
+    min-height: 100vh;
+}
+
+[class|="confetti"] {
+    position: absolute;
+    z-index: 30000;
+}
+
+@keyframes fall {
+     from {
+         top: 0px;
+     }
+     to {
+         top: 100%;
+     }
+ }
+
+@-webkit-keyframes fall {
+    from {
+        top: 0px;
+    }
+    to {
+        top: 100%;
+    }
+}
+
+.red {
+    background-color: #E94A3F;
+}
+
+.yellow {
+    background-color: #FAA040;
+}
+
+.blue {
+    background-color: #5FC9F5;
+}
