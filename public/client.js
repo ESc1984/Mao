@@ -142,23 +142,26 @@ import Game from "./game.js";
                 let warn = document.getElementById('startWarn');
                 warn.style.visibility = 'visible';
                 let diff = document.getElementById('showDiff');
-                startGame.addEventListener('click', function() {
-                    let players = diffNames(users);
-                    let playingHands = getHands();
-                    thisGame = ourGame.game;
-                    let topDiscard = thisGame.discardPile.topDiscard();
-                    socket.send(JSON.stringify({
-                        action: 'startGame',
-                        names: players,
-                        playerId: users,
-                        againstComputer: againstComp,
-                        playingHands: playingHands,
-                        playDeck: thisGame.playDeck,
-                        topDiscard: topDiscard,
-                        rules: thisGame.rules,
-                        random: thisGame.rules.random
-                    }));
-                });
+                if(startGame.dataset.listener !== 'true'){
+                    startGame.dataset.listener = 'true';
+                    startGame.addEventListener('click', function() {
+                        let players = diffNames(users);
+                        let playingHands = getHands();
+                        thisGame = ourGame.game;
+                        let topDiscard = thisGame.discardPile.topDiscard();
+                        socket.send(JSON.stringify({
+                            action: 'startGame',
+                            names: players,
+                            playerId: users,
+                            againstComputer: againstComp,
+                            playingHands: playingHands,
+                            playDeck: thisGame.playDeck,
+                            topDiscard: topDiscard,
+                            rules: thisGame.rules,
+                            random: thisGame.rules.random
+                        }));
+                    });
+                }
             }
         } else if(data.rules){
             if (window.document.getElementById('startGame') !== null){
