@@ -46,9 +46,12 @@ import Game from "./game.js";
                 }));
             }
         } else if(data.full) {
-            let fullMessage = document.createElement('pre');
-            fullMessage.innerHTML = 'Game is Full';
-            document.getElementById('overlay').appendChild(fullMessage);
+            if (document.getElementById('fullMessage') === null) {
+                let fullMessage = document.createElement('pre');
+                fullMessage.setAttribute('id', 'fullMessage');
+                fullMessage.innerHTML = 'Game is Full';
+                document.getElementById('overlay').appendChild(fullMessage);
+            }
         } else if(data.mode){
             removeElement(document.getElementById('startPage'));
             if(data.mode === 'standard'){
@@ -67,13 +70,16 @@ import Game from "./game.js";
                     users.push({name: user['name'], id: user['id']});
                 });
                 checkLength();
-                let HTML = "<table borderColor='gold'>";
+                let HTML = "<table>";
                 let counter = 1;
-                HTML += "<tr><th>Player</th><th>Name</th></tr>";
                 users.forEach(user => {
+                    let namelabels = "<tr><th>Player</th><th>Name</th></tr>";
+                    if (HTML.indexOf(namelabels) < 0){
+                        HTML += namelabels;
+                    }
                     HTML += "<tr>" +
-                        "  <td width='100'> " + counter + "</td>" +
-                        "  <td width='200'> " + user.name + "</td>" +
+                        "  <td width='100' color='gold' borderColor='gold'> " + counter + "</td>" +
+                        "  <td width='200' color='gold' borderColor='gold'> " + user.name + "</td>" +
                         "</tr>";
                     counter++;
                 });
@@ -116,15 +122,20 @@ import Game from "./game.js";
                 let message = 'DIFFICULTY: ' + data.difficultyName.toUpperCase();
                 document.getElementById('seeDiff').innerHTML = message;
             }
-            users.push({name: data.namePlayer, id: data.userId});
+            if (users.length < 6) {
+                users.push({name: data.namePlayer, id: data.userId});
+            }
             checkLength();
             let HTML = "<table>";
             let counter = 1;
-            HTML += "<tr><th>Player</th><th>Name</th></tr>";
             users.forEach(user => {
+                let namelabels = "<tr><th>Player</th><th>Name</th></tr>";
+                if (HTML.indexOf(namelabels) < 0){
+                    HTML += namelabels;
+                }
                 HTML += "<tr>" +
-                    "  <td width='100'>" + counter + "</td>" +
-                    "  <td width='200'>" + user.name + "</td>" +
+                    "  <td width='100' color='gold' borderColor='gold'>" + counter + "</td>" +
+                    "  <td width='200' color='gold' borderColor='gold'>" + user.name + "</td>" +
                     "</tr>";
                 counter++;
             });
@@ -166,6 +177,9 @@ import Game from "./game.js";
         } else if(data.rules){
             if (window.document.getElementById('startGame') !== null){
                 removeElement(window.document.getElementById('startGame'));
+            }
+            if (window.document.getElementById('fullMessage') !== null){
+                removeElement(window.document.getElementById('fullMessage'));
             }
             createTopBar(data.topDiscard);
             thisGame = new Game(data.names, data.rules, data.hands, data.deck, data.topDiscard, data.againstComp, data.random);
@@ -411,10 +425,10 @@ import Game from "./game.js";
             let nameSubmit = document.getElementById('choseName');
             if(nameSubmit){
                 removeElement(nameSubmit);
-                socket.send(JSON.stringify({
-                    action: "gameFull"
-                }));
             }
+            socket.send(JSON.stringify({
+                action: "gameFull"
+            }));
         }
     }
 

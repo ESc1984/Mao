@@ -1206,6 +1206,9 @@ export class Rules{
     winMessage(name){
         document.getElementById('gameBoard').innerHTML = "";
         if (document.getElementById('alert') !== null) {
+            if (document.getElementById('alert').classList.contains('hide')){
+                document.getElementById('alert').classList.toggle('hide');
+            }
             document.getElementById('alert').style.marginLeft = '0';
             document.getElementById('alert').style.fontSize = '100px';
             document.getElementById('alert').style.top = '10%';
@@ -1292,17 +1295,18 @@ export function modeDecided() {
     startGamePrompt.appendChild(nameHolder);
     startGamePrompt.appendChild(newLine);
     startGamePrompt.appendChild(newLine);
+
     let nameDone = document.createElement('button');
     nameDone.class = 'close';
     nameDone.id = 'choseName';
+    nameDone.style.display = 'inline-block';
     nameDone.innerHTML = 'OK';
+    startGamePrompt.appendChild(nameDone);
 
     let activePlayers = document.createElement("table");
     activePlayers.id = 'activePlayers';
-    activePlayers.style.borderColor = '#b0210b';
     startGamePrompt.appendChild(activePlayers);
 
-    startGamePrompt.appendChild(nameDone);
     let startButton = document.createElement('button');
     startButton.style.visibility = 'hidden';
     startButton.class ='close';
@@ -1312,7 +1316,7 @@ export function modeDecided() {
 
     let startWarn = document.createElement('p');
     startWarn.setAttribute('id', 'startWarn');
-    startWarn.innerHTML = 'ONCE THE FINAL PLAYER IS SIGNED ON,<BR>LET THEM PRESS [START GAME] TO BEGIN';
+    startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS ARE SIGNED ON';
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
 
