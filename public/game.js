@@ -315,10 +315,12 @@ class Computer extends Player {
     }
 
     checkPlay(){
-        if(this._turn || this._shouldPlayAgain){
-            this._shouldPlayAgain = false;
-            this._card = this.selectCard();
-            this.playTurn();
+        if(document.getElementById('played')){
+            if(this._turn || this._shouldPlayAgain){
+                this._shouldPlayAgain = false;
+                this._card = this.selectCard();
+                this.playTurn();
+            }
         }
     }
 
@@ -1204,7 +1206,6 @@ export class Rules{
     }
 
     winMessage(name){
-        document.getElementById('gameBoard').innerHTML = "";
         if (document.getElementById('alert') !== null) {
             document.getElementById('alert').style.marginLeft = '0';
             document.getElementById('alert').style.fontSize = '100px';
@@ -1212,6 +1213,7 @@ export class Rules{
             document.getElementById('alert').innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
             document.getElementById('redoButton').style.display = 'block';
         }
+        makeConfetti();
     }
 
     loseMessage(name, winner){
@@ -1222,6 +1224,65 @@ export class Rules{
         document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO.<BR>THE WINNER IS " + winner.toUpperCase() +".";
         document.getElementById('redoButton').style.display = 'block';
     }
+}
+
+function makeConfetti(){
+    let gameBoard = document.getElementById('gameBoard');
+    gameBoard.innerHTML = "";
+    for (let i = 0; i < 250; i++) {
+        create(i, gameBoard);
+    }
+}
+
+function create(i, el) {
+    let colorIdx = Math.ceil(Math.random() * 3);
+    let color = "red";
+    switch(colorIdx) {
+        case 1:
+            color = "yellow";
+            break;
+        case 2:
+            color = "blue";
+            break;
+        default:
+            color = "red";
+    }
+    let name = 'confetti-' + i + ' ' + color;
+    let HTML = document.createElement('div');
+    HTML.className = name;
+    let width = Math.random() * 8;
+    let height = width * 0.4;
+    let css = {
+        "width" : width+"px",
+        "height" : height+"px",
+        "top" : -Math.random()*20+"%",
+        "left" : Math.random()*100+"%",
+        "opacity" : Math.random()+0.5,
+        "transform" : "rotate("+Math.random()*360+"deg)"
+    };
+    Object.assign(HTML.style, css);
+    el.appendChild(HTML);
+    startAnim(i, HTML);
+}
+
+function startAnim(x, confetti){
+    confetti.style.animationDelay = Math.random() * 7 + "s";
+    confetti.style.animation =  Math.random() * 7 + "s infinite fall";
+    confetti.addEventListener('animationend', function(){
+        let width = Math.random() * 8;
+        let height = width * 0.4;
+        let css = {
+            "width" : width+"px",
+            "height" : height+"px",
+            "top" : -Math.random()*20+"%",
+            "left" : Math.random()*100+"%",
+            "opacity" : Math.random()+0.5,
+            "transform" : "rotate("+Math.random()*360+"deg)"
+        };
+        Object.assign(confetti.style, css);
+        confetti.style.animationDelay = Math.random() * 7 + "s";
+        confetti.style.animation = "fall " + Math.random() * 7 + "s";
+    });
 }
 
 
