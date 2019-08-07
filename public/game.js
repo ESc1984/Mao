@@ -1315,7 +1315,7 @@ export function modeDecided() {
 
     let startWarn = document.createElement('p');
     startWarn.setAttribute('id', 'startWarn');
-    startWarn.innerHTML = 'PRESS [START GAME] ONCE ALL PLAYERS HAVE SIGNED ON';
+    startWarn.innerHTML = 'ONCE THE FINAL PLAYER IS SIGNED ON,<BR>LET THEM PRESS [START GAME] TO BEGIN';
     startWarn.style.visibility = 'hidden';
     startGamePrompt.appendChild(startWarn);
 
