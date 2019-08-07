@@ -1246,7 +1246,7 @@ function create(i, el) {
             color = "yellow";
             break;
         case 2:
-            color = "blue";
+            color = "orange";
             break;
         default:
             color = "red";
