@@ -450,27 +450,15 @@ class Computer extends Player {
                 that._game.rules.loseMessage(that._otherPlayer, 'Mycroft')}, 2000);
         } else {
             if(this._alerts[0] !== undefined){
-                if(this._alerts[0] === 'passed turn'){
-                    this.checkAlertsReady(this._alerts[0]);
-                } else {
                     this._alerts.forEach(alert => {
-                       this._game.showAlert(alert, 'Mycroft');
+                       this._game.checkAlertsReady(alert, 'Mycroft');
                     });
                     this.checkAlerts(this._alerts);
-                }
             }
         }
         this._chosenRules = [];
         niceDayCount = 0;
         setTimeout(this.checkPlay.bind(this), 4000);
-    }
-
-    checkAlertsReady(pass){
-        if(document.getElementById("alert").innerHTML === ''){
-            this._game.showAlert(pass, 'Mycroft');
-        } else {
-            setTimeout(this.checkAlertsReady.bind(this), 200, pass);
-        }
     }
 
     updateCardView() {
@@ -552,7 +540,7 @@ export default class Game {
         if(! (playerPlayed instanceof Computer) ){
             if(penalties !== undefined){
                 penalties.forEach(penalty => {
-                    this.showAlert(penalty, player);
+                    this.checkAlertsReady(penalty, player);
                 });
             }
         }
@@ -667,6 +655,15 @@ export default class Game {
             document.getElementById("alert").innerHTML = '';
             document.getElementById('alert').classList.toggle('hide');
         }, 1600);
+    }
+
+    checkAlertsReady(message, name){
+        if(document.getElementById("alert").innerHTML.includes(name)
+            || document.getElementById("alert").innerHTML === ''){
+            this.showAlert(message, name);
+        } else {
+            setTimeout(this.checkAlertsReady.bind(this), 200, message, name);
+        }
     }
 
     disableTurn(playerIndex){
