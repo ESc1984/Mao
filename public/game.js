@@ -220,7 +220,7 @@ class Player {
                 this._game.rules.gameRules[0].function(this, selected, card);
             } else if(selected === 'Pair' && this._game.rules.pairRules.played === false &&
                     this._game.rules.rulesInPlay.includes('pair') && card.value === this._game.discardPile.expectedValue) {
-                this._game.rules['pairPlayed'](this, selected, card);
+                this._game.rules['pairPlayed'](this, selected);
             } else if(selected === 'Run' && this._game.rules.runRules.played === false &&
                 this._game.rules.rulesInPlay.includes('run') && (this._game.discardPile.findValue(card.value) === (this._game.discardPile.findValue(this._game.discardPile.expectedValue)+1))){
                 this._game.rules.gameRules[1].function(this, selected, card);
@@ -917,12 +917,12 @@ export class Rules{
         this.allRules.forEach(rule => {
             let name = "_" + rule.name + 'Rules';
             if(rules._rulesInPlay.includes(rule.name)){
-                this.addCardRule(rules[name].card, rule.name, rule.function, rules.random);
+                this.addCardRule(rules[name].card, rule.name, rule.function);
             }
         })
     }
 
-    addCardRule(card, ruleName, action, random){
+    addCardRule(card, ruleName, action){
         this.rulesInPlay.push(ruleName);
         this[ruleName + 'Rules'].function = action;
         this[ruleName + 'Rules'].card = card;
@@ -1141,15 +1141,6 @@ export class Rules{
         }
     }
 
-    chairwomanPlayed(player, state){
-        if (state !== 'All Hail the Chairwoman') {
-            player.game.drawCard(player);
-            player.alerts.push('failure to declare all hail the chairwoman');
-        } else {
-            player.game.rules.chairwomanRules.played = true;
-        }
-    }
-
     playAgainPlayed(player, state){
         if(state !== ""){
             player.game.drawCard(player);
@@ -1180,7 +1171,7 @@ export class Rules{
         }
     }
 
-    pairPlayed(player, state, card){
+    pairPlayed(player, state){
         if(state === 'Pair'){
             player.game.rules.pairRules.played = true;
         } else {
@@ -1320,10 +1311,6 @@ function overlay() {
     if(el.style.visibility === 'hidden'){
         removeElement(el);
     }
-}
-
-function chaosBringer(){
-    isChaos = true;
 }
 
 export function randomGame(){
@@ -1511,7 +1498,7 @@ function createDiscardFunctionality(grid, topDiscard){
     discard.setAttribute('class', 'grid');
     discard.classList.add('discard');
     grid.appendChild(discard);
-    const disPile = addCardsToPlayer(topDiscard, discard);
+    addCardsToPlayer(topDiscard, discard);
     const ruleButtonGrid = document.createElement('section');
     ruleButtonGrid.setAttribute('id', 'ruleButtonGrid');
     ruleButtonGrid.setAttribute('class', 'grid');
@@ -1640,9 +1627,4 @@ function selectCard() {
     if (oldCard !== "" && oldCard !== null) {
         document.getElementById(oldCard).classList.toggle('selectedCard');
     }
-}
-
-
-function removeVisibility(object) {
-    object.style.visibility = "hidden";
 }
