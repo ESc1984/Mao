@@ -164,13 +164,37 @@ input:focus {
     outline-color: goldenrod;
 }
 
+#container {
+    display: none;
+    position:fixed;
+    top: 66%;
+    z-index: 30;
+    pointer-events: auto;
+    width: 100%;
+    text-align: center;
+}
+
 #redoButton {
     display: none;
     padding: 20px;
     font-size: 40px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 600px;
+    display: inline-block;
+    margin: auto;
+    /*position: absolute;*/
+    /*position:fixed;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*top: 70%;*/
+    /*margin-top: 0px;*/
+    z-index: 30;
+    pointer-events: auto;
+    /*-webkit-transform: translateX(50%);*/
+    /*-moz-transform: translateX(50%);*/
+    /*-ms-transform: translateX(50%);*/
+    /*-o-transform: translateX(50%);*/
+    /*transform: translateX(50%);*/
 }
 
 #playCard {
@@ -246,7 +270,7 @@ h3 {
     top: 40%;
     width: 100%;
     position: fixed;
-    z-index: 1000;
+    z-index: 10;
     opacity: 1;
     background-color: palegoldenrod;
     font-family: Oriya MN;
@@ -328,7 +352,7 @@ h3 {
     width: 100%;
     height: 100px;
     position: fixed;
-    z-index: 1000;
+    z-index: 10;
     background-color: palegoldenrod;
     font-family: Oriya MN;
     font-size: 40px;
@@ -383,7 +407,8 @@ td {
 
 [class|="confetti"] {
     position: absolute;
-    z-index: 30000;
+    z-index: 20;
+    pointer-events: none;
 }
 
 @keyframes fall {

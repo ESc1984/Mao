@@ -1218,6 +1218,7 @@ export class Rules{
             document.getElementById('alert').style.fontSize = '100px';
             document.getElementById('alert').style.top = '10%';
             document.getElementById('alert').innerHTML = '- CONGRATULATIONS, ' + name.toUpperCase() + ' -<br> YOU HAVE WON THIS ROUND OF MAO';
+            document.getElementById('container').style.display = 'block';
             document.getElementById('redoButton').style.display = 'block';
         }
         makeConfetti();
@@ -1229,6 +1230,7 @@ export class Rules{
         document.getElementById('alert').style.fontSize = '100px';
         document.getElementById('alert').style.top = '10%';
         document.getElementById("alert").innerHTML = '- SORRY, ' + name.toUpperCase() + " -<br> YOU HAVE LOST THIS ROUND OF MAO.<BR>THE WINNER IS " + winner.toUpperCase() +".";
+        document.getElementById('container').style.display = 'block';
         document.getElementById('redoButton').style.display = 'block';
     }
 }
