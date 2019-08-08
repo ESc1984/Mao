@@ -1229,7 +1229,7 @@ export class Rules{
 function makeConfetti(){
     let gameBoard = document.getElementById('gameBoard');
     gameBoard.innerHTML = "";
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < 400; i++) {
         create(i, gameBoard);
     }
 }
